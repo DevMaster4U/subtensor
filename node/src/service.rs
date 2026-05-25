@@ -27,6 +27,7 @@ use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::{cell::RefCell, path::Path};
 use std::{sync::Arc, time::Duration};
+use subtensor_bot::rpc::BotApiServer;
 use stp_shield::ShieldKeystorePtr;
 use substrate_prometheus_endpoint::Registry;
 
@@ -342,6 +343,12 @@ where
         Some(WarpSyncConfig::WithProvider(warp_sync))
     };
 
+    let (announce_hub, _) = subtensor_bot::announce::BlockAnnounceHub::new();
+    let announce_hub_for_network = announce_hub.clone();
+    let announce_rx = announce_hub.subscribe();
+    let bot_control = Arc::new(subtensor_bot::control::BotControl::new());
+    let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
+
     let (network, system_rpc_tx, tx_handler_controller, sync_service) =
         sc_service::build_network(sc_service::BuildNetworkParams {
             config: &config,
@@ -350,7 +357,12 @@ where
             transaction_pool: transaction_pool.clone(),
             spawn_handle: task_manager.spawn_handle(),
             import_queue,
-            block_announce_validator_builder: None,
+            block_announce_validator_builder: Some(Box::new(move |client| {
+                Box::new(crate::bot_block_announce::NotifyingBlockAnnounceValidator::new(
+                    client,
+                    announce_hub_for_network,
+                ))
+            })),
             warp_sync_config,
             block_relay: None,
             metrics,
@@ -467,6 +479,8 @@ where
             keystore_container.keystore(),
             select_chain.clone(),
         )?;
+        let bot_control = bot_control.clone();
+        let peer_tracker = peer_tracker.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -502,14 +516,21 @@ where
                 },
                 eth: eth_deps,
             };
-            crate::rpc::create_full(
+            let mut module = crate::rpc::create_full(
                 deps,
                 subscription_task_executor,
                 pubsub_notification_sinks.clone(),
                 CM::frontier_consensus_data_provider(client.clone())?,
                 rpc_methods.as_slice(),
             )
-            .map_err(Into::into)
+            .map_err(|e: Box<dyn std::error::Error + Send + Sync>| sc_service::Error::from(e))?;
+            module
+                .merge(
+                    subtensor_bot::rpc::BotRpc::new(bot_control.clone(), peer_tracker.clone())
+                        .into_rpc(),
+                )
+                .map_err(|e| sc_service::Error::Other(format!("failed to merge bot RPC: {e}")))?;
+            Ok(module)
         })
     };
 
@@ -541,6 +562,25 @@ where
         pubsub_notification_sinks,
     )
     .await;
+
+    // -- Bot ------------------------------------------------------------------
+    subtensor_bot::processor::start_bot(
+        &task_manager,
+        client.clone(),
+        transaction_pool.clone(),
+        sync_service.clone(),
+        announce_rx,
+        bot_control.clone(),
+        peer_tracker,
+    );
+    subtensor_bot::pool_inject::start_pool_injector(
+        &task_manager,
+        client.clone(),
+        transaction_pool.clone(),
+        bot_control,
+    );
+    // subtensor_bot::mempool::start_mempool_watcher(&task_manager, transaction_pool.clone());
+    // -------------------------------------------------------------------------
 
     if role.is_authority() {
         let shield_keystore = Arc::new(MemoryShieldKeystore::new());

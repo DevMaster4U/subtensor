@@ -7,7 +7,7 @@ homepage = "https://substrate.io/"
 edition = "2024"
 license = "Unlicense"
 publish = false
-repository = "https://github.com/opentensor/subtensor"
+repository = "https://github.com/DevMaster4U/subtensor"
 
 [build-dependencies]
 subtensor-linting = { path = "support/linting", version = "0.1.0" }
@@ -25,6 +25,7 @@ rayon = "1.10"
 
 [workspace]
 members = [
+	"bot",
 	"common",
 	"node",
 	"pallets/*",
@@ -55,6 +56,7 @@ useless_conversion = "allow"     # until polkadot is patched
 
 [workspace.dependencies]
 node-subtensor-runtime = { path = "runtime", default-features = false }
+subtensor-bot = { path = "bot" }
 pallet-admin-utils = { path = "pallets/admin-utils", default-features = false }
 pallet-commitments = { path = "pallets/commitments", default-features = false }
 pallet-registry = { path = "pallets/registry", default-features = false }

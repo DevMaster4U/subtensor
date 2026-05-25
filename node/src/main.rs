@@ -1,6 +1,9 @@
 //! Substrate Node Subtensor CLI library.
 #![warn(missing_docs)]
 
+mod bot_block_announce {
+    pub use node_subtensor::bot_block_announce::*;
+}
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod chain_spec;

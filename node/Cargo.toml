@@ -7,7 +7,7 @@ homepage = "https://substrate.io/"
 edition.workspace = true
 license = "Unlicense"
 publish = false
-repository = "https://github.com/opentensor/subtensor"
+repository = "https://github.com/DevMaster4U/subtensor"
 build = "build.rs"
 
 [lints]
@@ -125,6 +125,7 @@ stc-shield.workspace = true
 
 # Local Dependencies
 node-subtensor-runtime = { workspace = true, features = ["std"] }
+subtensor-bot = { workspace = true }
 subtensor-runtime-common = { workspace = true, features = ["std"] }
 subtensor-custom-rpc = { workspace = true, features = ["std"] }
 subtensor-custom-rpc-runtime-api = { workspace = true, features = ["std"] }

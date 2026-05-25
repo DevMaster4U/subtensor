@@ -6822,6 +6822,7 @@ dependencies = [
  "once_cell",
  "serdect",
  "sha2 0.10.9",
+ "signature",
 ]
 
 [[package]]
@@ -8363,6 +8364,7 @@ dependencies = [
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
  "substrate-prometheus-endpoint",
+ "subtensor-bot",
  "subtensor-custom-rpc",
  "subtensor-custom-rpc-runtime-api",
  "subtensor-macros",
@@ -18146,6 +18148,34 @@ dependencies = [
  "subtensor-linting",
  "syn 2.0.106",
  "walkdir",
+]
+
+[[package]]
+name = "subtensor-bot"
+version = "0.1.0"
+dependencies = [
+ "dotenvy",
+ "ethereum",
+ "ethereum-types",
+ "fp-rpc",
+ "futures",
+ "hex",
+ "jsonrpsee",
+ "k256",
+ "log",
+ "node-subtensor-runtime",
+ "pallet-ethereum",
+ "parity-scale-codec",
+ "sc-client-api",
+ "sc-network-sync",
+ "sc-service",
+ "sc-transaction-pool-api",
+ "serde",
+ "sp-api",
+ "sp-blockchain",
+ "sp-core",
+ "sp-runtime",
+ "tokio",
 ]
 
 [[package]]
