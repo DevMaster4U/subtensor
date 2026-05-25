@@ -6,13 +6,14 @@
 //! instead of waiting for a block announce like [`crate::processor`].
 
 use crate::control::{BotControl, InjectMode};
-use crate::transact::{PrebuiltTx, TxConfig, fetch_nonce, prebuild, send};
+use crate::transact::{PrebuiltTx, TxConfig, TxPropagator, fetch_nonce, prebuild, send};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, StreamExt, future::BoxFuture};
 use node_subtensor_runtime::opaque::Block;
 use sc_client_api::BlockchainEvents;
 use sc_transaction_pool_api::{TransactionPool, error::IntoPoolError};
 use sp_core::U256;
+use sp_runtime::traits::Block as BlockT;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -36,7 +37,7 @@ pub fn start_pool_injector<C, P>(
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     task_manager.spawn_handle().spawn(
         "bot-pool-injector",
@@ -91,7 +92,7 @@ async fn inject<P>(
     propagator: &TxPropagator,
 ) -> bool
 where
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     let at_hash = client.info().best_hash;
     log::info!(
@@ -159,7 +160,7 @@ where
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     async move {
         let cfg = TxConfig::from_env();

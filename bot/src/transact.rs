@@ -235,7 +235,7 @@ pub fn send<P>(
     propagator: Option<TxPropagator>,
 ) -> BoxFuture<'static, Result<<P as TransactionPool>::Hash, <P as TransactionPool>::Error>>
 where
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     let tx_hash = pool.hash_of(&tx.extrinsic);
     Box::pin(async move {

@@ -14,7 +14,7 @@ use node_subtensor_runtime::opaque::Block;
 use sc_network_sync::SyncingService;
 use sc_transaction_pool_api::{TransactionPool, error::IntoPoolError};
 use sp_core::U256;
-use sp_runtime::traits::SaturatedConversion;
+use sp_runtime::traits::{Block as BlockT, SaturatedConversion};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::broadcast;
@@ -41,7 +41,7 @@ pub fn start_bot<C, P>(
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     task_manager.spawn_handle().spawn(
         "bot-processor",
@@ -141,7 +141,7 @@ where
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
 {
     async move {
         let cfg = TxConfig::from_env();
