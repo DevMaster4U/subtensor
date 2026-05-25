@@ -7,7 +7,7 @@
 use crate::announce::BlockAnnounceNotification;
 use crate::control::{BotControl, InjectMode};
 use crate::peers::PeerTracker;
-use crate::transact::{PrebuiltTx, TxConfig, fetch_nonce, prebuild, send};
+use crate::transact::{PrebuiltTx, TxConfig, TxPropagator, fetch_nonce, prebuild, send};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, future::BoxFuture};
 use node_subtensor_runtime::opaque::Block;
@@ -33,6 +33,7 @@ pub fn start_bot<C, P>(
     announce_rx: broadcast::Receiver<BlockAnnounceNotification>,
     control: Arc<BotControl>,
     peer_tracker: Arc<PeerTracker>,
+    propagator: TxPropagator,
 ) where
     C: sp_api::ProvideRuntimeApi<Block>
         + sp_blockchain::HeaderBackend<Block>
@@ -45,7 +46,7 @@ pub fn start_bot<C, P>(
     task_manager.spawn_handle().spawn(
         "bot-processor",
         None,
-        run(client, pool, sync, announce_rx, control, peer_tracker),
+        run(client, pool, sync, announce_rx, control, peer_tracker, propagator),
     );
 }
 
@@ -131,6 +132,7 @@ fn run<C, P>(
     mut announce_rx: broadcast::Receiver<BlockAnnounceNotification>,
     control: Arc<BotControl>,
     peer_tracker: Arc<PeerTracker>,
+    propagator: TxPropagator,
 ) -> BoxFuture<'static, ()>
 where
     C: sp_api::ProvideRuntimeApi<Block>
@@ -222,7 +224,13 @@ where
                 at_hash,
             );
 
-            let accepted = match send(pool.clone(), pending.tx.clone(), at_hash).await {
+            let accepted = match send(
+                pool.clone(),
+                pending.tx.clone(),
+                at_hash,
+                Some(propagator.clone()),
+            )
+            .await {
                 Ok(hash) => {
                     log::info!(
                         target: "bot::processor",

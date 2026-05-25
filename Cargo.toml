@@ -202,6 +202,7 @@ sc-transaction-pool = { git = "https://github.com/opentensor/polkadot-sdk.git", 
 sc-transaction-pool-api = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-consensus-manual-seal = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-network-sync = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
+sc-network-transactions = { path = "patches/sc-network-transactions", default-features = false }
 
 sp-api = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sp-authority-discovery = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
@@ -320,4 +321,7 @@ pow-faucet = []
 
 [patch.crates-io]
 w3f-bls = { git = "https://github.com/opentensor/bls", branch = "fix-no-std" }
+
+[patch."https://github.com/opentensor/polkadot-sdk.git"]
+sc-network-transactions = { path = "patches/sc-network-transactions" }
 

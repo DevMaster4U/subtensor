@@ -534,6 +534,9 @@ where
         })
     };
 
+    let tx_propagator =
+        subtensor_bot::TxPropagator::new(tx_handler_controller.clone());
+
     let _rpc_handlers = sc_service::spawn_tasks(sc_service::SpawnTasksParams {
         config,
         client: client.clone(),
@@ -572,12 +575,14 @@ where
         announce_rx,
         bot_control.clone(),
         peer_tracker,
+        tx_propagator.clone(),
     );
     subtensor_bot::pool_inject::start_pool_injector(
         &task_manager,
         client.clone(),
         transaction_pool.clone(),
         bot_control,
+        tx_propagator,
     );
     // subtensor_bot::mempool::start_mempool_watcher(&task_manager, transaction_pool.clone());
     // -------------------------------------------------------------------------

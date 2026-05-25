@@ -8,3 +8,4 @@ pub mod rpc;
 pub mod transact;
 
 pub use control::InjectMode;
+pub use transact::TxPropagator;

@@ -174,6 +174,25 @@ def patch_service_rs(content: str) -> tuple[str, bool]:
             "  FAIL service.rs: create_full block not recognized (manual merge needed)"
         )
 
+    propagator_block = """\
+    let tx_propagator =
+        subtensor_bot::TxPropagator::new(tx_handler_controller.clone());
+
+"""
+    spawn_anchor = "    let _rpc_handlers = sc_service::spawn_tasks(sc_service::SpawnTasksParams {\n"
+    if "TxPropagator::new" not in content:
+        if spawn_anchor not in content:
+            raise SystemExit(
+                "  FAIL service.rs: spawn_tasks anchor not found (manual merge needed)"
+            )
+        content = content.replace(
+            spawn_anchor,
+            propagator_block + spawn_anchor,
+            1,
+        )
+        print("  add  service.rs tx propagator")
+        changed = True
+
     bot_start = """\
     // -- Bot ------------------------------------------------------------------
     subtensor_bot::processor::start_bot(
@@ -184,12 +203,14 @@ def patch_service_rs(content: str) -> tuple[str, bool]:
         announce_rx,
         bot_control.clone(),
         peer_tracker,
+        tx_propagator.clone(),
     );
     subtensor_bot::pool_inject::start_pool_injector(
         &task_manager,
         client.clone(),
         transaction_pool.clone(),
         bot_control,
+        tx_propagator,
     );
     // subtensor_bot::mempool::start_mempool_watcher(&task_manager, transaction_pool.clone());
     // -------------------------------------------------------------------------

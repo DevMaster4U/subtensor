@@ -27,6 +27,7 @@ pub fn start_pool_injector<C, P>(
     client: Arc<C>,
     pool: Arc<P>,
     control: Arc<BotControl>,
+    propagator: TxPropagator,
 ) where
     C: sp_api::ProvideRuntimeApi<Block>
         + sp_blockchain::HeaderBackend<Block>
@@ -40,7 +41,7 @@ pub fn start_pool_injector<C, P>(
     task_manager.spawn_handle().spawn(
         "bot-pool-injector",
         None,
-        run(client, pool, control),
+        run(client, pool, control, propagator),
     );
 }
 
@@ -87,6 +88,7 @@ async fn inject<P>(
     pool: Arc<P>,
     client: &impl sp_blockchain::HeaderBackend<Block>,
     pending: &PendingTx,
+    propagator: &TxPropagator,
 ) -> bool
 where
     P: TransactionPool<Block = Block> + 'static,
@@ -99,7 +101,13 @@ where
         at_hash,
     );
 
-    match send(pool, pending.tx.clone(), at_hash).await {
+    match send(
+        pool,
+        pending.tx.clone(),
+        at_hash,
+        Some(propagator.clone()),
+    )
+    .await {
         Ok(hash) => {
             log::info!(
                 target: "bot::pool_inject",
@@ -141,6 +149,7 @@ fn run<C, P>(
     client: Arc<C>,
     pool: Arc<P>,
     control: Arc<BotControl>,
+    propagator: TxPropagator,
 ) -> BoxFuture<'static, ()>
 where
     C: sp_api::ProvideRuntimeApi<Block>
@@ -237,7 +246,7 @@ where
                 continue;
             }
 
-            if inject(pool.clone(), client.as_ref(), &pending).await {
+            if inject(pool.clone(), client.as_ref(), &pending, &propagator).await {
                 queued_nonce = Some(pending.nonce);
             }
         }

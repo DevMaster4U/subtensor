@@ -2,13 +2,14 @@
 //!
 //! `TxConfig`  — loaded once from environment variables at startup.
 //! `prebuild`  — signs the EIP-1559 tx and converts it to an opaque extrinsic.
-//! `send`      — submits the pre-built extrinsic to the Substrate tx pool.
+//! `send`      — submits the pre-built extrinsic to the pool and triggers immediate P2P gossip.
 
 use fp_rpc::{ConvertTransaction, EthereumRuntimeRPCApi};
 use futures::future::BoxFuture;
 use k256::ecdsa::{RecoveryId, SigningKey};
 use node_subtensor_runtime::{TransactionConverter, opaque::Block};
 use pallet_ethereum::Transaction as EthTx;
+use sc_network_transactions::TransactionsHandlerController;
 use sc_transaction_pool_api::{TransactionPool, TransactionSource};
 use sp_core::{H160, U256, keccak_256};
 use sp_runtime::traits::Block as BlockT;
@@ -194,13 +195,44 @@ where
     Ok(from_et_u256(account.nonce))
 }
 
+// ── P2P propagation ───────────────────────────────────────────────────────────
+
+/// Cloneable handle to Substrate's transaction gossip handler.
+///
+/// Pool submission alone eventually propagates via `on-transaction-imported`, but that task
+/// runs asynchronously. Calling [`Self::propagate`] right after a successful pool submit pushes
+/// the tx onto the `/transactions/1` notification protocol immediately.
+#[derive(Clone)]
+pub struct TxPropagator {
+    controller: TransactionsHandlerController<<Block as BlockT>::Hash>,
+}
+
+impl TxPropagator {
+    pub fn new(controller: TransactionsHandlerController<<Block as BlockT>::Hash>) -> Self {
+        Self { controller }
+    }
+
+    /// Gossip a ready pool transaction to connected full-node peers.
+    ///
+    /// No-op while the node is in major sync (Substrate drops propagation in that state).
+    pub fn propagate(&self, hash: <Block as BlockT>::Hash) {
+        log::info!(
+            target: "bot::transact",
+            "📡 immediate P2P propagate hash={:?}",
+            hash,
+        );
+        self.controller.propagate_transaction(hash);
+    }
+}
+
 // ── send ──────────────────────────────────────────────────────────────────────
 
-/// Submit the pre-signed tx directly to the Substrate tx pool — no HTTP.
+/// Submit the pre-signed tx to the local pool, then gossip it via P2P immediately.
 pub fn send<P>(
     pool: Arc<P>,
     tx: PrebuiltTx,
     best_hash: <Block as BlockT>::Hash,
+    propagator: Option<TxPropagator>,
 ) -> BoxFuture<'static, Result<<P as TransactionPool>::Hash, <P as TransactionPool>::Error>>
 where
     P: TransactionPool<Block = Block> + 'static,
@@ -223,6 +255,9 @@ where
                     "✅ tx submitted to pool, hash={:?}",
                     hash,
                 );
+                if let Some(prop) = propagator {
+                    prop.propagate(*hash);
+                }
             }
             Err(e) => {
                 log::error!(

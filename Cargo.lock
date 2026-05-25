@@ -15313,7 +15313,6 @@ dependencies = [
 [[package]]
 name = "sc-network-transactions"
 version = "0.50.0"
-source = "git+https://github.com/opentensor/polkadot-sdk.git?rev=7cc54bf2d50ae3921d718736dfeb0de9468539c7#7cc54bf2d50ae3921d718736dfeb0de9468539c7"
 dependencies = [
  "array-bytes 6.2.3",
  "futures",
@@ -18168,6 +18167,7 @@ dependencies = [
  "parity-scale-codec",
  "sc-client-api",
  "sc-network-sync",
+ "sc-network-transactions",
  "sc-service",
  "sc-transaction-pool-api",
  "serde",
