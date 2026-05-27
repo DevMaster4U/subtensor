@@ -17,10 +17,10 @@ pub use control::InjectMode;
 pub use mempool::MempoolWatcherControl;
 pub use inject_shared::SharedInjectState;
 pub use peers::{
-    block_announces_protocol_name, FilterLogEntry, FilterPeerDetail, KeepTopPeersResult,
+    block_announces_protocol_name, transactions_protocol_name, FilterLogEntry, FilterPeerDetail, KeepTopPeersResult,
     PeerPruner, SetReservedPeersResult, TxGossipCheck, TxGossipPeerRow,
 };
 pub use sync_inject::SyncInjectHandle;
 pub use transact::TxPropagator;
 pub use tx_gossip::{BotPeerRanker, BotPropagationObserver};
-pub use tx_propagation::{BotPropagationStrategy, TxPropagationControl};
+pub use tx_propagation::TxPropagationControl;

@@ -647,6 +647,11 @@ fn parse_reserved_peers_file(path: &str) -> Result<Vec<sc_network::config::Multi
     Ok(peers)
 }
 
+/// Transaction gossip protocol name for the chain genesis.
+pub fn transactions_protocol_name(genesis_hash: &[u8]) -> sc_network::ProtocolName {
+    format!("/{}/transactions/1", hex::encode(genesis_hash)).into()
+}
+
 /// Block announce protocol name for the chain genesis (matches Substrate sync engine).
 pub fn block_announces_protocol_name(genesis_hash: &[u8]) -> sc_network::ProtocolName {
     format!("/{}/block-announces/1", hex::encode(genesis_hash)).into()

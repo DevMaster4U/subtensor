@@ -11,6 +11,7 @@ use sc_consensus_slots::BackoffAuthoringOnFinalizedHeadLagging;
 use sc_consensus_slots::SlotProportion;
 use sc_keystore::LocalKeystore;
 use sc_network::config::SyncMode;
+use sc_network::NetworkStatusProvider;
 use sc_network_sync::strategy::warp::{WarpSyncConfig, WarpSyncProvider};
 use sc_service::{Configuration, PartialComponents, TaskManager, error::Error as ServiceError};
 use sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, log};
@@ -350,18 +351,6 @@ where
     let auto_filter_control = Arc::new(subtensor_bot::AutoFilterControl::new());
     let mempool_watcher_control = Arc::new(subtensor_bot::MempoolWatcherControl::new());
     let tx_propagation_control = Arc::new(subtensor_bot::TxPropagationControl::new());
-    let bootnode_peer_ids: Vec<sc_network::PeerId> = config
-        .network
-        .boot_nodes
-        .iter()
-        .map(|node| node.peer_id.into())
-        .collect();
-    let bootnode_multiaddrs: Vec<sc_network::Multiaddr> = config
-        .network
-        .boot_nodes
-        .iter()
-        .map(|node| node.concat())
-        .collect();
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
     let shared_inject_state = subtensor_bot::SharedInjectState::new();
@@ -393,18 +382,69 @@ where
             metrics,
         })?;
 
-    let tx_peer_ranker = Arc::new(subtensor_bot::BotPeerRanker::new(peer_tracker.clone()));
+    let tx_peer_ranker = Arc::new(subtensor_bot::BotPeerRanker::new(
+        peer_tracker.clone(),
+        tx_propagation_control.clone(),
+        reserved_nodes.clone(),
+    ));
     let tx_propagation_observer =
         Arc::new(subtensor_bot::BotPropagationObserver::new(peer_tracker.clone()));
-    let tx_propagation_strategy = Arc::new(subtensor_bot::BotPropagationStrategy::new(
-        tx_propagation_control.clone(),
-        bootnode_peer_ids,
-        bootnode_multiaddrs,
-        reserved_nodes,
-    ));
     tx_handler_controller.set_peer_ranker(tx_peer_ranker);
     tx_handler_controller.set_propagation_observer(tx_propagation_observer);
-    tx_handler_controller.set_propagation_strategy(tx_propagation_strategy);
+
+    if !reserved_nodes.is_empty() {
+        tx_propagation_control.enable_first_reserved_node();
+        let tx_protocol =
+            subtensor_bot::transactions_protocol_name(genesis_hash.as_ref());
+        let tx_reserved_addrs: HashSet<sc_network::Multiaddr> = reserved_nodes
+            .iter()
+            .map(|node| node.concat())
+            .collect();
+        if let Err(err) = network.add_peers_to_reserved_set(
+            tx_protocol,
+            tx_reserved_addrs,
+        ) {
+            log::warn!(
+                target: "bot::transact",
+                "failed to register --reserved-nodes on tx protocol: {err}",
+            );
+        } else {
+            log::info!(
+                target: "bot::transact",
+                "registered {} --reserved-nodes peer(s) on tx protocol",
+                reserved_nodes.len(),
+            );
+        }
+
+        let network_watch = network.clone();
+        let watch_peers: Vec<(String, String)> = reserved_nodes
+            .iter()
+            .map(|node| {
+                let peer_id: sc_network::PeerId = node.peer_id.into();
+                (peer_id.to_base58(), node.concat().to_string())
+            })
+            .collect();
+        task_manager.spawn_handle().spawn(
+            "bot-reserved-peer-watch",
+            None,
+            async move {
+                tokio::time::sleep(std::time::Duration::from_secs(15)).await;
+                loop {
+                    let connected = network_watch.connected_peer_addresses().await;
+                    for (peer_id, addr) in &watch_peers {
+                        log::info!(
+                            target: "bot::transact",
+                            "reserved peer monitor: id={} addr={} sync_connected={}",
+                            peer_id,
+                            addr,
+                            connected.contains_key(peer_id),
+                        );
+                    }
+                    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+                }
+            },
+        );
+    }
 
     let tx_propagator =
         subtensor_bot::TxPropagator::new(tx_handler_controller.clone());

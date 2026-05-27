@@ -43,7 +43,8 @@ use sc_network::{
 	},
 	types::ProtocolName,
 	utils::{interval, LruHashSet},
-	Multiaddr, NetworkBackend, NetworkEventStream, NetworkPeers,
+	NetworkBackend, NetworkEventStream, NetworkPeers,
+	Multiaddr,
 };
 use sc_network_common::{role::ObservedRole, ExHashT};
 use sc_network_sync::{SyncEvent, SyncEventStream};
@@ -58,17 +59,19 @@ use std::{
 	pin::Pin,
 	sync::Arc,
 	task::Poll,
+	time::{Duration, Instant},
 };
 
 pub mod config;
 
-pub use config::{PeerRanker, PropagationObserver, PropagationStrategy};
+pub use config::{PeerRanker, PropagationObserver};
 
 /// A set of transactions.
 pub type Transactions<E> = Vec<E>;
 
 /// Logging target for the file.
 const LOG_TARGET: &str = "sync";
+const PRIORITY_DIAL_COOLDOWN: Duration = Duration::from_secs(30);
 
 fn peer_id_from_multiaddr(addr: &Multiaddr) -> Option<PeerId> {
 	PeerId::try_from_multiaddr(addr)
@@ -209,7 +212,8 @@ impl TransactionsHandlerPrototype {
 			from_controller,
 			peer_ranker: None,
 			propagation_observer: None,
-			propagation_strategy: None,
+			priority_dial_last: HashMap::new(),
+			priority_dial_warned: HashSet::new(),
 			metrics: if let Some(r) = metrics_registry {
 				Some(Metrics::register(r)?)
 			} else {
@@ -263,12 +267,6 @@ impl<H: ExHashT> TransactionsHandlerController<H> {
 			.unbounded_send(ToHandler::SetPropagationObserver(observer));
 	}
 
-	/// Install a strategy that can restrict or reorder outbound transaction gossip.
-	pub fn set_propagation_strategy(&self, strategy: Arc<dyn PropagationStrategy>) {
-		let _ = self
-			.to_handler
-			.unbounded_send(ToHandler::SetPropagationStrategy(strategy));
-	}
 }
 
 enum ToHandler<H: ExHashT> {
@@ -276,10 +274,8 @@ enum ToHandler<H: ExHashT> {
 	PropagateTransaction(H),
 	SetPeerRanker(Arc<dyn PeerRanker>),
 	SetPropagationObserver(Arc<dyn PropagationObserver<H>>),
-	SetPropagationStrategy(Arc<dyn PropagationStrategy>),
 }
 
-/// Who should receive a propagation round.
 /// Handler for transactions. Call [`TransactionsHandler::run`] to start the processing.
 pub struct TransactionsHandler<
 	B: BlockT + 'static,
@@ -309,9 +305,12 @@ pub struct TransactionsHandler<
 	from_controller: TracingUnboundedReceiver<ToHandler<H>>,
 	peer_ranker: Option<Arc<dyn PeerRanker>>,
 	propagation_observer: Option<Arc<dyn PropagationObserver<H>>>,
-	propagation_strategy: Option<Arc<dyn PropagationStrategy>>,
 	/// Prometheus metrics.
 	metrics: Option<Metrics>,
+	/// Last dial attempt for priority peers missing from the tx peer set.
+	priority_dial_last: HashMap<PeerId, Instant>,
+	/// Priority peers we already logged as missing from the tx peer set.
+	priority_dial_warned: HashSet<PeerId>,
 	/// Handle that is used to communicate with `sc_network::Notifications`.
 	notification_service: Box<dyn NotificationService>,
 }
@@ -361,15 +360,6 @@ where
 						ToHandler::SetPeerRanker(ranker) => self.peer_ranker = Some(ranker),
 						ToHandler::SetPropagationObserver(observer) =>
 							self.propagation_observer = Some(observer),
-						ToHandler::SetPropagationStrategy(strategy) => {
-							if strategy.bootnode_first() {
-								let candidates: HashSet<PeerId> =
-									strategy.candidate_peers().into_iter().collect();
-								let addrs = strategy.candidate_multiaddrs();
-								self.ensure_priority_peers_for_tx_propagation(&candidates, &addrs);
-							}
-							self.propagation_strategy = Some(strategy);
-						},
 					}
 				},
 				event = self.notification_service.next_event().fuse() => {
@@ -409,6 +399,9 @@ where
 						role,
 					},
 				);
+				info!(target: LOG_TARGET, "tx notification stream opened: {}", peer.to_base58());
+				self.priority_dial_warned.remove(&peer);
+				self.priority_dial_last.remove(&peer);
 				debug_assert!(_was_in.is_none());
 			},
 			NotificationEvent::NotificationStreamClosed { peer } => {
@@ -529,143 +522,40 @@ where
 		transactions: &[(H, Arc<B::Extrinsic>)],
 		log_dest_peers: bool,
 	) -> HashMap<H, Vec<String>> {
-		if let Some(strategy) = &self.propagation_strategy {
-			if strategy.bootnode_first() {
-				let bootnodes = strategy.bootnode_peers();
-				let candidate_peers = strategy.candidate_peers();
-				let candidate_multiaddrs = strategy.candidate_multiaddrs();
-				let candidate_set: HashSet<PeerId> = candidate_peers.iter().copied().collect();
-				info!(
-					target: LOG_TARGET,
-					"bootnode-first propagation, bootnodes={:?} candidates={:?}",
-					bootnodes.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
-					candidate_peers.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
-				);
-				self.ensure_priority_peers_for_tx_propagation(&candidate_set, &candidate_multiaddrs);
-
-				let connected_candidates: Vec<PeerId> = candidate_peers
-					.iter()
-					.filter(|id| self.peers.contains_key(id))
-					.copied()
-					.collect();
-				info!(
-					target: LOG_TARGET,
-					"bootnode-first propagation, connected={}/{}",
-					connected_candidates.len(),
-					candidate_peers.len(),
-				);
-
-				let mut propagated_to = self.do_propagate_transactions_to(
-					transactions,
-					log_dest_peers,
-					Some(connected_candidates),
-					|_| true,
-				);
-				let rest = self.do_propagate_transactions_to(
-					transactions,
-					log_dest_peers,
-					None,
-					|who| !candidate_set.contains(who),
-				);
-				for (hash, peers) in rest {
-					propagated_to.entry(hash).or_default().extend(peers);
-				}
-				return propagated_to
-			}
-		}
-
-		self.do_propagate_transactions_to(transactions, log_dest_peers, None, |_| true)
-	}
-
-	/// Register priority peers on the tx protocol and request dials for any missing connections.
-	fn ensure_priority_peers_for_tx_propagation(
-		&mut self,
-		candidates: &HashSet<PeerId>,
-		candidate_multiaddrs: &[Multiaddr],
-	) {
-		let missing: Vec<PeerId> = candidates
-			.iter()
-			.copied()
-			.filter(|id| !self.peers.contains_key(id))
-			.collect();
-
-		let to_dial: HashSet<Multiaddr> = if missing.is_empty() {
-			HashSet::new()
-		} else {
-			info!(
-				target: LOG_TARGET,
-				"bootnode-first: {} candidate(s) not in tx peer set, requesting dial: {:?}",
-				missing.len(),
-				missing.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
-			);
-
-			candidate_multiaddrs
-				.iter()
-				.filter(|addr| {
-					peer_id_from_multiaddr(addr)
-						.map(|id| missing.contains(&id))
-						.unwrap_or(false)
-				})
-				.cloned()
-				.collect()
-		};
-
-		if to_dial.is_empty() {
-			if !missing.is_empty() {
-				warn!(
-					target: LOG_TARGET,
-					"bootnode-first: no dial multiaddrs for missing candidates (configured={:?})",
-					candidate_multiaddrs
-						.iter()
-						.map(|addr| addr.to_string())
-						.collect::<Vec<_>>(),
-				);
-			}
-			return
-		}
-
-		if let Err(err) = self.network.add_peers_to_reserved_set(
-			self.protocol_name.clone(),
-			to_dial,
-		) {
-			warn!(
-				target: LOG_TARGET,
-				"bootnode-first: failed to add candidates to tx reserved set: {}",
-				err,
-			);
-		}
-	}
-
-	fn do_propagate_transactions_to<F>(
-		&mut self,
-		transactions: &[(H, Arc<B::Extrinsic>)],
-		log_dest_peers: bool,
-		candidate_peers: Option<Vec<PeerId>>,
-		include_peer: F,
-	) -> HashMap<H, Vec<String>>
-	where
-		F: Fn(&PeerId) -> bool,
-	{
 		let mut propagated_to = HashMap::<_, Vec<_>>::new();
 		let mut propagated_transactions = 0;
 
-		let mut peer_ids: Vec<PeerId> = match &candidate_peers {
-			Some(candidates) => candidates
-				.iter()
-				.filter(|who| self.peers.contains_key(who) && include_peer(who))
-				.copied()
-				.collect(),
-			None => self
-				.peers
-				.keys()
-				.copied()
-				.filter(|who| include_peer(who))
-				.collect(),
-		};
-		if candidate_peers.is_none() {
-			if let Some(ranker) = &self.peer_ranker {
-				peer_ids = ranker.rank_peers(&peer_ids);
+		let mut peer_ids: Vec<PeerId> = self.peers.keys().copied().collect();
+		let (priority_multiaddrs, ranked_peer_ids, max_propagation_peers) =
+			if let Some(ranker) = self.peer_ranker.as_ref() {
+				(
+					ranker.priority_multiaddrs(),
+					Some(ranker.rank_peers(&peer_ids)),
+					ranker.max_propagation_peers(),
+				)
+			} else {
+				(Vec::new(), None, 0)
+			};
+		if !priority_multiaddrs.is_empty() {
+			self.ensure_priority_peers_for_propagation(priority_multiaddrs);
+		}
+		if let Some(ranked) = ranked_peer_ids {
+			if log_dest_peers && !ranked.is_empty() {
+				info!(
+					target: LOG_TARGET,
+					"tx propagate order (first 5): {:?}",
+					ranked
+						.iter()
+						.take(5)
+						.map(|id| id.to_base58())
+						.collect::<Vec<_>>(),
+				);
 			}
+			peer_ids = ranked;
+		}
+		if max_propagation_peers > 0 {
+			// Outbound only: truncate send list; inbound `on_transactions` is unchanged.
+			peer_ids.truncate(max_propagation_peers as usize);
 		}
 
 		for who in peer_ids {
@@ -689,14 +579,14 @@ where
 			if !to_send.is_empty() {
 				for hash in hashes {
 					propagated_to.entry(hash.clone()).or_default().push(who.to_base58());
-					if log_dest_peers {
-						info!(
-							target: LOG_TARGET,
-							"hash={:?} peer={}",
-							hash,
-							who.to_base58(),
-						);
-					}
+					// if log_dest_peers {
+					// 	info!(
+					// 		target: LOG_TARGET,
+					// 		"hash={:?} peer={}",
+					// 		hash,
+					// 		who.to_base58(),
+					// 	);
+					// }
 				}
 				for to_send in to_send {
 					let _ = self
@@ -711,6 +601,60 @@ where
 		}
 
 		propagated_to
+	}
+
+	/// Dial missing priority peers and register them on the tx protocol reserved set.
+	fn ensure_priority_peers_for_propagation(&mut self, priority_multiaddrs: Vec<Multiaddr>) {
+		if priority_multiaddrs.is_empty() {
+			return
+		}
+
+		let now = Instant::now();
+		let missing: Vec<(PeerId, Multiaddr)> = priority_multiaddrs
+			.into_iter()
+			.filter_map(|addr| peer_id_from_multiaddr(&addr).map(|id| (id, addr)))
+			.filter(|(id, _)| !self.peers.contains_key(id))
+			.filter(|(id, _)| {
+				self.priority_dial_last
+					.get(id)
+					.map(|last| now.duration_since(*last) >= PRIORITY_DIAL_COOLDOWN)
+					.unwrap_or(true)
+			})
+			.collect();
+
+		if missing.is_empty() {
+			return
+		}
+
+		for (id, _) in &missing {
+			self.priority_dial_last.insert(*id, now);
+		}
+
+		let to_dial: HashSet<Multiaddr> = missing.iter().map(|(_, addr)| addr.clone()).collect();
+		let missing_ids: Vec<String> = missing.iter().map(|(id, _)| id.to_base58()).collect();
+
+		for id in missing.iter().map(|(id, _)| *id) {
+			if self.priority_dial_warned.insert(id) {
+				warn!(
+					target: LOG_TARGET,
+					"priority peer {} not in tx peer set (no /transactions/1 stream yet); will retry dial every {}s",
+					id.to_base58(),
+					PRIORITY_DIAL_COOLDOWN.as_secs(),
+				);
+			}
+		}
+
+		if let Err(err) = self.network.add_peers_to_reserved_set(
+			self.protocol_name.clone(),
+			to_dial,
+		) {
+			warn!(
+				target: LOG_TARGET,
+				"failed to refresh priority peer addresses on tx protocol {:?}: {}",
+				missing_ids,
+				err,
+			);
+		}
 	}
 
 	/// Call when we must propagate ready transactions to peers.

@@ -170,7 +170,7 @@ where
                     self.state.mark_queued(pending.nonce);
                     log::info!(
                         target: "bot::sync_inject",
-                        "✅ fast refresh ok, nonce={} at block #{block_number}",
+                        "✅ fast refresh ok, nonce={} at block #{block_number} (re-propagated)",
                         pending.nonce,
                     );
                 }

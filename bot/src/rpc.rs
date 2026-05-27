@@ -30,7 +30,10 @@ pub struct BotStatus {
     pub inject_mode: String,
     pub auto_filter: AutoFilterStatus,
     pub mempool_watcher: bool,
-    pub tx_propagation_only_bootnode: bool,
+    pub tx_propagation_first_reserved_node: bool,
+    /// Outbound send limit: max ranked peers to gossip to per round. `0` = all ranked peers.
+    /// Does not limit incoming gossip.
+    pub tx_propagation_max_peers: u32,
 }
 
 #[rpc(server)]
@@ -103,13 +106,18 @@ pub trait BotApi {
     #[method(name = "bot_disableMempoolWatcher")]
     fn disable_mempool_watcher(&self) -> RpcResult<bool>;
 
-    /// Propagate txs to bootnodes first, then to remaining full-node peers.
-    #[method(name = "bot_enableTxPropagationOnlyBootnode")]
-    fn enable_tx_propagation_only_bootnode(&self) -> RpcResult<bool>;
+    /// Propagate txs to the first `--reserved-nodes` peer first, then remaining full-node peers.
+    #[method(name = "bot_enableTxPropagationFirstReservedNode")]
+    fn enable_tx_propagation_first_reserved_node(&self) -> RpcResult<bool>;
 
     /// Propagate txs to all full-node peers in one round (default).
-    #[method(name = "bot_disableTxPropagationOnlyBootnode")]
-    fn disable_tx_propagation_only_bootnode(&self) -> RpcResult<bool>;
+    #[method(name = "bot_disableTxPropagationFirstReservedNode")]
+    fn disable_tx_propagation_first_reserved_node(&self) -> RpcResult<bool>;
+
+    /// Outbound-only: send tx gossip to at most `max` ranked peers per round.
+    /// Incoming gossip is unchanged (accept from all connected tx peers). `0` = no send limit.
+    #[method(name = "bot_setTxPropagationMaxPeers")]
+    fn set_tx_propagation_max_peers(&self, max: u32) -> RpcResult<bool>;
 }
 
 pub struct BotRpc {
@@ -205,7 +213,8 @@ impl BotApiServer for BotRpc {
             },
             auto_filter: auto,
             mempool_watcher: self.mempool_watcher.is_running(),
-            tx_propagation_only_bootnode: self.tx_propagation.only_bootnode(),
+            tx_propagation_first_reserved_node: self.tx_propagation.first_reserved_node(),
+            tx_propagation_max_peers: self.tx_propagation.max_propagation_peers(),
         })
     }
 
@@ -271,13 +280,18 @@ impl BotApiServer for BotRpc {
         Ok(true)
     }
 
-    fn enable_tx_propagation_only_bootnode(&self) -> RpcResult<bool> {
-        self.tx_propagation.enable_only_bootnode();
+    fn enable_tx_propagation_first_reserved_node(&self) -> RpcResult<bool> {
+        self.tx_propagation.enable_first_reserved_node();
         Ok(true)
     }
 
-    fn disable_tx_propagation_only_bootnode(&self) -> RpcResult<bool> {
-        self.tx_propagation.disable_only_bootnode();
+    fn disable_tx_propagation_first_reserved_node(&self) -> RpcResult<bool> {
+        self.tx_propagation.disable_first_reserved_node();
+        Ok(true)
+    }
+
+    fn set_tx_propagation_max_peers(&self, max: u32) -> RpcResult<bool> {
+        self.tx_propagation.set_max_propagation_peers(max);
         Ok(true)
     }
 }
