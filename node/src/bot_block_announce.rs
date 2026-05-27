@@ -65,7 +65,8 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
             let block_number = *header.number();
             let at_hash = *header.parent_hash();
             let announcing_peer = announce_peer::current().map(|p| p.to_base58());
-            self.sync_inject.on_announce(block_number, at_hash);
+            self.sync_inject
+                .on_announce(block_number, at_hash, announcing_peer.as_deref());
             self.hub
                 .notify(header, announcing_peer.as_deref());
             log::debug!(

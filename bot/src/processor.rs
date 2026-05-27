@@ -9,6 +9,7 @@ use crate::authority_peers::{AuthorityPeerRegistry, correlate_block_author};
 use crate::control::{BotControl, InjectMode};
 use crate::inject_shared::{SharedInjectState, build_tx_at, resync_pending};
 use crate::peers::PeerTracker;
+use crate::propagation_tracker::PropagationTracker;
 use crate::transact::{TxConfig, TxPropagator, fetch_nonce, send};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, future::BoxFuture};
@@ -32,6 +33,7 @@ pub fn start_bot<C, P>(
     control: Arc<BotControl>,
     state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
+    propagation_tracker: Arc<PropagationTracker>,
     authority_registry: Arc<AuthorityPeerRegistry>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     propagator: TxPropagator,
@@ -61,6 +63,7 @@ pub fn start_bot<C, P>(
             control,
             state,
             peer_tracker,
+            propagation_tracker,
             authority_registry,
             network,
             propagator,
@@ -170,6 +173,7 @@ fn run<C, P>(
     control: Arc<BotControl>,
     state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
+    propagation_tracker: Arc<PropagationTracker>,
     authority_registry: Arc<AuthorityPeerRegistry>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     propagator: TxPropagator,
@@ -221,6 +225,10 @@ where
 
             if last_tracked_at_number != Some(notification.number) {
                 last_tracked_at_number = Some(notification.number);
+                propagation_tracker.record_announce(
+                    notification.number,
+                    notification.announcing_peer.clone(),
+                );
                 record_peer_candidates(
                     client.clone(),
                     sync.clone(),

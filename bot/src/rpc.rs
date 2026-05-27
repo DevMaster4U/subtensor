@@ -10,7 +10,7 @@ use crate::authority_peers::{ApplyAuthorityReservedResult, AuthorityPeerMapping,
 use crate::auto_filter::AutoFilterControl;
 use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
-use crate::mempool::MempoolWatcherControl;
+use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
 use crate::tx_propagation::TxPropagationControl;
 use crate::peers::{
     KeepTopPeersResult, NetworkPeerRow, PeerRecommendation, PeerPruner, PeerStat, PeerTracker,
@@ -162,6 +162,14 @@ pub trait BotApi {
     /// Add learned authority peers (min hits) as network reserved peers.
     #[method(name = "bot_applyAuthorityReserved")]
     fn apply_authority_reserved(&self, min_hits: Option<u64>) -> RpcResult<ApplyAuthorityReservedResult>;
+
+    /// Latest bot-initiated tx propagation record (announce context + peer send order).
+    #[method(name = "bot_ownPropagationLatest")]
+    fn own_propagation_latest(&self) -> RpcResult<Option<OwnPropagationRecord>>;
+
+    /// Recent bot-initiated tx propagation records (newest first).
+    #[method(name = "bot_ownPropagationHistory")]
+    fn own_propagation_history(&self, limit: Option<u32>) -> RpcResult<Vec<OwnPropagationRecord>>;
 }
 
 pub struct BotRpc {
@@ -171,6 +179,7 @@ pub struct BotRpc {
     mempool_watcher: Arc<MempoolWatcherControl>,
     tx_propagation: Arc<TxPropagationControl>,
     peer_tracker: Arc<PeerTracker>,
+    propagation_tracker: Arc<PropagationTracker>,
     peer_pruner: Arc<PeerPruner>,
     authority: Arc<dyn AuthorityRpcBackend>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
@@ -184,6 +193,7 @@ impl BotRpc {
         mempool_watcher: Arc<MempoolWatcherControl>,
         tx_propagation: Arc<TxPropagationControl>,
         peer_tracker: Arc<PeerTracker>,
+        propagation_tracker: Arc<PropagationTracker>,
         peer_pruner: Arc<PeerPruner>,
         authority: Arc<dyn AuthorityRpcBackend>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
@@ -195,6 +205,7 @@ impl BotRpc {
             mempool_watcher,
             tx_propagation,
             peer_tracker,
+            propagation_tracker,
             peer_pruner,
             authority,
             network,
@@ -402,5 +413,24 @@ impl BotApiServer for BotRpc {
         self.authority
             .apply_authority_reserved(min_hits)
             .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn own_propagation_latest(&self) -> RpcResult<Option<OwnPropagationRecord>> {
+        let addrs = self.peer_addrs();
+        Ok(self
+            .propagation_tracker
+            .latest()
+            .map(|r| PropagationTracker::enrich_record(r, &addrs)))
+    }
+
+    fn own_propagation_history(&self, limit: Option<u32>) -> RpcResult<Vec<OwnPropagationRecord>> {
+        let limit = limit.unwrap_or(20).clamp(1, 100) as usize;
+        let addrs = self.peer_addrs();
+        Ok(self
+            .propagation_tracker
+            .history(limit)
+            .into_iter()
+            .map(|r| PropagationTracker::enrich_record(r, &addrs))
+            .collect())
     }
 }

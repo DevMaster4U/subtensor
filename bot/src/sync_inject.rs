@@ -7,6 +7,7 @@ use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
 use std::time::SystemTime;
 use crate::inject_shared::{InjectResult, SharedInjectState, build_tx_at, inject_sync, resync_pending};
+use crate::propagation_tracker::PropagationTracker;
 use crate::transact::{TxConfig, TxPropagator};
 use fp_rpc::EthereumRuntimeRPCApi;
 use node_subtensor_runtime::opaque::Block;
@@ -16,7 +17,12 @@ use sp_runtime::traits::Block as BlockT;
 use std::sync::{Arc, RwLock};
 
 trait SyncInjectInner: Send + Sync {
-    fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash);
+    fn on_announce(
+        &self,
+        block_number: u32,
+        at_hash: <Block as BlockT>::Hash,
+        announcing_peer: Option<&str>,
+    );
 }
 
 /// Handle installed after the network stack is built (needs the tx propagator).
@@ -40,6 +46,7 @@ impl SyncInjectHandle {
         propagator: TxPropagator,
         cfg: TxConfig,
         announce_timing: Arc<AnnounceTimingTracker>,
+        propagation_tracker: Arc<PropagationTracker>,
     ) where
         C: sp_api::ProvideRuntimeApi<Block>
             + HeaderBackend<Block>
@@ -65,14 +72,20 @@ impl SyncInjectHandle {
             propagator,
             cfg,
             announce_timing,
+            propagation_tracker,
         }));
         log::info!(target: "bot::sync_inject", "✅ sync announce injector installed");
     }
 
-    pub fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash) {
+    pub fn on_announce(
+        &self,
+        block_number: u32,
+        at_hash: <Block as BlockT>::Hash,
+        announcing_peer: Option<&str>,
+    ) {
         let guard = self.inner.read().expect("poisoned");
         if let Some(inject) = guard.as_ref() {
-            inject.on_announce(block_number, at_hash);
+            inject.on_announce(block_number, at_hash, announcing_peer);
         }
     }
 }
@@ -85,6 +98,7 @@ struct SyncAnnounceInject<C, P> {
     propagator: TxPropagator,
     cfg: TxConfig,
     announce_timing: Arc<AnnounceTimingTracker>,
+    propagation_tracker: Arc<PropagationTracker>,
 }
 
 impl<C, P> SyncInjectInner for SyncAnnounceInject<C, P>
@@ -98,7 +112,17 @@ where
             Error = <P as TransactionPool>::Error,
         >,
 {
-    fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash) {
+    fn on_announce(
+        &self,
+        block_number: u32,
+        at_hash: <Block as BlockT>::Hash,
+        announcing_peer: Option<&str>,
+    ) {
+        self.propagation_tracker.record_announce(
+            block_number,
+            announcing_peer.map(str::to_string),
+        );
+
         if self.control.is_running() {
             self.announce_timing
                 .record(block_number, SystemTime::now());

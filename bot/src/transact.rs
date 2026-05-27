@@ -206,19 +206,29 @@ where
 #[derive(Clone)]
 pub struct TxPropagator {
     controller: TransactionsHandlerController<<Block as BlockT>::Hash>,
+    propagation_tracker: Option<Arc<PropagationTracker>>,
 }
 
 impl TxPropagator {
-    pub fn new(controller: TransactionsHandlerController<<Block as BlockT>::Hash>) -> Self {
-        Self { controller }
+    pub fn new(
+        controller: TransactionsHandlerController<<Block as BlockT>::Hash>,
+        propagation_tracker: Option<Arc<PropagationTracker>>,
+    ) -> Self {
+        Self {
+            controller,
+            propagation_tracker,
+        }
     }
 
     /// Broadcast a single transaction to connected full-node peers.
     pub fn propagate(&self, hash: <Block as BlockT>::Hash) {
+        let hash_str = format!("{hash:?}");
+        if let Some(tracker) = &self.propagation_tracker {
+            tracker.begin_own_propagation(hash_str.clone());
+        }
         log::info!(
             target: "bot::transact",
-            "📡 P2P propagate hash={:?}",
-            hash,
+            "📡 P2P propagate hash={hash_str}",
         );
         self.controller.propagate_transaction(hash);
     }

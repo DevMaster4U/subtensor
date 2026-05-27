@@ -578,7 +578,6 @@ where
 			propagated_transactions += hashes.len();
 
 			if !to_send.is_empty() {
-				send_order.push(who.to_base58());
 				for hash in hashes {
 					propagated_to.entry(hash.clone()).or_default().push(who.to_base58());
 				}
@@ -590,12 +589,29 @@ where
 			}
 		}
 
-		for (who, payloads) in outbound {
-			for payload in payloads {
-				self.notification_service
-					.send_sync_notification(&who, payload);
+		// Send to all peers in parallel (one thread per peer).
+		use std::sync::Mutex;
+		let timed_order: Mutex<Vec<(String, u64)>> =
+			Mutex::new(Vec::with_capacity(outbound.len()));
+		std::thread::scope(|scope| {
+			for (who, payloads) in outbound {
+				let timed_order = &timed_order;
+				let ns = &self.notification_service;
+				scope.spawn(move || {
+					for payload in &payloads {
+						ns.send_sync_notification(&who, payload.clone());
+					}
+					let elapsed = started.elapsed().as_millis() as u64;
+					timed_order
+						.lock()
+						.expect("poisoned")
+						.push((who.to_base58(), elapsed));
+				});
 			}
-		}
+		});
+		let mut ordered = timed_order.into_inner().expect("poisoned");
+		ordered.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
+		send_order = ordered.into_iter().map(|(id, _)| id).collect();
 
 		if let Some(ref metrics) = self.metrics {
 			metrics.propagated_transactions.inc_by(propagated_transactions as _)

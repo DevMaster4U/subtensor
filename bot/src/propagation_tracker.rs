@@ -35,6 +35,7 @@ pub struct OwnPropagationRecord {
 struct Inner {
     announce: Option<AnnounceContext>,
     pending_tx_hash: Option<String>,
+    pending_started_ms: Option<u64>,
     last: Option<OwnPropagationRecord>,
     history: VecDeque<OwnPropagationRecord>,
 }
@@ -62,6 +63,7 @@ impl PropagationTracker {
     pub fn begin_own_propagation(&self, tx_hash: String) {
         let mut inner = self.inner.write().expect("poisoned");
         inner.pending_tx_hash = Some(tx_hash);
+        inner.pending_started_ms = Some(now_ms());
     }
 
     pub fn complete_own_propagation(
@@ -77,13 +79,16 @@ impl PropagationTracker {
             _ => return,
         };
         let _ = pending;
+        let started_ms = inner.pending_started_ms.take();
 
         let announce = inner.announce.clone();
         let record = OwnPropagationRecord {
             tx_hash: tx_hash.to_string(),
             last_block_number: announce.as_ref().map(|a| a.block_number),
             announced_peer_id: announce.and_then(|a| a.announcing_peer_id),
-            timestamp_ms: now_ms(),
+            timestamp_ms: started_ms
+                .or_else(|| announce.as_ref().map(|a| a.timestamp_ms))
+                .unwrap_or_else(now_ms),
             propagate_time_ms,
             propagate_peers: propagate_peer_ids
                 .iter()

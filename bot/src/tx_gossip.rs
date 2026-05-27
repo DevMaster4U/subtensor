@@ -7,6 +7,7 @@ use crate::{
 };
 use node_subtensor_runtime::opaque::Block;
 use sc_network::{config::MultiaddrWithPeerId, PeerId};
+use sc_network::NetworkStatusProvider;
 use sc_network_transactions::config::{PeerRanker, PropagationObserver, PropagationReport};
 use sp_runtime::traits::Block as BlockT;
 use std::{
@@ -126,17 +127,29 @@ impl PeerRanker for BotPeerRanker {
 pub struct BotPropagationObserver {
     peer_tracker: Arc<PeerTracker>,
     propagation_tracker: Arc<PropagationTracker>,
+    network: Arc<dyn NetworkStatusProvider + Send + Sync>,
 }
 
 impl BotPropagationObserver {
     pub fn new(
         peer_tracker: Arc<PeerTracker>,
         propagation_tracker: Arc<PropagationTracker>,
+        network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     ) -> Self {
         Self {
             peer_tracker,
             propagation_tracker,
+            network,
         }
+    }
+
+    fn peer_addrs(&self) -> HashMap<String, String> {
+        let network = Arc::clone(&self.network);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move {
+                network.connected_peer_addresses().await
+            })
+        })
     }
 }
 
@@ -152,14 +165,14 @@ impl PropagationObserver<<Block as BlockT>::Hash> for BotPropagationObserver {
             self.peer_tracker.record_tx_propagation(unique);
         }
 
-        let empty_addrs = HashMap::new();
+        let addrs = self.peer_addrs();
         for (hash, _) in &report.propagated {
             let hash_str = format!("{hash:?}");
             self.propagation_tracker.complete_own_propagation(
                 &hash_str,
                 report.elapsed_ms,
                 &report.send_order,
-                &empty_addrs,
+                &addrs,
             );
         }
     }

@@ -353,6 +353,7 @@ where
     let tx_propagation_control = Arc::new(subtensor_bot::TxPropagationControl::new());
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
+    let propagation_tracker = subtensor_bot::PropagationTracker::new();
     let shared_inject_state = subtensor_bot::SharedInjectState::new();
     let announce_timing = Arc::new(subtensor_bot::AnnounceTimingTracker::new());
     let authority_registry = subtensor_bot::AuthorityPeerRegistry::new();
@@ -389,8 +390,11 @@ where
         tx_propagation_control.clone(),
         reserved_nodes.clone(),
     ));
-    let tx_propagation_observer =
-        Arc::new(subtensor_bot::BotPropagationObserver::new(peer_tracker.clone()));
+    let tx_propagation_observer = Arc::new(subtensor_bot::BotPropagationObserver::new(
+        peer_tracker.clone(),
+        propagation_tracker.clone(),
+        network.clone(),
+    ));
     tx_handler_controller.set_peer_ranker(tx_peer_ranker);
     tx_handler_controller.set_propagation_observer(tx_propagation_observer);
 
@@ -448,8 +452,10 @@ where
         );
     }
 
-    let tx_propagator =
-        subtensor_bot::TxPropagator::new(tx_handler_controller.clone());
+    let tx_propagator = subtensor_bot::TxPropagator::new(
+        tx_handler_controller.clone(),
+        Some(propagation_tracker.clone()),
+    );
 
     sync_inject_handle.install(
         client.clone(),
@@ -459,6 +465,7 @@ where
         tx_propagator.clone(),
         subtensor_bot::transact::TxConfig::from_env(),
         announce_timing.clone(),
+        propagation_tracker.clone(),
     );
 
     let peer_pruner = Arc::new(subtensor_bot::PeerPruner::new(
@@ -602,6 +609,7 @@ where
         let mempool_watcher_control = mempool_watcher_control.clone();
         let tx_propagation_control = tx_propagation_control.clone();
         let peer_tracker = peer_tracker.clone();
+        let propagation_tracker = propagation_tracker.clone();
         let peer_pruner = peer_pruner.clone();
         let authority_discovery = authority_discovery.clone();
         Box::new(move |subscription_task_executor| {
@@ -656,6 +664,7 @@ where
                         mempool_watcher_control.clone(),
                         tx_propagation_control.clone(),
                         peer_tracker.clone(),
+                        propagation_tracker.clone(),
                         peer_pruner.clone(),
                         authority_discovery.clone(),
                         network.clone(),
@@ -706,6 +715,7 @@ where
         bot_control.clone(),
         shared_inject_state.clone(),
         peer_tracker.clone(),
+        propagation_tracker.clone(),
         authority_registry.clone(),
         network.clone(),
         tx_propagator.clone(),
