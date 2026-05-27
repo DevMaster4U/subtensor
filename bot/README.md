@@ -449,17 +449,78 @@ curl -s -H "Content-Type: application/json" \
   http://127.0.0.1:9944
 ```
 
-### On-chain authorities (Finney / mainnet)
+### On-chain authorities + learned peer mapping (recommended)
 
-Active block authors come from the **Subtensor validator set** (on-chain registration + stake), not from P2P role flags alone. A peer showing `FULL` may still relay blocks from a validator faster than you can reach the validator directly.
+Subtensor **removed** `pallet-authority-discovery` — there is no DHT lookup from Aura key → multiaddr.
+See [`guid.md`](../guid.md) for the full reference.
 
-| Goal | Practical approach |
-|------|-------------------|
-| Fastest path to proposer pool | Pin `first_announce_hits` + `tx_propagation_hits` leaders as reserved peers |
-| Guaranteed first position | Run your own **authority** node in the active validator set |
-| Research validator IPs | On-chain metadata / public validator ops docs; map to P2P addrs via sustained `bot_peerStats` correlation |
+The bot implements the practical workflow:
 
-On **localnet/dev**, use `--validator` with session keys inserted (see below). On **Finney**, `--validator` only produces blocks if your keys are in the active authority set.
+1. **On-chain keys** — query Aura authorities via runtime API  
+2. **Next author** — `slot % authority_count` from header digest  
+3. **Network addresses** — learn by correlating block author with first announce peer over time  
+
+#### RPC workflow
+
+```bash
+# 1. On-chain Aura authorities (sr25519 / AccountId32 hex)
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_auraAuthorities","params":[],"id":1}' \
+  http://127.0.0.1:9944
+
+# 2. Current slot + next 5 predicted authors
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_auraSchedule","params":[5],"id":1}' \
+  http://127.0.0.1:9944
+
+# 3. Learned { account → peer_id → multiaddr } (grows while node runs)
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_authorityPeers","params":[],"id":1}' \
+  http://127.0.0.1:9944
+
+# 4. Connected peers advertising AUTHORITY role
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_connectedAuthorityPeers","params":[],"id":1}' \
+  http://127.0.0.1:9944
+
+# 5. Export / apply as reserved peers (min 3 correlation hits)
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_exportAuthorityReserved","params":["/root/subtensor/authority_reserved.txt",3],"id":1}' \
+  http://127.0.0.1:9944
+
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_applyAuthorityReserved","params":[3],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+Mappings persist to `authority_peers.json` in the repo root and survive restarts.
+
+#### How learning works
+
+On each block announce the bot:
+
+1. Decodes the **Aura author** from the block header digest  
+2. Attributes the **first announce peer** for that block height  
+3. Increments `hits` when the same `{author → peer}` pair repeats  
+
+After ~50–100 blocks you should have multiaddrs for most active validators.
+
+Then enable direct propagation:
+
+```bash
+curl ... bot_enableTxPropagationFirstReservedNode
+curl ... bot_setTxPropagationMaxPeers 0
+curl ... bot_startTxsHybrid
+```
+
+| Goal | Approach |
+|------|----------|
+| Know **who** produces blocks | `bot_auraAuthorities` / `bot_auraSchedule` |
+| Know **where** they are on P2P | `bot_authorityPeers` (learned over time) |
+| Propagate txs directly | `bot_applyAuthorityReserved` + tx propagation settings |
+| Guaranteed first position | Run your own authority in the active validator set |
+
+**Note:** `roles: AUTHORITY` on a connected peer means validator-capable node software, not a guaranteed mapping to a specific Aura key. The correlation learner is what bridges that gap.
 
 ---
 
@@ -518,6 +579,12 @@ On **Finney/mainnet**, becoming a block author requires being in the active Subt
 | `bot_peerRecommendations` | Suggested `--reserved-peers` |
 | `bot_keepTopPeers` | Disconnect peers outside top N |
 | `bot_setReservedPeersFromFile` | Pin reserved peers from file |
+| `bot_auraAuthorities` | On-chain Aura block producer keys |
+| `bot_auraSchedule` | Current slot + predicted next authors |
+| `bot_authorityPeers` | Learned Aura account → peer multiaddrs |
+| `bot_connectedAuthorityPeers` | Connected AUTHORITY-role peers |
+| `bot_exportAuthorityReserved` | Export learned peers to file |
+| `bot_applyAuthorityReserved` | Pin learned authority peers as reserved |
 | `bot_startAutoFilter` | Periodic peer pruning |
 | `bot_stopAutoFilter` | Stop periodic pruning |
 

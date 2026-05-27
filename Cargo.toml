@@ -324,5 +324,6 @@ w3f-bls = { git = "https://github.com/opentensor/bls", branch = "fix-no-std" }
 
 [patch."https://github.com/opentensor/polkadot-sdk.git"]
 sc-network = { path = "patches/sc-network" }
+sc-network-sync = { path = "patches/sc-network/sync" }
 sc-network-transactions = { path = "patches/sc-network-transactions" }
 

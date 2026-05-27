@@ -9,6 +9,7 @@ use futures::future::BoxFuture;
 use k256::ecdsa::{RecoveryId, SigningKey};
 use node_subtensor_runtime::{TransactionConverter, opaque::Block};
 use pallet_ethereum::Transaction as EthTx;
+use crate::propagation_tracker::PropagationTracker;
 use sc_network_transactions::TransactionsHandlerController;
 use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool};
 use sp_core::{H160, U256, keccak_256};

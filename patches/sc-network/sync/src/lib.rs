@@ -23,6 +23,7 @@ pub use service::syncing_service::SyncingService;
 pub use strategy::warp::{WarpSyncConfig, WarpSyncPhase, WarpSyncProgress};
 pub use types::{SyncEvent, SyncEventStream, SyncState, SyncStatus, SyncStatusProvider};
 
+pub mod announce_peer;
 mod block_announce_validator;
 mod futures_stream;
 mod justification_requests;

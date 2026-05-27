@@ -21,6 +21,7 @@ use sp_consensus::block_validation::{
 use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
 use std::pin::Pin;
 use std::sync::Arc;
+use sc_network_sync::announce_peer;
 use subtensor_bot::announce::{self, BlockAnnounceHub};
 use subtensor_bot::SyncInjectHandle;
 
@@ -63,11 +64,13 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
         if announce::is_immediate_next_block(header, best_number) {
             let block_number = *header.number();
             let at_hash = *header.parent_hash();
+            let announcing_peer = announce_peer::current().map(|p| p.to_base58());
             self.sync_inject.on_announce(block_number, at_hash);
-            self.hub.notify(header);
+            self.hub
+                .notify(header, announcing_peer.as_deref());
             log::debug!(
                 target: "bot::announce",
-                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?}",
+                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?} from={announcing_peer:?}",
                 header.hash(),
             );
         }

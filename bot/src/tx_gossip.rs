@@ -2,11 +2,12 @@
 
 use crate::{
     peers::PeerTracker,
+    propagation_tracker::PropagationTracker,
     tx_propagation::TxPropagationControl,
 };
 use node_subtensor_runtime::opaque::Block;
 use sc_network::{config::MultiaddrWithPeerId, PeerId};
-use sc_network_transactions::config::{PeerRanker, PropagationObserver};
+use sc_network_transactions::config::{PeerRanker, PropagationObserver, PropagationReport};
 use sp_runtime::traits::Block as BlockT;
 use std::{
     collections::{HashMap, HashSet},
@@ -121,34 +122,45 @@ impl PeerRanker for BotPeerRanker {
     }
 }
 
-/// Records which peers received each bot-initiated propagation round.
+/// Records bot-initiated propagation rounds and updates peer tx scores.
 pub struct BotPropagationObserver {
     peer_tracker: Arc<PeerTracker>,
+    propagation_tracker: Arc<PropagationTracker>,
 }
 
 impl BotPropagationObserver {
-    pub fn new(peer_tracker: Arc<PeerTracker>) -> Self {
-        Self { peer_tracker }
+    pub fn new(
+        peer_tracker: Arc<PeerTracker>,
+        propagation_tracker: Arc<PropagationTracker>,
+    ) -> Self {
+        Self {
+            peer_tracker,
+            propagation_tracker,
+        }
     }
 }
 
 impl PropagationObserver<<Block as BlockT>::Hash> for BotPropagationObserver {
-    fn on_propagated(&self, propagated: HashMap<<Block as BlockT>::Hash, Vec<String>>) {
+    fn on_propagated(&self, report: PropagationReport<<Block as BlockT>::Hash>) {
         let mut unique = HashSet::new();
-        for (hash, peers) in &propagated {
-            // log::info!(
-            //     target: "bot::transact",
-            //     "📡 P2P propagated hash={:?} dest_peers={:?}",
-            //     hash,
-            //     peers,
-            // );
+        for peers in report.propagated.values() {
             for peer_id in peers {
                 unique.insert(peer_id.clone());
             }
         }
-        if unique.is_empty() {
-            return;
+        if !unique.is_empty() {
+            self.peer_tracker.record_tx_propagation(unique);
         }
-        self.peer_tracker.record_tx_propagation(unique);
+
+        let empty_addrs = HashMap::new();
+        for (hash, _) in &report.propagated {
+            let hash_str = format!("{hash:?}");
+            self.propagation_tracker.complete_own_propagation(
+                &hash_str,
+                report.elapsed_ms,
+                &report.send_order,
+                &empty_addrs,
+            );
+        }
     }
 }

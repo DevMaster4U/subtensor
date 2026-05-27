@@ -64,7 +64,7 @@ use std::{
 
 pub mod config;
 
-pub use config::{PeerRanker, PropagationObserver};
+pub use config::{PeerRanker, PropagationObserver, PropagationReport};
 
 /// A set of transactions.
 pub type Transactions<E> = Vec<E>;
@@ -506,12 +506,12 @@ where
 
 		debug!(target: LOG_TARGET, "Propagating transaction [{:?}]", hash);
 		if let Some(transaction) = self.transaction_pool.transaction(hash) {
-			let propagated_to =
+			let report =
 				self.do_propagate_transactions(&[(hash.clone(), transaction)], true);
 			if let Some(observer) = &self.propagation_observer {
-				observer.on_propagated(propagated_to.clone());
+				observer.on_propagated(report.clone());
 			}
-			self.transaction_pool.on_broadcasted(propagated_to);
+			self.transaction_pool.on_broadcasted(report.propagated);
 		} else {
 			debug!(target: "sync", "Propagating transaction failure [{:?}]", hash);
 		}
@@ -521,9 +521,12 @@ where
 		&mut self,
 		transactions: &[(H, Arc<B::Extrinsic>)],
 		log_dest_peers: bool,
-	) -> HashMap<H, Vec<String>> {
-		let mut propagated_to = HashMap::<_, Vec<_>>::new();
+	) -> PropagationReport<H> {
+		let started = Instant::now();
+		let mut propagated_to = HashMap::<H, Vec<String>>::new();
 		let mut propagated_transactions = 0;
+		let mut send_order = Vec::new();
+		let mut outbound: Vec<(PeerId, Vec<Vec<u8>>)> = Vec::new();
 
 		let mut peer_ids: Vec<PeerId> = self.peers.keys().copied().collect();
 		let (priority_multiaddrs, ranked_peer_ids, max_propagation_peers) =
@@ -554,7 +557,6 @@ where
 			peer_ids = ranked;
 		}
 		if max_propagation_peers > 0 {
-			// Outbound only: truncate send list; inbound `on_transactions` is unchanged.
 			peer_ids.truncate(max_propagation_peers as usize);
 		}
 
@@ -563,7 +565,6 @@ where
 				continue
 			};
 
-			// never send transactions to the light node
 			if matches!(peer.role, ObservedRole::Light) {
 				continue
 			}
@@ -577,22 +578,22 @@ where
 			propagated_transactions += hashes.len();
 
 			if !to_send.is_empty() {
+				send_order.push(who.to_base58());
 				for hash in hashes {
 					propagated_to.entry(hash.clone()).or_default().push(who.to_base58());
-					// if log_dest_peers {
-					// 	info!(
-					// 		target: LOG_TARGET,
-					// 		"hash={:?} peer={}",
-					// 		hash,
-					// 		who.to_base58(),
-					// 	);
-					// }
 				}
-				for to_send in to_send {
-					let _ = self
-						.notification_service
-						.send_sync_notification(&who, vec![to_send].encode());
-				}
+				let payloads = to_send
+					.into_iter()
+					.map(|tx| vec![tx].encode())
+					.collect::<Vec<_>>();
+				outbound.push((who, payloads));
+			}
+		}
+
+		for (who, payloads) in outbound {
+			for payload in payloads {
+				self.notification_service
+					.send_sync_notification(&who, payload);
 			}
 		}
 
@@ -600,7 +601,11 @@ where
 			metrics.propagated_transactions.inc_by(propagated_transactions as _)
 		}
 
-		propagated_to
+		PropagationReport {
+			propagated: propagated_to,
+			send_order,
+			elapsed_ms: started.elapsed().as_millis() as u64,
+		}
 	}
 
 	/// Dial missing priority peers and register them on the tx protocol reserved set.
@@ -672,7 +677,7 @@ where
 
 		debug!(target: LOG_TARGET, "Propagating transactions");
 
-		let propagated_to = self.do_propagate_transactions(&transactions, false);
-		self.transaction_pool.on_broadcasted(propagated_to);
+		let report = self.do_propagate_transactions(&transactions, false);
+		self.transaction_pool.on_broadcasted(report.propagated);
 	}
 }

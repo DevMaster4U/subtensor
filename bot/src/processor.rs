@@ -5,6 +5,7 @@
 //! layer and submits transactions when the runtime control is active.
 
 use crate::announce::BlockAnnounceNotification;
+use crate::authority_peers::{AuthorityPeerRegistry, correlate_block_author};
 use crate::control::{BotControl, InjectMode};
 use crate::inject_shared::{SharedInjectState, build_tx_at, resync_pending};
 use crate::peers::PeerTracker;
@@ -12,8 +13,10 @@ use crate::transact::{TxConfig, TxPropagator, fetch_nonce, send};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, future::BoxFuture};
 use node_subtensor_runtime::opaque::Block;
+use sc_network::NetworkStatusProvider;
 use sc_network_sync::SyncingService;
 use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool, error::IntoPoolError};
+use sp_consensus_aura::{AuraApi, sr25519::AuthorityId as AuraId};
 use sp_runtime::traits::{Block as BlockT, SaturatedConversion};
 use std::sync::Arc;
 use std::time::Duration;
@@ -29,6 +32,8 @@ pub fn start_bot<C, P>(
     control: Arc<BotControl>,
     state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
+    authority_registry: Arc<AuthorityPeerRegistry>,
+    network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     propagator: TxPropagator,
 ) where
     C: sp_api::ProvideRuntimeApi<Block>
@@ -36,7 +41,7 @@ pub fn start_bot<C, P>(
         + Send
         + Sync
         + 'static,
-    C::Api: EthereumRuntimeRPCApi<Block>,
+    C::Api: EthereumRuntimeRPCApi<Block> + AuraApi<Block, AuraId>,
     P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
         + LocalTransactionPool<
             Block = Block,
@@ -56,6 +61,8 @@ pub fn start_bot<C, P>(
             control,
             state,
             peer_tracker,
+            authority_registry,
+            network,
             propagator,
         ),
     );
@@ -86,12 +93,27 @@ where
     }
 }
 
-fn record_peer_candidates(
+fn record_peer_candidates<C>(
+    client: Arc<C>,
     sync: Arc<SyncingService<Block>>,
     tracker: Arc<PeerTracker>,
+    registry: Arc<AuthorityPeerRegistry>,
+    network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     block_number: u32,
-) {
+    parent_hash: <Block as BlockT>::Hash,
+    slot: Option<u64>,
+    block_hash: <Block as BlockT>::Hash,
+    announcing_peer: Option<String>,
+) where
+    C: sp_api::ProvideRuntimeApi<Block>
+        + sp_blockchain::HeaderBackend<Block>
+        + Send
+        + Sync
+        + 'static,
+    C::Api: AuraApi<Block, AuraId>,
+{
     tokio::spawn(async move {
+        let addrs = network.connected_peer_addresses().await;
         match sync.peers_info().await {
             Ok(peers) => {
                 let rows = peers
@@ -105,7 +127,33 @@ fn record_peer_candidates(
                         )
                     })
                     .collect::<Vec<_>>();
-                tracker.record_announce(block_number, rows);
+                tracker.record_announce(
+                    block_number,
+                    rows,
+                    announcing_peer.as_deref(),
+                );
+
+                let attributed_peer = announcing_peer
+                    .or_else(|| tracker.first_peer_for_block(block_number));
+                if let Some(first_peer) = attributed_peer {
+                    let roles = tracker
+                        .lookup(&first_peer)
+                        .map(|(_, _, _, _, r)| r)
+                        .unwrap_or_default();
+                    let multiaddr = addrs.get(&first_peer).cloned();
+                    correlate_block_author(
+                        client,
+                        registry,
+                        block_number,
+                        parent_hash,
+                        slot,
+                        block_hash,
+                        first_peer,
+                        roles,
+                        multiaddr,
+                    )
+                    .await;
+                }
             }
             Err(e) => {
                 log::debug!(target: "bot::peers", "peers_info failed for #{block_number}: {e:?}");
@@ -122,6 +170,8 @@ fn run<C, P>(
     control: Arc<BotControl>,
     state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
+    authority_registry: Arc<AuthorityPeerRegistry>,
+    network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     propagator: TxPropagator,
 ) -> BoxFuture<'static, ()>
 where
@@ -130,7 +180,7 @@ where
         + Send
         + Sync
         + 'static,
-    C::Api: EthereumRuntimeRPCApi<Block>,
+    C::Api: EthereumRuntimeRPCApi<Block> + AuraApi<Block, AuraId>,
     P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
         + LocalTransactionPool<
             Block = Block,
@@ -172,9 +222,16 @@ where
             if last_tracked_at_number != Some(notification.number) {
                 last_tracked_at_number = Some(notification.number);
                 record_peer_candidates(
+                    client.clone(),
                     sync.clone(),
                     peer_tracker.clone(),
+                    authority_registry.clone(),
+                    network.clone(),
                     notification.number,
+                    notification.parent_hash,
+                    notification.slot,
+                    notification.hash,
+                    notification.announcing_peer.clone(),
                 );
             }
 

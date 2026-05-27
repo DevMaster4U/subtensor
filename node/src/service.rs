@@ -355,6 +355,7 @@ where
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
     let shared_inject_state = subtensor_bot::SharedInjectState::new();
     let announce_timing = Arc::new(subtensor_bot::AnnounceTimingTracker::new());
+    let authority_registry = subtensor_bot::AuthorityPeerRegistry::new();
     let sync_inject_handle = subtensor_bot::SyncInjectHandle::new();
     let sync_inject_for_validator = sync_inject_handle.clone();
     let genesis_hash = client
@@ -467,6 +468,15 @@ where
         block_announces_protocol.clone(),
         peer_tracker.clone(),
     ));
+
+    let authority_discovery = subtensor_bot::AuthorityDiscovery::new(
+        client.clone(),
+        authority_registry.clone(),
+        sync_service.clone(),
+        peer_tracker.clone(),
+        network.clone(),
+        peer_pruner.clone(),
+    );
 
     subtensor_bot::auto_filter::start_auto_filter(
         &task_manager,
@@ -593,6 +603,7 @@ where
         let tx_propagation_control = tx_propagation_control.clone();
         let peer_tracker = peer_tracker.clone();
         let peer_pruner = peer_pruner.clone();
+        let authority_discovery = authority_discovery.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -646,6 +657,7 @@ where
                         tx_propagation_control.clone(),
                         peer_tracker.clone(),
                         peer_pruner.clone(),
+                        authority_discovery.clone(),
                         network.clone(),
                     )
                     .into_rpc(),
@@ -693,7 +705,9 @@ where
         announce_rx,
         bot_control.clone(),
         shared_inject_state.clone(),
-        peer_tracker,
+        peer_tracker.clone(),
+        authority_registry.clone(),
+        network.clone(),
         tx_propagator.clone(),
     );
     subtensor_bot::pool_inject::start_pool_injector(

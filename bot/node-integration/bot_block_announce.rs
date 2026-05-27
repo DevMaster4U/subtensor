@@ -14,11 +14,12 @@
 
 use futures::FutureExt;
 use node_subtensor_runtime::opaque::Block;
+use sc_network_sync::announce_peer;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::block_validation::{
     BlockAnnounceValidator, DefaultBlockAnnounceValidator, Validation,
 };
-use sp_runtime::traits::Block as BlockT;
+use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
 use std::pin::Pin;
 use std::sync::Arc;
 use subtensor_bot::announce::{self, BlockAnnounceHub};
@@ -60,14 +61,16 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
         >,
     > {
         let best_number = self.client.info().best_number;
-        if announce::is_ahead_of_best(header, best_number) {
+        if announce::is_immediate_next_block(header, best_number) {
             let block_number = *header.number();
             let at_hash = *header.parent_hash();
+            let announcing_peer = announce_peer::current().map(|p| p.to_base58());
             self.sync_inject.on_announce(block_number, at_hash);
-            self.hub.notify(header);
+            self.hub
+                .notify(header, announcing_peer.as_deref());
             log::debug!(
                 target: "bot::announce",
-                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?}",
+                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?} from={announcing_peer:?}",
                 header.hash(),
             );
         }

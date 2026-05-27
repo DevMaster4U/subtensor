@@ -28,6 +28,7 @@ sp-runtime.workspace = true
 sp-core.workspace = true
 sp-api.workspace = true
 sp-blockchain.workspace = true
+sp-consensus-aura = { workspace = true, features = ["std"] }
 
 # Ethereum / Frontier
 ethereum.workspace = true

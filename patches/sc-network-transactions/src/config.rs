@@ -47,9 +47,20 @@ pub trait PeerRanker: Send + Sync {
 	}
 }
 
+/// Result of one outbound propagation round.
+#[derive(Clone, Debug)]
+pub struct PropagationReport<H: ExHashT> {
+	/// Peers that received each transaction hash.
+	pub propagated: HashMap<H, Vec<String>>,
+	/// Peers notified in ranked send order (one entry per peer that got a notification).
+	pub send_order: Vec<String>,
+	/// Wall time spent preparing and sending this round.
+	pub elapsed_ms: u64,
+}
+
 /// Notified after a single-transaction propagation round completes.
 pub trait PropagationObserver<H: ExHashT>: Send + Sync {
-	fn on_propagated(&self, propagated: HashMap<H, Vec<String>>);
+	fn on_propagated(&self, report: PropagationReport<H>);
 }
 
 /// Interval at which we propagate transactions;

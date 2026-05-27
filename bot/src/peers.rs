@@ -1,9 +1,9 @@
 //! Tracks which connected peers are associated with early block announces
 //! and successful outbound transaction gossip.
 //!
-//! The public `BlockAnnounceValidator` API does not expose the announcing peer,
-//! so we correlate each first-seen announce for block `N` with peers whose
-//! reported `best_number` is already at or beyond `N`.
+//! When the patched sync engine passes the announcing peer id, we attribute
+//! block `N` to that peer directly. Otherwise we fall back to correlating with
+//! peers whose reported `best_number` is already at or beyond `N`.
 
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -83,10 +83,14 @@ impl PeerTracker {
     }
 
     /// `(peer_id_base58, best_number, roles_debug_string)`
+    ///
+    /// When `announcing_peer` is set (patched sync path), that peer is credited
+    /// as the first announcer for this block height.
     pub fn record_announce(
         &self,
         block_number: u32,
         peers: impl IntoIterator<Item = (String, u64, String)>,
+        announcing_peer: Option<&str>,
     ) {
         let block_u64 = u64::from(block_number);
         let mut candidates: Vec<(String, u64, String)> = peers
@@ -94,29 +98,60 @@ impl PeerTracker {
             .filter(|(_, best, _)| *best >= block_u64)
             .collect();
 
-        if candidates.is_empty() {
+        let winner = if let Some(explicit) = announcing_peer {
+            explicit.to_string()
+        } else if candidates.is_empty() {
             log::debug!(
                 target: "bot::peers",
                 "block #{block_number}: no connected peer reported best_number >= block",
             );
             return;
-        }
+        } else {
+            candidates.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
+            candidates[0].0.clone()
+        };
 
-        candidates.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
-
-        let winner = candidates[0].0.clone();
         {
             let mut first = self.first_by_block.write().expect("poisoned");
             first.entry(block_number).or_insert(winner.clone());
         }
-        log::info!(
-            target: "bot::peers",
-            "block #{block_number} first announce attributed to {winner} ({} candidates)",
-            candidates.len(),
-        );
+        if announcing_peer.is_some() {
+            log::info!(
+                target: "bot::peers",
+                "block #{block_number} first announce from {winner} (exact peer id)",
+            );
+        } else {
+            log::info!(
+                target: "bot::peers",
+                "block #{block_number} first announce attributed to {winner} ({} candidates, heuristic)",
+                candidates.len(),
+            );
+        }
 
         let now_ms = now_ms();
         let mut peers = self.peers.write().expect("poisoned");
+
+        if announcing_peer.is_some() && !candidates.iter().any(|(id, _, _)| id == &winner) {
+            let entry = peers.entry(winner.clone()).or_insert(PeerRecord {
+                score: 0,
+                first_announce_hits: 0,
+                tx_propagation_hits: 0,
+                last_best_number: block_number,
+                roles: String::new(),
+                last_seen_ms: now_ms,
+            });
+            entry.score = entry.score.saturating_add(1);
+            entry.first_announce_hits = entry.first_announce_hits.saturating_add(1);
+            entry.last_best_number = block_number;
+            entry.last_seen_ms = now_ms;
+            return;
+        }
+
+        if candidates.is_empty() {
+            return;
+        }
+
+        candidates.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.cmp(&b.0)));
 
         for (peer_id, best, roles) in candidates {
             let entry = peers.entry(peer_id.clone()).or_insert(PeerRecord {
@@ -401,6 +436,16 @@ impl PeerPruner {
     /// Keep the top `keep_count` connected peers (by [`PeerTracker`] score) and disconnect the rest.
     pub async fn keep_top(&self, keep_count: u32) -> Result<KeepTopPeersResult, String> {
         self.keep_top_with_log(keep_count, "rpc", None).await
+    }
+
+    /// Connected and previously seen peers with multiaddrs.
+    pub async fn network_peers(&self) -> Result<Vec<NetworkPeerRow>, String> {
+        collect_network_peers(
+            self.network_status.as_ref(),
+            self.sync.as_ref(),
+            &self.peer_tracker,
+        )
+        .await
     }
 
     async fn keep_top_with_log(
@@ -742,6 +787,101 @@ fn write_filter_log(entry: FilterLogEntry) -> Result<String, String> {
     );
 
     Ok(path.display().to_string())
+}
+
+/// One known network peer from `network_state` (connected or previously seen).
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct NetworkPeerRow {
+    pub peer_id: String,
+    pub connected: bool,
+    pub multiaddr: Option<String>,
+    pub roles: Option<String>,
+    pub announce_score: u64,
+    pub first_announce_hits: u64,
+    pub tx_propagation_hits: u64,
+}
+
+fn multiaddr_from_known(
+    peer_id: &str,
+    addrs: &HashMap<String, String>,
+    known: impl IntoIterator<Item = impl ToString>,
+) -> Option<String> {
+    addrs.get(peer_id).cloned().or_else(|| {
+        known
+            .into_iter()
+            .next()
+            .map(|addr| {
+                let addr = addr.to_string();
+                if addr.contains("/p2p/") {
+                    addr
+                } else {
+                    format!("{}/p2p/{}", addr.trim_end_matches('/'), peer_id)
+                }
+            })
+    })
+}
+
+/// Snapshot connected + previously seen peers with addresses and tracker scores.
+pub async fn collect_network_peers(
+    network: &dyn sc_network::NetworkStatusProvider,
+    sync: &sc_network_sync::SyncingService<node_subtensor_runtime::opaque::Block>,
+    tracker: &PeerTracker,
+) -> Result<Vec<NetworkPeerRow>, String> {
+    let addrs = network.connected_peer_addresses().await;
+    let state = network
+        .network_state()
+        .await
+        .map_err(|_| "network worker unavailable".to_string())?;
+
+    let connected_roles: HashMap<String, String> = sync
+        .peers_info()
+        .await
+        .map(|peers| {
+            peers
+                .into_iter()
+                .map(|(peer_id, info)| (peer_id.to_base58(), format!("{:?}", info.roles)))
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let mut rows = Vec::new();
+
+    for (peer_id, peer) in state.connected_peers {
+        let (announce_score, first_announce_hits, tx_hits, _, _) =
+            tracker.lookup(&peer_id).unwrap_or((0, 0, 0, 0, String::new()));
+        rows.push(NetworkPeerRow {
+            peer_id: peer_id.clone(),
+            connected: true,
+            multiaddr: multiaddr_from_known(&peer_id, &addrs, peer.known_addresses.iter()),
+            roles: connected_roles.get(&peer_id).cloned(),
+            announce_score,
+            first_announce_hits,
+            tx_propagation_hits: tx_hits,
+        });
+    }
+
+    for (peer_id, peer) in state.not_connected_peers {
+        let (announce_score, first_announce_hits, tx_hits, _, _) =
+            tracker.lookup(&peer_id).unwrap_or((0, 0, 0, 0, String::new()));
+        rows.push(NetworkPeerRow {
+            peer_id: peer_id.clone(),
+            connected: false,
+            multiaddr: multiaddr_from_known(&peer_id, &addrs, peer.known_addresses.iter()),
+            roles: connected_roles.get(&peer_id).cloned(),
+            announce_score,
+            first_announce_hits,
+            tx_propagation_hits: tx_hits,
+        });
+    }
+
+    rows.sort_by(|a, b| {
+        b.connected
+            .cmp(&a.connected)
+            .then_with(|| b.announce_score.cmp(&a.announce_score))
+            .then_with(|| a.peer_id.cmp(&b.peer_id))
+    });
+
+    Ok(rows)
 }
 
 fn now_ms() -> u64 {

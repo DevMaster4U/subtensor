@@ -9,6 +9,7 @@
 //! Hybrid mode combines pool-front pre-submit with sync announce refresh.
 //! Validator proposer injection is faster but requires authority role.
 
+use crate::authorities::slot_from_digest;
 use node_subtensor_runtime::opaque::Block;
 use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
 use tokio::sync::broadcast;
@@ -19,6 +20,10 @@ pub struct BlockAnnounceNotification {
     pub number: u32,
     pub hash: <Block as BlockT>::Hash,
     pub parent_hash: <Block as BlockT>::Hash,
+    /// Aura slot from the pre-import header digest (available before DB import).
+    pub slot: Option<u64>,
+    /// libp2p peer that sent this announce (exact, from sync engine).
+    pub announcing_peer: Option<String>,
 }
 
 /// Returns true when `header` is the immediate next block after local best.
@@ -56,17 +61,20 @@ impl BlockAnnounceHub {
         self.tx.subscribe()
     }
 
-    pub fn notify<H>(&self, header: &H)
+    pub fn notify<H>(&self, header: &H, announcing_peer: Option<&str>)
     where
         H: HeaderT<Number = u32, Hash = <Block as BlockT>::Hash>,
     {
         let number = *header.number();
         let hash = header.hash();
         let parent_hash = *header.parent_hash();
+        let slot = slot_from_digest(header.digest());
         let _ = self.tx.send(BlockAnnounceNotification {
             number,
             hash,
             parent_hash,
+            slot,
+            announcing_peer: announcing_peer.map(str::to_string),
         });
     }
 }

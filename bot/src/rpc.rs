@@ -4,13 +4,16 @@ use std::sync::Arc;
 
 use jsonrpsee::{core::RpcResult, proc_macros::rpc, types::ErrorObjectOwned};
 
+use crate::authorities::{AuraAuthority, AuraSchedule};
+use crate::authority_discovery::AuthorityRpcBackend;
+use crate::authority_peers::{ApplyAuthorityReservedResult, AuthorityPeerMapping, ConnectedAuthorityPeer};
 use crate::auto_filter::AutoFilterControl;
 use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
 use crate::mempool::MempoolWatcherControl;
 use crate::tx_propagation::TxPropagationControl;
 use crate::peers::{
-    KeepTopPeersResult, PeerRecommendation, PeerPruner, PeerStat, PeerTracker,
+    KeepTopPeersResult, NetworkPeerRow, PeerRecommendation, PeerPruner, PeerStat, PeerTracker,
     SetReservedPeersResult, TxGossipCheck,
 };
 use sc_network::NetworkStatusProvider;
@@ -87,6 +90,10 @@ pub trait BotApi {
     #[method(name = "bot_peerStats")]
     fn peer_stats(&self, limit: Option<u32>) -> RpcResult<Vec<PeerStat>>;
 
+    /// Connected and previously seen peers with multiaddrs (from network state).
+    #[method(name = "bot_networkPeers")]
+    fn network_peers(&self) -> RpcResult<Vec<NetworkPeerRow>>;
+
     /// Tx propagation scoring health check (confirms new binary + hit totals).
     #[method(name = "bot_checkTxGossip")]
     fn check_tx_gossip(&self, top: Option<u32>) -> RpcResult<TxGossipCheck>;
@@ -131,6 +138,30 @@ pub trait BotApi {
     /// Incoming gossip is unchanged (accept from all connected tx peers). `0` = no send limit.
     #[method(name = "bot_setTxPropagationMaxPeers")]
     fn set_tx_propagation_max_peers(&self, max: u32) -> RpcResult<bool>;
+
+    /// On-chain Aura authority set (block producer public keys / accounts).
+    #[method(name = "bot_auraAuthorities")]
+    fn aura_authorities(&self) -> RpcResult<Vec<AuraAuthority>>;
+
+    /// Current Aura slot + authority set + predicted next authors.
+    #[method(name = "bot_auraSchedule")]
+    fn aura_schedule(&self, upcoming: Option<u32>) -> RpcResult<AuraSchedule>;
+
+    /// Learned `{ Aura account → peer }` mappings from block announce correlation.
+    #[method(name = "bot_authorityPeers")]
+    fn authority_peers(&self) -> RpcResult<Vec<AuthorityPeerMapping>>;
+
+    /// Connected peers advertising AUTHORITY role (enriched with learned mapping).
+    #[method(name = "bot_connectedAuthorityPeers")]
+    fn connected_authority_peers(&self) -> RpcResult<Vec<ConnectedAuthorityPeer>>;
+
+    /// Write learned authority multiaddrs to a reserved-peers file.
+    #[method(name = "bot_exportAuthorityReserved")]
+    fn export_authority_reserved(&self, path: String, min_hits: Option<u64>) -> RpcResult<Vec<String>>;
+
+    /// Add learned authority peers (min hits) as network reserved peers.
+    #[method(name = "bot_applyAuthorityReserved")]
+    fn apply_authority_reserved(&self, min_hits: Option<u64>) -> RpcResult<ApplyAuthorityReservedResult>;
 }
 
 pub struct BotRpc {
@@ -141,6 +172,7 @@ pub struct BotRpc {
     tx_propagation: Arc<TxPropagationControl>,
     peer_tracker: Arc<PeerTracker>,
     peer_pruner: Arc<PeerPruner>,
+    authority: Arc<dyn AuthorityRpcBackend>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
 }
 
@@ -153,6 +185,7 @@ impl BotRpc {
         tx_propagation: Arc<TxPropagationControl>,
         peer_tracker: Arc<PeerTracker>,
         peer_pruner: Arc<PeerPruner>,
+        authority: Arc<dyn AuthorityRpcBackend>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     ) -> Self {
         Self {
@@ -163,6 +196,7 @@ impl BotRpc {
             tx_propagation,
             peer_tracker,
             peer_pruner,
+            authority,
             network,
         }
     }
@@ -254,6 +288,14 @@ impl BotApiServer for BotRpc {
         Ok(self.peer_tracker.top_peers(limit, Some(&addrs)))
     }
 
+    fn network_peers(&self) -> RpcResult<Vec<NetworkPeerRow>> {
+        let pruner = Arc::clone(&self.peer_pruner);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move { pruner.network_peers().await })
+        })
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
     fn check_tx_gossip(&self, top: Option<u32>) -> RpcResult<TxGossipCheck> {
         let top = top.unwrap_or(10).clamp(1, 50) as usize;
         let addrs = self.peer_addrs();
@@ -323,5 +365,42 @@ impl BotApiServer for BotRpc {
     fn set_tx_propagation_max_peers(&self, max: u32) -> RpcResult<bool> {
         self.tx_propagation.set_max_propagation_peers(max);
         Ok(true)
+    }
+
+    fn aura_authorities(&self) -> RpcResult<Vec<AuraAuthority>> {
+        self.authority
+            .aura_authorities()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn aura_schedule(&self, upcoming: Option<u32>) -> RpcResult<AuraSchedule> {
+        let upcoming = upcoming.unwrap_or(5).clamp(1, 32);
+        self.authority
+            .aura_schedule(upcoming)
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn authority_peers(&self) -> RpcResult<Vec<AuthorityPeerMapping>> {
+        Ok(self.authority.authority_peer_mappings())
+    }
+
+    fn connected_authority_peers(&self) -> RpcResult<Vec<ConnectedAuthorityPeer>> {
+        self.authority
+            .connected_authority_peers()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn export_authority_reserved(&self, path: String, min_hits: Option<u64>) -> RpcResult<Vec<String>> {
+        let min_hits = min_hits.unwrap_or(3);
+        self.authority
+            .export_authority_reserved(&path, min_hits)
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn apply_authority_reserved(&self, min_hits: Option<u64>) -> RpcResult<ApplyAuthorityReservedResult> {
+        let min_hits = min_hits.unwrap_or(3);
+        self.authority
+            .apply_authority_reserved(min_hits)
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }
 }
