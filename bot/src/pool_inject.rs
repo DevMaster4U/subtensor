@@ -88,7 +88,11 @@ async fn process_import<C, P>(
             Error = <P as TransactionPool>::Error,
         >,
 {
-    if !control.inject_mode().uses_pool_front() || !control.is_running() {
+    let mode = control.inject_mode();
+    if mode.uses_scheduled_time()
+        || !mode.uses_pool_front()
+        || !control.is_running()
+    {
         state.clear_inject_paused();
         return;
     }

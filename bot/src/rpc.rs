@@ -5,6 +5,7 @@ use std::sync::Arc;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc, types::ErrorObjectOwned};
 
 use crate::auto_filter::AutoFilterControl;
+use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
 use crate::mempool::MempoolWatcherControl;
 use crate::tx_propagation::TxPropagationControl;
@@ -34,13 +35,25 @@ pub struct BotStatus {
     /// Outbound send limit: max ranked peers to gossip to per round. `0` = all ranked peers.
     /// Does not limit incoming gossip.
     pub tx_propagation_max_peers: u32,
+    /// Min announce offset (ms mod 12s) over the last 100 blocks, after `bot_start`.
+    pub min_value: Option<u32>,
+    /// Average announce offset (ms mod 12s) over the last 100 blocks.
+    pub average_value: Option<f64>,
+    /// Active scheduled-inject offset when mode is `scheduled_time`.
+    pub schedule_delay_ms: Option<u32>,
 }
 
 #[rpc(server)]
 pub trait BotApi {
     /// Arm the bot. Sending begins only after [`Self::start_txs`].
+    /// Enables announce mod12 timing collection (last 100 blocks).
     #[method(name = "bot_start")]
     fn start(&self) -> RpcResult<bool>;
+
+    /// Send `tx_count` txs at `delay_ms` into each 12-second wall-clock slot.
+    /// `delay_ms = 300` → 0.3s, 12.3s, 24.3s, 36.3s, 48.3s, …
+    #[method(name = "bot_startWithTime")]
+    fn start_with_time(&self, tx_count: u32, delay_ms: u32) -> RpcResult<bool>;
 
     /// Stop the bot immediately.
     #[method(name = "bot_stop")]
@@ -122,6 +135,7 @@ pub trait BotApi {
 
 pub struct BotRpc {
     control: Arc<BotControl>,
+    announce_timing: Arc<AnnounceTimingTracker>,
     auto_filter: Arc<AutoFilterControl>,
     mempool_watcher: Arc<MempoolWatcherControl>,
     tx_propagation: Arc<TxPropagationControl>,
@@ -133,6 +147,7 @@ pub struct BotRpc {
 impl BotRpc {
     pub fn new(
         control: Arc<BotControl>,
+        announce_timing: Arc<AnnounceTimingTracker>,
         auto_filter: Arc<AutoFilterControl>,
         mempool_watcher: Arc<MempoolWatcherControl>,
         tx_propagation: Arc<TxPropagationControl>,
@@ -142,6 +157,7 @@ impl BotRpc {
     ) -> Self {
         Self {
             control,
+            announce_timing,
             auto_filter,
             mempool_watcher,
             tx_propagation,
@@ -163,12 +179,20 @@ impl BotRpc {
 
 impl BotApiServer for BotRpc {
     fn start(&self) -> RpcResult<bool> {
+        self.announce_timing.enable();
         self.control.start();
+        Ok(true)
+    }
+
+    fn start_with_time(&self, tx_count: u32, delay_ms: u32) -> RpcResult<bool> {
+        self.announce_timing.enable();
+        self.control.start_with_time(tx_count, delay_ms);
         Ok(true)
     }
 
     fn stop(&self) -> RpcResult<bool> {
         self.control.stop();
+        self.announce_timing.disable();
         Ok(true)
     }
 
@@ -202,6 +226,8 @@ impl BotApiServer for BotRpc {
             keep_count: None,
         });
 
+        let (min_value, average_value) = self.announce_timing.stats();
+
         Ok(BotStatus {
             running: self.control.is_running(),
             tx_remaining: self.control.tx_remaining(),
@@ -210,11 +236,15 @@ impl BotApiServer for BotRpc {
                 InjectMode::OnAnnounce => "announce".into(),
                 InjectMode::PoolFront => "pool_front".into(),
                 InjectMode::Hybrid => "fast".into(),
+                InjectMode::ScheduledTime => "scheduled_time".into(),
             },
             auto_filter: auto,
             mempool_watcher: self.mempool_watcher.is_running(),
             tx_propagation_first_reserved_node: self.tx_propagation.first_reserved_node(),
             tx_propagation_max_peers: self.tx_propagation.max_propagation_peers(),
+            min_value,
+            average_value,
+            schedule_delay_ms: self.control.schedule_delay_ms(),
         })
     }
 

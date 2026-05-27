@@ -354,6 +354,7 @@ where
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
     let shared_inject_state = subtensor_bot::SharedInjectState::new();
+    let announce_timing = Arc::new(subtensor_bot::AnnounceTimingTracker::new());
     let sync_inject_handle = subtensor_bot::SyncInjectHandle::new();
     let sync_inject_for_validator = sync_inject_handle.clone();
     let genesis_hash = client
@@ -456,6 +457,7 @@ where
         shared_inject_state.clone(),
         tx_propagator.clone(),
         subtensor_bot::transact::TxConfig::from_env(),
+        announce_timing.clone(),
     );
 
     let peer_pruner = Arc::new(subtensor_bot::PeerPruner::new(
@@ -585,6 +587,7 @@ where
             select_chain.clone(),
         )?;
         let bot_control = bot_control.clone();
+        let announce_timing = announce_timing.clone();
         let auto_filter_control = auto_filter_control.clone();
         let mempool_watcher_control = mempool_watcher_control.clone();
         let tx_propagation_control = tx_propagation_control.clone();
@@ -637,6 +640,7 @@ where
                 .merge(
                     subtensor_bot::rpc::BotRpc::new(
                         bot_control.clone(),
+                        announce_timing.clone(),
                         auto_filter_control.clone(),
                         mempool_watcher_control.clone(),
                         tx_propagation_control.clone(),
@@ -693,6 +697,14 @@ where
         tx_propagator.clone(),
     );
     subtensor_bot::pool_inject::start_pool_injector(
+        &task_manager,
+        client.clone(),
+        transaction_pool.clone(),
+        bot_control.clone(),
+        shared_inject_state.clone(),
+        tx_propagator.clone(),
+    );
+    subtensor_bot::time_inject::start_time_injector(
         &task_manager,
         client.clone(),
         transaction_pool.clone(),

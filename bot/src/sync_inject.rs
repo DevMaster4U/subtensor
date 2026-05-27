@@ -3,7 +3,9 @@
 //! Runs inside `BlockAnnounceValidator::validate()` before async validation,
 //! eliminating broadcast-channel latency for announce-triggered submits.
 
+use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
+use std::time::SystemTime;
 use crate::inject_shared::{InjectResult, SharedInjectState, build_tx_at, inject_sync, resync_pending};
 use crate::transact::{TxConfig, TxPropagator};
 use fp_rpc::EthereumRuntimeRPCApi;
@@ -37,6 +39,7 @@ impl SyncInjectHandle {
         state: Arc<SharedInjectState>,
         propagator: TxPropagator,
         cfg: TxConfig,
+        announce_timing: Arc<AnnounceTimingTracker>,
     ) where
         C: sp_api::ProvideRuntimeApi<Block>
             + HeaderBackend<Block>
@@ -61,6 +64,7 @@ impl SyncInjectHandle {
             state,
             propagator,
             cfg,
+            announce_timing,
         }));
         log::info!(target: "bot::sync_inject", "✅ sync announce injector installed");
     }
@@ -80,6 +84,7 @@ struct SyncAnnounceInject<C, P> {
     state: Arc<SharedInjectState>,
     propagator: TxPropagator,
     cfg: TxConfig,
+    announce_timing: Arc<AnnounceTimingTracker>,
 }
 
 impl<C, P> SyncInjectInner for SyncAnnounceInject<C, P>
@@ -94,12 +99,17 @@ where
         >,
 {
     fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash) {
+        if self.control.is_running() {
+            self.announce_timing
+                .record(block_number, SystemTime::now());
+        }
+
         if !self.control.should_send() {
             return;
         }
 
         let mode = self.control.inject_mode();
-        if !mode.uses_sync_announce_inject() {
+        if mode.uses_scheduled_time() || !mode.uses_sync_announce_inject() {
             return;
         }
 
@@ -173,6 +183,7 @@ where
                         pending.nonce,
                     );
                 }
+                InjectMode::ScheduledTime => {}
             },
             InjectResult::Fatal => {
                 self.state.set_inject_paused(true);

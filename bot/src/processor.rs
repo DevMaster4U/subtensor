@@ -183,7 +183,10 @@ where
             }
 
             let mode = control.inject_mode();
-            if mode == InjectMode::PoolFront || mode == InjectMode::Hybrid {
+            if mode == InjectMode::PoolFront
+                || mode == InjectMode::Hybrid
+                || mode == InjectMode::ScheduledTime
+            {
                 continue;
             }
 

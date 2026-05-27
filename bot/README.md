@@ -101,7 +101,9 @@ Base URL used in examples: `http://127.0.0.1:9944`
 
 ### `bot_start`
 
-Arm the bot. Does **not** send transactions until `bot_startTxs`, `bot_startTxsFront`, or `bot_startTxsHybrid` is called.
+Arm the bot. Does **not** send transactions until a `bot_startTxs*` or `bot_startWithTime` call.
+
+Also starts **announce timing**: each block announce logs its offset within the 12-second wall-clock slot (ms mod 12s), e.g. `36.232s → 232ms`, `49.123s → 1123ms`. Keeps the last **100** blocks.
 
 **Params:** none  
 **Returns:** `true`
@@ -124,6 +126,24 @@ Stop the bot immediately. No further submissions until re-armed.
 ```bash
 curl -s -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"bot_stop","params":[],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+---
+
+### `bot_startWithTime`
+
+Send `tx_count` transactions on a fixed offset within each 12-second wall-clock slot.
+
+**Params:** `[tx_count: u32, delay_ms: u32]`  
+- `delay_ms = 300` → inject at **0.3s, 12.3s, 24.3s, 36.3s, 48.3s**, … (epoch-aligned 12s slots)
+
+**Returns:** `true`
+
+```bash
+# 5 txs at 300ms into each 12s slot
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_startWithTime","params":[5,300],"id":1}' \
   http://127.0.0.1:9944
 ```
 
@@ -198,7 +218,10 @@ Current bot state.
   "running": true,
   "tx_remaining": 3,
   "tx_sent": 2,
-  "inject_mode": "announce"
+  "inject_mode": "announce",
+  "min_value": 180,
+  "average_value": 245.5,
+  "schedule_delay_ms": null
 }
 ```
 
@@ -207,7 +230,10 @@ Current bot state.
 | `running` | Whether the bot is armed and may send |
 | `tx_remaining` | Sends left in current session; `null` when unlimited |
 | `tx_sent` | Total sends completed in current session |
-| `inject_mode` | `"announce"`, `"pool_front"`, or `"hybrid"` |
+| `inject_mode` | `"announce"`, `"pool_front"`, `"fast"`, or `"scheduled_time"` |
+| `min_value` | Min announce offset (ms mod 12s) over last 100 blocks; `null` if none |
+| `average_value` | Average announce offset (ms mod 12s) over last 100 blocks |
+| `schedule_delay_ms` | Active `bot_startWithTime` offset, or `null` |
 
 ```bash
 curl -s -H "Content-Type: application/json" \
