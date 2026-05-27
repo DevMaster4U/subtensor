@@ -55,6 +55,7 @@ unwrap-used = "deny"
 useless_conversion = "allow"     # until polkadot is patched
 
 [workspace.dependencies]
+pallet-alpha-assets = { path = "pallets/alpha-assets", default-features = false }
 node-subtensor-runtime = { path = "runtime", default-features = false }
 subtensor-bot = { path = "bot" }
 pallet-admin-utils = { path = "pallets/admin-utils", default-features = false }
@@ -320,4 +321,3 @@ pow-faucet = []
 
 [patch.crates-io]
 w3f-bls = { git = "https://github.com/opentensor/bls", branch = "fix-no-std" }
-
