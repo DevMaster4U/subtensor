@@ -149,11 +149,7 @@ pub fn classify_pool_error<E: IntoPoolError>(err: E) -> InjectResult {
     }
 }
 
-/// Submit to the local pool synchronously (used from the announce validator thread).
-///
-/// On a fresh import, submits then gossips immediately. When the tx is already in the
-/// pool (hybrid announce refresh), still re-gossips so peers receive it before competing
-/// txs on the next block announce window.
+/// Submit one tx to the local pool synchronously (announce validator thread).
 pub fn inject_sync<P>(
     pool: &P,
     at_hash: <Block as BlockT>::Hash,
@@ -180,7 +176,7 @@ where
         Ok(submitted) => {
             log::info!(
                 target: "bot::sync_inject",
-                "✅ tx in ready pool, hash = {:?}",
+                "✅ tx in pool, hash = {:?}",
                 submitted,
             );
             propagator.propagate(submitted);
@@ -190,7 +186,7 @@ where
             InjectResult::Queued => {
                 log::info!(
                     target: "bot::sync_inject",
-                    "✅ tx already in ready pool, hash = {:?}, re-propagating",
+                    "✅ tx already in pool, hash = {:?}, re-propagating",
                     hash,
                 );
                 propagator.propagate(hash);

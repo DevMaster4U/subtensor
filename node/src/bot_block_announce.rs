@@ -62,7 +62,8 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
         let best_number = self.client.info().best_number;
         if announce::is_immediate_next_block(header, best_number) {
             let block_number = *header.number();
-            self.sync_inject.on_announce(block_number);
+            let at_hash = *header.parent_hash();
+            self.sync_inject.on_announce(block_number, at_hash);
             self.hub.notify(header);
             log::debug!(
                 target: "bot::announce",

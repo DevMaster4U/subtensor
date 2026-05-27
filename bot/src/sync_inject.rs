@@ -14,7 +14,7 @@ use sp_runtime::traits::Block as BlockT;
 use std::sync::{Arc, RwLock};
 
 trait SyncInjectInner: Send + Sync {
-    fn on_announce(&self, block_number: u32);
+    fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash);
 }
 
 /// Handle installed after the network stack is built (needs the tx propagator).
@@ -65,10 +65,10 @@ impl SyncInjectHandle {
         log::info!(target: "bot::sync_inject", "✅ sync announce injector installed");
     }
 
-    pub fn on_announce(&self, block_number: u32) {
+    pub fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash) {
         let guard = self.inner.read().expect("poisoned");
         if let Some(inject) = guard.as_ref() {
-            inject.on_announce(block_number);
+            inject.on_announce(block_number, at_hash);
         }
     }
 }
@@ -93,7 +93,7 @@ where
             Error = <P as TransactionPool>::Error,
         >,
 {
-    fn on_announce(&self, block_number: u32) {
+    fn on_announce(&self, block_number: u32, at_hash: <Block as BlockT>::Hash) {
         if !self.control.should_send() {
             return;
         }
@@ -124,9 +124,7 @@ where
             }
         }
 
-        let once_per_block =
-            matches!(mode, InjectMode::OnAnnounce | InjectMode::PoolFront);
-        if once_per_block && !self.state.try_claim_announce_block(block_number) {
+        if !self.state.try_claim_announce_block(block_number) {
             return;
         }
 
@@ -134,13 +132,14 @@ where
             return;
         };
 
-        let at_hash = self.client.info().best_hash;
-        match inject_sync(
+        let result = inject_sync(
             self.pool.as_ref(),
             at_hash,
             &pending,
             &self.propagator,
-        ) {
+        );
+
+        match result {
             InjectResult::Queued => match mode {
                 InjectMode::OnAnnounce => {
                     self.state.mark_queued(pending.nonce);
@@ -163,14 +162,14 @@ where
                         target: "bot::sync_inject",
                         "✅ pool-front announce inject ok, nonce={} at block #{block_number} (remaining={:?})",
                         pending.nonce,
-                        remaining = self.control.tx_remaining(),
+                        self.control.tx_remaining(),
                     );
                 }
                 InjectMode::Hybrid => {
                     self.state.mark_queued(pending.nonce);
                     log::info!(
                         target: "bot::sync_inject",
-                        "✅ fast refresh ok, nonce={} at block #{block_number} (re-propagated)",
+                        "✅ announce inject ok, nonce={} at block #{block_number}",
                         pending.nonce,
                     );
                 }
@@ -184,9 +183,7 @@ where
                 );
             }
             InjectResult::Retry => {
-                if once_per_block {
-                    self.state.clear_announce_claim(block_number);
-                }
+                self.state.clear_announce_claim(block_number);
                 log::debug!(
                     target: "bot::sync_inject",
                     "sync inject retry later (nonce={})",

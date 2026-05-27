@@ -75,12 +75,15 @@ Submits inside `BlockAnnounceValidator::validate()` — before async validation 
 
 Subtensor assigns flat priority `1` to normal EVM transactions. Within that tier the ready pool is **first-come-first-served**. Pool front mode injects early so your transaction sits at the front of the queue before competitors submit on the same block announce.
 
+On block **import**, after your tx is included on-chain, the bot immediately injects the **next** nonce (one tx only) so it reaches proposer mempools before the next block announce.
+
 ### Hybrid mode (recommended for FCFS races)
 
 Combines both strategies:
 
-1. **Pool front loop** — keeps your tx in the ready queue continuously; re-injects after on-chain inclusion.
-2. **Sync announce refresh** — re-submits on every pre-import block announce so competitors who inject on the same announce cannot jump ahead.
+1. **Block announce** — inject / re-propagate the active nonce (once per block).
+2. **Block import** — when the tx lands on-chain, advance nonce and **immediately inject the next tx** (closes the ~400–500 ms announce→import gap).
+3. **Announce refresh** — keeps the active tx in the pool so competitors cannot jump ahead on the same announce window.
 
 ```bash
 curl -s -H "Content-Type: application/json" \
@@ -331,6 +334,107 @@ Typical sequence to trim slow peers and pin fast ones:
 
 Filter run logs land in `filter_log/` (same format as your existing JSON snapshots).
 
+### Recommended propagation settings
+
+After arming hybrid mode, maximize reach to fast peers:
+
+```bash
+# Reserved peers first, then score-ranked peers
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_enableTxPropagationFirstReservedNode","params":[],"id":1}' \
+  http://127.0.0.1:9944
+
+# 0 = gossip to all ranked peers (no outbound cap)
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_setTxPropagationMaxPeers","params":[0],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+---
+
+## Finding authorities and fast paths to validators
+
+You cannot map a Substrate `PeerId` to “this slot’s block author” from a non-validator node alone. What you **can** do is find peers that **announce blocks first** and **reliably receive your tx gossip** — those are the best proxies for a low-latency path toward the proposer.
+
+### Step 1 — Run hybrid + collect stats (30+ minutes)
+
+```bash
+curl ... bot_startTxsHybrid
+curl ... bot_enableTxPropagationFirstReservedNode
+curl ... bot_setTxPropagationMaxPeers 0
+```
+
+Watch logs for lines like:
+
+```
+bot::peers: block #8274993 first announce attributed to 12D3KooW... (N candidates)
+```
+
+Peers that win `first announce attributed` often are (or are one hop from) the block producer.
+
+### Step 2 — Inspect leaderboard
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_peerStats","params":[30],"id":1}' \
+  http://127.0.0.1:9944
+
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_peerRecommendations","params":[15],"id":1}' \
+  http://127.0.0.1:9944
+
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_checkTxGossip","params":[15],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+Prioritize peers with **high combined score**:
+
+| Field | Meaning |
+|-------|---------|
+| `first_announce_hits` | Often saw new block height before others |
+| `tx_propagation_hits` | Successfully received your outbound tx gossip |
+| `roles` | `AUTHORITY` = validator-capable node; `FULL` = full node relay |
+| `addr` | Dialable multiaddr when known |
+
+Prefer peers that score high on **both** announce hits and tx propagation hits.
+
+### Step 3 — Pin reserved peers
+
+Save one multiaddr per line (from `reserved_peer_hint` or `addr`):
+
+```
+/ip4/x.x.x.x/tcp/30333/ws/p2p/12D3KooW...
+```
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/path/to/reserved.txt"],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+Restart the node with matching `--reserved-nodes` in your systemd/launch flags so connections persist across reboots.
+
+### Step 4 — Prune slow peers
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_keepTopPeers","params":[96],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+### On-chain authorities (Finney / mainnet)
+
+Active block authors come from the **Subtensor validator set** (on-chain registration + stake), not from P2P role flags alone. A peer showing `FULL` may still relay blocks from a validator faster than you can reach the validator directly.
+
+| Goal | Practical approach |
+|------|-------------------|
+| Fastest path to proposer pool | Pin `first_announce_hits` + `tx_propagation_hits` leaders as reserved peers |
+| Guaranteed first position | Run your own **authority** node in the active validator set |
+| Research validator IPs | On-chain metadata / public validator ops docs; map to P2P addrs via sustained `bot_peerStats` correlation |
+
+On **localnet/dev**, use `--validator` with session keys inserted (see below). On **Finney**, `--validator` only produces blocks if your keys are in the active authority set.
+
 ---
 
 ## Running as an authority (validator)
@@ -436,7 +540,7 @@ curl ... -d '{"jsonrpc":"2.0","method":"bot_status","params":[],"id":1}'
 ```
 Network block announce
   → NotifyingBlockAnnounceValidator::validate()
-      → sync_inject (OnAnnounce + Hybrid: submit_local immediately)
+      → sync_inject (OnAnnounce + Hybrid: submit_local once per block)
       → BlockAnnounceHub broadcast
   → processor loop (OnAnnounce fallback only)
       → peer_tracker.record_announce()
@@ -444,10 +548,10 @@ Network block announce
 bot_startTxsFront / bot_startTxsHybrid
   → pool_inject loop
       → inject immediately on arm
-      → re-inject after inclusion (import notification + nonce check)
+      → on block import: if tx included → advance nonce → import inject immediately
 
 bot_startTxsHybrid additionally:
-  → sync_inject refresh on every announce (re-submit to hold FCFS position)
+  → sync_inject refresh on every announce (re-propagate active nonce)
 ```
 
 ### Crate layout

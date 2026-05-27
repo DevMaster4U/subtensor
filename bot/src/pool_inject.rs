@@ -3,13 +3,12 @@
 //! Subtensor assigns flat priority `1` to normal EVM transactions, so the
 //! ready queue is ordered first-come-first-served within that tier.
 //!
-//! **Submit** happens synchronously on the next block announce via
-//! [`crate::sync_inject`] (same hook as announce mode). This task only watches
-//! block imports to detect inclusion and advance the nonce — it does not wait
-//! for import before the first inject.
+//! **Announce** ([`crate::sync_inject`]): inject / re-propagate the active nonce.
+//! **Import** (this task): on inclusion, advance nonce and immediately inject the
+//! next tx so it reaches the proposer before the next block announce.
 
 use crate::control::BotControl;
-use crate::inject_shared::{InjectResult, PendingTx, SharedInjectState, build_tx_at, inject_sync};
+use crate::inject_shared::{InjectResult, SharedInjectState, build_tx_at, inject_sync};
 use crate::transact::{TxConfig, TxPropagator, fetch_nonce};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, StreamExt, future::BoxFuture};
@@ -113,58 +112,38 @@ async fn process_import<C, P>(
         return;
     };
 
-    if chain_nonce > pending.nonce {
-        control.on_sent();
-        log::info!(
-            target: "bot::pool_inject",
-            "✅ tx included, nonce={} (remaining={:?})",
-            pending.nonce,
-            control.tx_remaining(),
-        );
-        let advanced = state.advance_pending(cfg, chain_nonce);
-        log::info!(
-            target: "bot::pool_inject",
-            "✅ tx pre-built for next inject, nonce={}",
-            advanced.nonce,
-        );
+    if chain_nonce <= pending.nonce {
+        return;
     }
 
-    // Inject (or refresh) on every block import so we never skip a block when an
-    // early announce was rejected by the best+1 filter or the announce inject ran
-    // one block too early.
-    if control.should_send() {
-        if let Some(p) = state.pending() {
-            ensure_in_pool(client, pool, propagator, state, &p);
-        }
-    }
-}
+    control.on_sent();
+    log::info!(
+        target: "bot::pool_inject",
+        "✅ tx included, nonce={} (remaining={:?})",
+        pending.nonce,
+        control.tx_remaining(),
+    );
 
-fn ensure_in_pool<C, P>(
-    client: &C,
-    pool: &P,
-    propagator: &TxPropagator,
-    state: &SharedInjectState,
-    pending: &PendingTx,
-) where
-    C: sp_blockchain::HeaderBackend<Block>,
-    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
-        + LocalTransactionPool<
-            Block = Block,
-            Hash = <Block as BlockT>::Hash,
-            Error = <P as TransactionPool>::Error,
-        >,
-{
+    let advanced = state.advance_pending(cfg, chain_nonce);
+    log::info!(
+        target: "bot::pool_inject",
+        "✅ tx pre-built for next inject, nonce={}",
+        advanced.nonce,
+    );
+
+    if !control.should_send() {
+        return;
+    }
+
     let at_hash = client.info().best_hash;
     log::info!(
         target: "bot::pool_inject",
         "📌 import inject (nonce={}, at={:?})",
-        pending.nonce,
+        advanced.nonce,
         at_hash,
     );
-    match inject_sync(pool, at_hash, pending, propagator) {
-        InjectResult::Queued => {
-            state.mark_queued(pending.nonce);
-        }
+    match inject_sync(pool, at_hash, &advanced, propagator) {
+        InjectResult::Queued => state.mark_queued(advanced.nonce),
         InjectResult::Fatal => state.set_inject_paused(true),
         InjectResult::Retry => {}
     }
@@ -200,7 +179,7 @@ where
         if let Some(pending) = state.pending() {
             log::info!(
                 target: "bot::pool_inject",
-                "✅ initial tx pre-built, nonce={} (pool-front idle — call bot_startTxsFront or bot_startTxsFast)",
+                "✅ initial tx pre-built, nonce={} (pool-front idle — call bot_startTxsFront or bot_startTxsHybrid)",
                 pending.nonce
             );
         }
@@ -208,19 +187,14 @@ where
         let mut imports = client.import_notification_stream().fuse();
 
         loop {
-            tokio::select! {
-                maybe_import = imports.next() => {
-                    if maybe_import.is_none() {
-                        log::warn!(target: "bot::pool_inject", "import stream ended");
-                        break;
-                    }
-                }
-                () = control.pool_wake() => {
-                    log::debug!(
-                        target: "bot::pool_inject",
-                        "armed — inject on next block announce (sync hook)",
-                    );
-                }
+            let maybe_import = tokio::select! {
+                maybe_import = imports.next() => maybe_import,
+                () = control.pool_wake() => continue,
+            };
+
+            if maybe_import.is_none() {
+                log::warn!(target: "bot::pool_inject", "import stream ended");
+                break;
             }
 
             process_import(
