@@ -1,5 +1,5 @@
 [package]
-description = "Substrate transaction protocol (patched: Clone on TransactionsHandlerController)"
+description = "Substrate transaction protocol (patched: Clone on controller)"
 name = "sc-network-transactions"
 version = "0.50.0"
 license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
@@ -18,7 +18,7 @@ codec = { package = "parity-scale-codec", version = "3.7.5", default-features = 
 futures = { version = "0.3.31" }
 log = { version = "0.4.22", default-features = true }
 prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
-sc-network = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-network = { path = "../sc-network", default-features = true }
 sc-network-common = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
 sc-network-sync = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
 sc-network-types = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }

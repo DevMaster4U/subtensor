@@ -1,0 +1,1180 @@
+nohup: ignoring input
+2026-05-25 07:50:09 Subtensor Node    
+2026-05-25 07:50:09 ✌️  version 4.0.0-dev-95daa4136e5    
+2026-05-25 07:50:09 ❤️  by Substrate DevHub <https://github.com/substrate-developer-hub>, 2017-2026    
+2026-05-25 07:50:09 📋 Chain specification: Bittensor    
+2026-05-25 07:50:09 🏷  Node name: endurable-industry-3997    
+2026-05-25 07:50:09 👤 Role: FULL    
+2026-05-25 07:50:09 💾 Database: ParityDb at /var/lib/subtensor/chains/bittensor/paritydb/full    
+2026-05-25 07:50:09 Grandpa block import patch enabled. Chain type = Live. Skip justifications for blocks = Some({0x04c71efb77060bfacfb49cd61826d594148ccda2ee23d66c7db819b16b55911c, 0xb49f8cd2a49b51a493fc55a8c9524ba08c3aa6b702f20af02878c1ec68e3ff5f})    
+2026-05-25 07:50:09 Creating transaction pool txpool_type=ForkAware ready=Limit { count: 8192, total_bytes: 20971520 } future=Limit { count: 819, total_bytes: 2097152 }
+2026-05-25 07:50:09 👶 Creating empty BABE epoch changes on what appears to be first startup.    
+2026-05-25 07:50:09 Grandpa warp sync patch enabled. Chain type = Live. Set ID = 3    
+2026-05-25 07:50:09 Can't use warp sync mode with a partially synced database. Reverting to full sync mode.    
+2026-05-25 07:50:09 Local node identity is: 12D3KooWQPwYKS9md31fXkGBN4Na6ktfcBMUwqXBFgk4fzRSyGpV    
+2026-05-25 07:50:09 Running litep2p network backend    
+2026-05-25 07:50:09 Warp sync failed. Continuing with full sync.    
+2026-05-25 07:50:09 💻 Operating system: linux    
+2026-05-25 07:50:09 💻 CPU architecture: x86_64    
+2026-05-25 07:50:09 💻 Target environment: gnu    
+2026-05-25 07:50:09 💻 CPU: AMD Ryzen 9 9950X 16-Core Processor    
+2026-05-25 07:50:09 💻 CPU cores: 16    
+2026-05-25 07:50:09 💻 Memory: 190799MB    
+2026-05-25 07:50:09 💻 Kernel: 6.8.0-111-generic    
+2026-05-25 07:50:09 💻 Linux distribution: Ubuntu 22.04.5 LTS    
+2026-05-25 07:50:09 💻 Virtual machine: no    
+2026-05-25 07:50:09 📦 Highest known block at #8259744    
+2026-05-25 07:50:09 〽️ Prometheus exporter started at 127.0.0.1:9615    
+2026-05-25 07:50:09 Running JSON-RPC server: addr=127.0.0.1:9944,[::1]:9944    
+2026-05-25 07:50:09 🔑 bot address = 0x1d320ddd54b379b06e515624b01a37c8b1c0de5a  chain_id = 964    
+2026-05-25 07:50:09 🔑 bot address = 0x1d320ddd54b379b06e515624b01a37c8b1c0de5a  chain_id = 964    
+2026-05-25 07:50:09 ✅ tx pre-built, nonce=95    
+2026-05-25 07:50:09 ✅ tx pre-built, nonce=95    
+2026-05-25 07:50:09 ✅ initial tx pre-built, nonce=95 (pool-front idle — call bot_startTxsFront)    
+2026-05-25 07:50:09 ✅ initial tx pre-built, nonce=95 (stopped — call bot_startTxs)    
+2026-05-25 07:50:10 🔍 Discovered new external address for our node: /ip4/88.216.36.114/tcp/30333/ws/p2p/12D3KooWQPwYKS9md31fXkGBN4Na6ktfcBMUwqXBFgk4fzRSyGpV    
+2026-05-25 07:50:14 block #8259762 first announce attributed to 12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7 (1 candidates)    
+2026-05-25 07:50:14 ⏩ Block history, #1711552 (3 peers), best: #8259759 (0x9459…1341), finalized #8259742 (0x1851…b69b), ⬇ 1.6MiB/s ⬆ 1.7kiB/s    
+2026-05-25 07:50:19 ⏩ Block history, #1730688 (10 peers), best: #8259762 (0x4701…b431), finalized #8259760 (0xda5a…7467), ⬇ 41.0MiB/s ⬆ 33.1kiB/s    
+2026-05-25 07:50:24 block #8259763 first announce attributed to 12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9 (1 candidates)    
+2026-05-25 07:50:24 ⏩ Block history, #1748352 (13 peers), best: #8259762 (0x4701…b431), finalized #8259760 (0xda5a…7467), ⬇ 29.8MiB/s ⬆ 14.5kiB/s    
+2026-05-25 07:50:25 🏆 Imported #8259763 (0x4701…b431 → 0x4cf5…4196)    
+2026-05-25 07:50:29 ⏩ Block history, #1763712 (13 peers), best: #8259763 (0x4cf5…4196), finalized #8259761 (0x6f51…7be5), ⬇ 22.8MiB/s ⬆ 59.0kiB/s    
+2026-05-25 07:50:34 ⏩ Block history, #1777856 (17 peers), best: #8259763 (0x4cf5…4196), finalized #8259761 (0x6f51…7be5), ⬇ 22.8MiB/s ⬆ 12.0kiB/s    
+2026-05-25 07:50:36 block #8259764 first announce attributed to 12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9 (1 candidates)    
+2026-05-25 07:50:37 ✅ tx pre-built, nonce=95    
+2026-05-25 07:50:37 ✅ tx re-synced on start_txs, nonce=95    
+2026-05-25 07:50:37 🚀 sending tx on announce #8259764 (nonce=95, at=0x4cf50ca8b49292a854779c167862ba1d679b842dd2de07e46bfb53a3c0f64196)    
+2026-05-25 07:50:37 📤 submitting tx to pool (hash=0x8a9e9a59704aba6e840cd29386e725bde314a0add67249917e09a1497c91280b, at=0x4cf50ca8b49292a854779c167862ba1d679b842dd2de07e46bfb53a3c0f64196)    
+2026-05-25 07:50:37 ✅ tx submitted to pool, hash=0x8a9e9a59704aba6e840cd29386e725bde314a0add67249917e09a1497c91280b    
+2026-05-25 07:50:37 📡 immediate P2P propagate hash=0x8a9e9a59704aba6e840cd29386e725bde314a0add67249917e09a1497c91280b    
+2026-05-25 07:50:37 ✅ tx in pool, hash = 0x8a9e9a59704aba6e840cd29386e725bde314a0add67249917e09a1497c91280b    
+2026-05-25 07:50:37 ✅ tx pre-built, nonce=96    
+2026-05-25 07:50:37 ✅ tx pre-built for next send, nonce=96 (remaining=Some(1))    
+2026-05-25 07:50:37 🏆 Imported #8259764 (0x4cf5…4196 → 0xfd28…c4ea)    
+2026-05-25 07:50:39 ⏩ Block history, #1793792 (17 peers), best: #8259764 (0xfd28…c4ea), finalized #8259762 (0x4701…b431), ⬇ 27.5MiB/s ⬆ 33.3kiB/s    
+2026-05-25 07:50:44 ⏩ Block history, #1809728 (18 peers), best: #8259764 (0xfd28…c4ea), finalized #8259762 (0x4701…b431), ⬇ 27.7MiB/s ⬆ 9.0kiB/s    
+2026-05-25 07:50:48 🚀 sending tx on announce #8259765 (nonce=96, at=0xfd2805adfd4e3ebaf895439a4ea5790f97e15b853801db1faace2fafa3c4c4ea)    
+2026-05-25 07:50:48 📤 submitting tx to pool (hash=0xa35e13a2101cb0005c2e0a26c887a8462039fa604901e7010fce5bbde8c7e721, at=0xfd2805adfd4e3ebaf895439a4ea5790f97e15b853801db1faace2fafa3c4c4ea)    
+2026-05-25 07:50:48 block #8259765 first announce attributed to 12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL (1 candidates)    
+2026-05-25 07:50:48 ✅ tx submitted to pool, hash=0xa35e13a2101cb0005c2e0a26c887a8462039fa604901e7010fce5bbde8c7e721    
+2026-05-25 07:50:48 📡 immediate P2P propagate hash=0xa35e13a2101cb0005c2e0a26c887a8462039fa604901e7010fce5bbde8c7e721    
+2026-05-25 07:50:48 ✅ tx in pool, hash = 0xa35e13a2101cb0005c2e0a26c887a8462039fa604901e7010fce5bbde8c7e721    
+2026-05-25 07:50:48 ✅ tx pre-built, nonce=97    
+2026-05-25 07:50:48 ✅ tx pre-built for next send, nonce=97 (remaining=Some(0))    
+2026-05-25 07:50:49 🏆 Imported #8259765 (0xfd28…c4ea → 0x63c9…dc83)    
+2026-05-25 07:50:49 ⏩ Block history, #1823744 (18 peers), best: #8259765 (0x63c9…dc83), finalized #8259762 (0x4701…b431), ⬇ 24.1MiB/s ⬆ 33.8kiB/s    
+2026-05-25 07:50:54 ⏩ Block history, #1837760 (18 peers), best: #8259765 (0x63c9…dc83), finalized #8259763 (0x4cf5…4196), ⬇ 23.8MiB/s ⬆ 22.2kiB/s    
+2026-05-25 07:50:59 ⏩ Block history, #1851584 (35 peers), best: #8259765 (0x63c9…dc83), finalized #8259763 (0x4cf5…4196), ⬇ 23.5MiB/s ⬆ 45.6kiB/s    
+2026-05-25 07:51:01 block #8259766 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:51:01 🏆 Imported #8259766 (0x63c9…dc83 → 0xe86b…6640)    
+2026-05-25 07:51:04 ⏩ Block history, #1866880 (39 peers), best: #8259766 (0xe86b…6640), finalized #8259763 (0x4cf5…4196), ⬇ 23.7MiB/s ⬆ 45.9kiB/s    
+2026-05-25 07:51:09 ⏩ Block history, #1882368 (42 peers), best: #8259766 (0xe86b…6640), finalized #8259764 (0xfd28…c4ea), ⬇ 27.6MiB/s ⬆ 52.4kiB/s    
+2026-05-25 07:51:12 block #8259767 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:51:13 🏆 Imported #8259767 (0xe86b…6640 → 0x7baf…a39e)    
+2026-05-25 07:51:14 ⏩ Block history, #1898944 (44 peers), best: #8259767 (0x7baf…a39e), finalized #8259765 (0x63c9…dc83), ⬇ 26.3MiB/s ⬆ 74.7kiB/s    
+2026-05-25 07:51:19 ⏩ Block history, #1913536 (53 peers), best: #8259767 (0x7baf…a39e), finalized #8259765 (0x63c9…dc83), ⬇ 24.0MiB/s ⬆ 35.7kiB/s    
+2026-05-25 07:51:24 block #8259768 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:51:24 🏆 Imported #8259768 (0x7baf…a39e → 0x3443…3ad4)    
+2026-05-25 07:51:24 ⏩ Block history, #1927616 (57 peers), best: #8259768 (0x3443…3ad4), finalized #8259765 (0x63c9…dc83), ⬇ 24.7MiB/s ⬆ 64.2kiB/s    
+2026-05-25 07:51:29 ⏩ Block history, #1939392 (58 peers), best: #8259768 (0x3443…3ad4), finalized #8259766 (0xe86b…6640), ⬇ 19.4MiB/s ⬆ 60.5kiB/s    
+2026-05-25 07:51:34 ⏩ Block history, #1952192 (61 peers), best: #8259768 (0x3443…3ad4), finalized #8259766 (0xe86b…6640), ⬇ 22.9MiB/s ⬆ 68.9kiB/s    
+2026-05-25 07:51:36 block #8259769 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:51:37 🏆 Imported #8259769 (0x3443…3ad4 → 0xfd02…1a91)    
+2026-05-25 07:51:39 ⏩ Block history, #1965760 (61 peers), best: #8259769 (0xfd02…1a91), finalized #8259767 (0x7baf…a39e), ⬇ 24.2MiB/s ⬆ 85.1kiB/s    
+2026-05-25 07:51:44 ⏩ Block history, #1979584 (61 peers), best: #8259769 (0xfd02…1a91), finalized #8259767 (0x7baf…a39e), ⬇ 25.7MiB/s ⬆ 75.5kiB/s    
+2026-05-25 07:51:48 block #8259770 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:51:48 🏆 Imported #8259770 (0xfd02…1a91 → 0xbb48…882e)    
+2026-05-25 07:51:49 ⏩ Block history, #1994624 (64 peers), best: #8259770 (0xbb48…882e), finalized #8259767 (0x7baf…a39e), ⬇ 26.4MiB/s ⬆ 96.3kiB/s    
+2026-05-25 07:51:54 ⏩ Block history, #2008896 (64 peers), best: #8259770 (0xbb48…882e), finalized #8259768 (0x3443…3ad4), ⬇ 29.7MiB/s ⬆ 72.2kiB/s    
+2026-05-25 07:51:59 ⏩ Block history, #2023168 (65 peers), best: #8259770 (0xbb48…882e), finalized #8259768 (0x3443…3ad4), ⬇ 29.0MiB/s ⬆ 37.6kiB/s    
+2026-05-25 07:52:00 block #8259771 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 07:52:00 🏆 Imported #8259771 (0xbb48…882e → 0xf530…4482)    
+2026-05-25 07:52:04 ⏩ Block history, #2036736 (65 peers), best: #8259771 (0xf530…4482), finalized #8259769 (0xfd02…1a91), ⬇ 28.4MiB/s ⬆ 101.2kiB/s    
+2026-05-25 07:52:09 ⏩ Block history, #2050688 (88 peers), best: #8259771 (0xf530…4482), finalized #8259769 (0xfd02…1a91), ⬇ 24.2MiB/s ⬆ 115.8kiB/s    
+2026-05-25 07:52:12 block #8259772 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:52:12 🏆 Imported #8259772 (0xf530…4482 → 0x5c69…eca5)    
+2026-05-25 07:52:14 ⏩ Block history, #2067392 (88 peers), best: #8259772 (0x5c69…eca5), finalized #8259770 (0xbb48…882e), ⬇ 32.3MiB/s ⬆ 122.8kiB/s    
+2026-05-25 07:52:19 ⏩ Block history, #2083328 (88 peers), best: #8259772 (0x5c69…eca5), finalized #8259770 (0xbb48…882e), ⬇ 33.8MiB/s ⬆ 90.7kiB/s    
+2026-05-25 07:52:22 Report 12D3KooWDCjKXuxMLUhN8iiHog7HsrhnMJiHqjnA7fKv5VF2uxYe: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 07:52:24 block #8259773 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 07:52:24 ⏩ Block history, #2099968 (88 peers), best: #8259772 (0x5c69…eca5), finalized #8259770 (0xbb48…882e), ⬇ 32.4MiB/s ⬆ 170.3kiB/s    
+2026-05-25 07:52:25 🏆 Imported #8259773 (0x5c69…eca5 → 0xc5c3…b4ea)    
+2026-05-25 07:52:25 Report 12D3KooWB5xbAidyhe3XbaCRFGDKwunMR1dkmw3DjtsPu8iu5UbV: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 07:52:29 ⏩ Block history, #2116416 (90 peers), best: #8259773 (0xc5c3…b4ea), finalized #8259771 (0xf530…4482), ⬇ 31.3MiB/s ⬆ 182.0kiB/s    
+2026-05-25 07:52:34 ⏩ Block history, #2134272 (92 peers), best: #8259773 (0xc5c3…b4ea), finalized #8259771 (0xf530…4482), ⬇ 31.8MiB/s ⬆ 85.4kiB/s    
+2026-05-25 07:52:37 🏆 Imported #8259774 (0xc5c3…b4ea → 0xb5d1…1119)    
+2026-05-25 07:52:39 ⏩ Block history, #2150016 (93 peers), best: #8259774 (0xb5d1…1119), finalized #8259772 (0x5c69…eca5), ⬇ 35.1MiB/s ⬆ 154.0kiB/s    
+2026-05-25 07:52:44 ⏩ Block history, #2164416 (94 peers), best: #8259774 (0xb5d1…1119), finalized #8259772 (0x5c69…eca5), ⬇ 30.7MiB/s ⬆ 93.7kiB/s    
+2026-05-25 07:52:48 block #8259775 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:52:49 🏆 Imported #8259775 (0xb5d1…1119 → 0xef0f…1164)    
+2026-05-25 07:52:49 ⏩ Block history, #2179904 (96 peers), best: #8259775 (0xef0f…1164), finalized #8259772 (0x5c69…eca5), ⬇ 31.7MiB/s ⬆ 153.5kiB/s    
+2026-05-25 07:52:54 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Peer disconnected with inflight after backoffs. Banned, disconnecting.    
+2026-05-25 07:52:54 ⏩ Block history, #2194176 (97 peers), best: #8259775 (0xef0f…1164), finalized #8259773 (0xc5c3…b4ea), ⬇ 35.2MiB/s ⬆ 81.5kiB/s    
+2026-05-25 07:52:59 ⏩ Block history, #2207488 (97 peers), best: #8259775 (0xef0f…1164), finalized #8259773 (0xc5c3…b4ea), ⬇ 31.0MiB/s ⬆ 131.2kiB/s    
+2026-05-25 07:53:00 block #8259776 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:53:01 🏆 Imported #8259776 (0xef0f…1164 → 0x755c…8935)    
+2026-05-25 07:53:04 ⏩ Block history, #2209984 (99 peers), best: #8259776 (0x755c…8935), finalized #8259774 (0xb5d1…1119), ⬇ 5.2MiB/s ⬆ 384.7kiB/s    
+2026-05-25 07:53:09 ⏩ Block history, #2215168 (99 peers), best: #8259776 (0x755c…8935), finalized #8259774 (0xb5d1…1119), ⬇ 12.0MiB/s ⬆ 91.0kiB/s    
+2026-05-25 07:53:13 block #8259777 first announce attributed to 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV (1 candidates)    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15910000000, proof_size: 146727 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 15175000000, proof_size: 139740 }    
+2026-05-25 07:53:14 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 3415000000, proof_size: 27948 }    
+2026-05-25 07:53:14 🏆 Imported #8259777 (0x755c…8935 → 0xc736…9481)    
+2026-05-25 07:53:14 ⏩ Block history, #2225344 (100 peers), best: #8259777 (0xc736…9481), finalized #8259774 (0xb5d1…1119), ⬇ 18.8MiB/s ⬆ 117.5kiB/s    
+2026-05-25 07:53:19 ⏩ Block history, #2240704 (100 peers), best: #8259777 (0xc736…9481), finalized #8259775 (0xef0f…1164), ⬇ 33.2MiB/s ⬆ 123.5kiB/s    
+2026-05-25 07:53:24 ⏩ Block history, #2255936 (102 peers), best: #8259777 (0xc736…9481), finalized #8259775 (0xef0f…1164), ⬇ 31.2MiB/s ⬆ 321.3kiB/s    
+2026-05-25 07:53:25 block #8259778 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:53:25 🏆 Imported #8259778 (0xc736…9481 → 0xa990…60b2)    
+2026-05-25 07:53:29 ⏩ Block history, #2273472 (104 peers), best: #8259778 (0xa990…60b2), finalized #8259776 (0x755c…8935), ⬇ 30.3MiB/s ⬆ 264.7kiB/s    
+2026-05-25 07:53:30 Report 12D3KooWLp77NCzvGsQTnUGALFs2t9zJeAGw4e37KutKdXDxkwFF: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 07:53:34 ⏩ Block history, #2290816 (108 peers), best: #8259778 (0xa990…60b2), finalized #8259776 (0x755c…8935), ⬇ 38.7MiB/s ⬆ 428.3kiB/s    
+2026-05-25 07:53:36 🏆 Imported #8259779 (0xa990…60b2 → 0x1930…9866)    
+2026-05-25 07:53:39 ⏩ Block history, #2307904 (110 peers), best: #8259779 (0x1930…9866), finalized #8259777 (0xc736…9481), ⬇ 36.5MiB/s ⬆ 441.8kiB/s    
+2026-05-25 07:53:44 ⏩ Block history, #2324800 (110 peers), best: #8259779 (0x1930…9866), finalized #8259777 (0xc736…9481), ⬇ 38.5MiB/s ⬆ 343.3kiB/s    
+2026-05-25 07:53:49 🏆 Imported #8259780 (0x1930…9866 → 0xab54…a4a8)    
+2026-05-25 07:53:49 ⏩ Block history, #2341824 (110 peers), best: #8259780 (0xab54…a4a8), finalized #8259777 (0xc736…9481), ⬇ 37.7MiB/s ⬆ 329.4kiB/s    
+2026-05-25 07:53:52 Started reindex for i05-16    
+2026-05-25 07:53:52 Started reindex for i04-16    
+2026-05-25 07:53:53 Started reindex for i00-16    
+2026-05-25 07:53:54 Completed reindex i00-16 into i00-17    
+2026-05-25 07:53:54 ⏩ Block history, #2358400 (112 peers), best: #8259780 (0xab54…a4a8), finalized #8259778 (0xa990…60b2), ⬇ 37.8MiB/s ⬆ 340.4kiB/s    
+2026-05-25 07:53:54 Completed reindex i04-16 into i04-17    
+2026-05-25 07:53:55 Completed reindex i05-16 into i05-17    
+2026-05-25 07:53:57 Started reindex for i03-17    
+2026-05-25 07:53:59 ⏩ Block history, #2365696 (113 peers), best: #8259780 (0xab54…a4a8), finalized #8259778 (0xa990…60b2), ⬇ 19.3MiB/s ⬆ 324.7kiB/s    
+2026-05-25 07:54:01 block #8259781 first announce attributed to 12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh (1 candidates)    
+2026-05-25 07:54:01 🏆 Imported #8259781 (0xab54…a4a8 → 0xbea8…28c5)    
+2026-05-25 07:54:03 Completed reindex i03-17 into i03-18    
+2026-05-25 07:54:04 ⏩ Block history, #2374656 (113 peers), best: #8259781 (0xbea8…28c5), finalized #8259779 (0x1930…9866), ⬇ 19.7MiB/s ⬆ 309.5kiB/s    
+2026-05-25 07:54:09 ⏩ Block history, #2389504 (113 peers), best: #8259781 (0xbea8…28c5), finalized #8259779 (0x1930…9866), ⬇ 34.9MiB/s ⬆ 349.1kiB/s    
+2026-05-25 07:54:12 block #8259782 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 07:54:12 🏆 Imported #8259782 (0xbea8…28c5 → 0xc24b…9237)    
+2026-05-25 07:54:14 ⏩ Block history, #2405056 (113 peers), best: #8259782 (0xc24b…9237), finalized #8259780 (0xab54…a4a8), ⬇ 32.1MiB/s ⬆ 429.5kiB/s    
+2026-05-25 07:54:19 ⏩ Block history, #2419584 (118 peers), best: #8259782 (0xc24b…9237), finalized #8259780 (0xab54…a4a8), ⬇ 36.8MiB/s ⬆ 447.0kiB/s    
+2026-05-25 07:54:23 ✅ tx pre-built, nonce=97    
+2026-05-25 07:54:23 ✅ tx re-synced on start_txs, nonce=97    
+2026-05-25 07:54:23 📌 injecting tx to pool front (nonce=97, at=0xc24b7aff463540635d377c75be50f474451a8579b4e9918b61f34bda51169237)    
+2026-05-25 07:54:23 📤 submitting tx to pool (hash=0x709ad65d85dd3c2ee3761193defe94861ec3d69cb8fe44dffcb09dce58a82f82, at=0xc24b7aff463540635d377c75be50f474451a8579b4e9918b61f34bda51169237)    
+2026-05-25 07:54:23 ✅ tx submitted to pool, hash=0x709ad65d85dd3c2ee3761193defe94861ec3d69cb8fe44dffcb09dce58a82f82    
+2026-05-25 07:54:23 📡 immediate P2P propagate hash=0x709ad65d85dd3c2ee3761193defe94861ec3d69cb8fe44dffcb09dce58a82f82    
+2026-05-25 07:54:23 ✅ tx in ready pool, hash = 0x709ad65d85dd3c2ee3761193defe94861ec3d69cb8fe44dffcb09dce58a82f82    
+2026-05-25 07:54:24 ⏩ Block history, #2435648 (119 peers), best: #8259782 (0xc24b…9237), finalized #8259780 (0xab54…a4a8), ⬇ 33.5MiB/s ⬆ 314.0kiB/s    
+2026-05-25 07:54:25 🏆 Imported #8259783 (0xc24b…9237 → 0x9096…7506)    
+2026-05-25 07:54:25 ✅ tx included, nonce=97 (remaining=Some(4))    
+2026-05-25 07:54:25 ✅ tx pre-built, nonce=98    
+2026-05-25 07:54:25 ✅ tx pre-built for next inject, nonce=98    
+2026-05-25 07:54:25 📌 injecting tx to pool front (nonce=98, at=0x90968080a7d853d20d8ed9ac22f17dea8f3fee979c2d5ed5896d186f5b457506)    
+2026-05-25 07:54:25 📤 submitting tx to pool (hash=0x8f26b8be50170bd3bec8fc3e819622eaa6865a0359cf5d97a9a95aea3b5cabbe, at=0x90968080a7d853d20d8ed9ac22f17dea8f3fee979c2d5ed5896d186f5b457506)    
+2026-05-25 07:54:25 ✅ tx submitted to pool, hash=0x8f26b8be50170bd3bec8fc3e819622eaa6865a0359cf5d97a9a95aea3b5cabbe    
+2026-05-25 07:54:25 📡 immediate P2P propagate hash=0x8f26b8be50170bd3bec8fc3e819622eaa6865a0359cf5d97a9a95aea3b5cabbe    
+2026-05-25 07:54:25 ✅ tx in ready pool, hash = 0x8f26b8be50170bd3bec8fc3e819622eaa6865a0359cf5d97a9a95aea3b5cabbe    
+2026-05-25 07:54:29 ⏩ Block history, #2442816 (118 peers), best: #8259783 (0x9096…7506), finalized #8259781 (0xbea8…28c5), ⬇ 17.3MiB/s ⬆ 538.9kiB/s    
+2026-05-25 07:54:34 ⏩ Block history, #2459584 (120 peers), best: #8259783 (0x9096…7506), finalized #8259781 (0xbea8…28c5), ⬇ 34.0MiB/s ⬆ 335.9kiB/s    
+2026-05-25 07:54:36 block #8259784 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:54:37 🏆 Imported #8259784 (0x9096…7506 → 0xa2a4…f2a3)    
+2026-05-25 07:54:37 ✅ tx included, nonce=98 (remaining=Some(3))    
+2026-05-25 07:54:37 ✅ tx pre-built, nonce=99    
+2026-05-25 07:54:37 ✅ tx pre-built for next inject, nonce=99    
+2026-05-25 07:54:37 📌 injecting tx to pool front (nonce=99, at=0xa2a478f886f8e944523dd30139a85eec71e66e2b324eb865c98bd7ac1c7df2a3)    
+2026-05-25 07:54:37 📤 submitting tx to pool (hash=0x2854058b1e6777306c6b72fa27fa4ed67fa67b754c5497daa1a32e57447e75c3, at=0xa2a478f886f8e944523dd30139a85eec71e66e2b324eb865c98bd7ac1c7df2a3)    
+2026-05-25 07:54:37 ✅ tx submitted to pool, hash=0x2854058b1e6777306c6b72fa27fa4ed67fa67b754c5497daa1a32e57447e75c3    
+2026-05-25 07:54:37 📡 immediate P2P propagate hash=0x2854058b1e6777306c6b72fa27fa4ed67fa67b754c5497daa1a32e57447e75c3    
+2026-05-25 07:54:37 ✅ tx in ready pool, hash = 0x2854058b1e6777306c6b72fa27fa4ed67fa67b754c5497daa1a32e57447e75c3    
+2026-05-25 07:54:39 ⏩ Block history, #2472128 (123 peers), best: #8259784 (0xa2a4…f2a3), finalized #8259782 (0xc24b…9237), ⬇ 26.2MiB/s ⬆ 412.2kiB/s    
+2026-05-25 07:54:44 ⏩ Block history, #2475264 (126 peers), best: #8259784 (0xa2a4…f2a3), finalized #8259782 (0xc24b…9237), ⬇ 6.5MiB/s ⬆ 247.8kiB/s    
+2026-05-25 07:54:49 block #8259785 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:54:49 🏆 Imported #8259785 (0xa2a4…f2a3 → 0xe2fa…2cd0)    
+2026-05-25 07:54:49 ✅ tx included, nonce=99 (remaining=Some(2))    
+2026-05-25 07:54:49 ✅ tx pre-built, nonce=100    
+2026-05-25 07:54:49 ✅ tx pre-built for next inject, nonce=100    
+2026-05-25 07:54:49 📌 injecting tx to pool front (nonce=100, at=0xe2fafcd4b1ee5ec21de60e502e2d5cca5d5fe7a1540fcc822af3ed64fe0e2cd0)    
+2026-05-25 07:54:49 📤 submitting tx to pool (hash=0xb50ae4cdd411f88323d5798b586259e2408c186c3d07bf96267be6cb8716a338, at=0xe2fafcd4b1ee5ec21de60e502e2d5cca5d5fe7a1540fcc822af3ed64fe0e2cd0)    
+2026-05-25 07:54:49 ✅ tx submitted to pool, hash=0xb50ae4cdd411f88323d5798b586259e2408c186c3d07bf96267be6cb8716a338    
+2026-05-25 07:54:49 📡 immediate P2P propagate hash=0xb50ae4cdd411f88323d5798b586259e2408c186c3d07bf96267be6cb8716a338    
+2026-05-25 07:54:49 ✅ tx in ready pool, hash = 0xb50ae4cdd411f88323d5798b586259e2408c186c3d07bf96267be6cb8716a338    
+2026-05-25 07:54:49 ⏩ Block history, #2484672 (126 peers), best: #8259785 (0xe2fa…2cd0), finalized #8259782 (0xc24b…9237), ⬇ 19.6MiB/s ⬆ 517.3kiB/s    
+2026-05-25 07:54:54 ⏩ Block history, #2492480 (130 peers), best: #8259785 (0xe2fa…2cd0), finalized #8259783 (0x9096…7506), ⬇ 14.6MiB/s ⬆ 387.2kiB/s    
+2026-05-25 07:54:59 ⏩ Block history, #2507328 (137 peers), best: #8259785 (0xe2fa…2cd0), finalized #8259783 (0x9096…7506), ⬇ 32.8MiB/s ⬆ 163.9kiB/s    
+2026-05-25 07:55:00 block #8259786 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:55:01 🏆 Imported #8259786 (0xe2fa…2cd0 → 0x6605…bbe6)    
+2026-05-25 07:55:01 ✅ tx included, nonce=100 (remaining=Some(1))    
+2026-05-25 07:55:01 ✅ tx pre-built, nonce=101    
+2026-05-25 07:55:01 ✅ tx pre-built for next inject, nonce=101    
+2026-05-25 07:55:01 📌 injecting tx to pool front (nonce=101, at=0x66058632bcdcac3d1fd1e8e6c0111d82505675dff8225e0d5022f113f479bbe6)    
+2026-05-25 07:55:01 📤 submitting tx to pool (hash=0x6ca4ee3cd4c568c82765b014b4ce3716fe634954016a22d693b61bdbb6c1f680, at=0x66058632bcdcac3d1fd1e8e6c0111d82505675dff8225e0d5022f113f479bbe6)    
+2026-05-25 07:55:01 ✅ tx submitted to pool, hash=0x6ca4ee3cd4c568c82765b014b4ce3716fe634954016a22d693b61bdbb6c1f680    
+2026-05-25 07:55:01 📡 immediate P2P propagate hash=0x6ca4ee3cd4c568c82765b014b4ce3716fe634954016a22d693b61bdbb6c1f680    
+2026-05-25 07:55:01 ✅ tx in ready pool, hash = 0x6ca4ee3cd4c568c82765b014b4ce3716fe634954016a22d693b61bdbb6c1f680    
+2026-05-25 07:55:04 ⏩ Block history, #2517952 (137 peers), best: #8259786 (0x6605…bbe6), finalized #8259784 (0xa2a4…f2a3), ⬇ 23.0MiB/s ⬆ 530.2kiB/s    
+2026-05-25 07:55:06 Report 12D3KooWFJs6iTwE6p7uxqDFjHC15tUWZDYhDRVMo4kfbSz1RB5u: -2147483648 to -2147483648. Reason: Peer disconnected with inflight after backoffs. Banned, disconnecting.    
+2026-05-25 07:55:06 Report 12D3KooW9tkHYA191iYMh69HBeoZyam1pn7eVPDavR7C8KWyHm76: -2147483648 to -2147483648. Reason: Peer disconnected with inflight after backoffs. Banned, disconnecting.    
+2026-05-25 07:55:09 ⏩ Block history, #2530240 (137 peers), best: #8259786 (0x6605…bbe6), finalized #8259784 (0xa2a4…f2a3), ⬇ 35.7MiB/s ⬆ 412.6kiB/s    
+2026-05-25 07:55:13 🏆 Imported #8259787 (0x6605…bbe6 → 0x5ab9…63dd)    
+2026-05-25 07:55:13 ✅ tx included, nonce=101 (remaining=Some(0))    
+2026-05-25 07:55:13 ✅ tx pre-built, nonce=102    
+2026-05-25 07:55:13 ✅ tx pre-built for next inject, nonce=102    
+2026-05-25 07:55:13 📌 injecting tx to pool front (nonce=102, at=0x5ab9739e66f57e0cab141f7bd07933206059be01346e6f9b2ea93165821a63dd)    
+2026-05-25 07:55:13 📤 submitting tx to pool (hash=0x4e9d87f6c48e4205c562efd47d93325a306e9852b4796df93faf142b91461946, at=0x5ab9739e66f57e0cab141f7bd07933206059be01346e6f9b2ea93165821a63dd)    
+2026-05-25 07:55:13 ✅ tx submitted to pool, hash=0x4e9d87f6c48e4205c562efd47d93325a306e9852b4796df93faf142b91461946    
+2026-05-25 07:55:13 📡 immediate P2P propagate hash=0x4e9d87f6c48e4205c562efd47d93325a306e9852b4796df93faf142b91461946    
+2026-05-25 07:55:13 ✅ tx in ready pool, hash = 0x4e9d87f6c48e4205c562efd47d93325a306e9852b4796df93faf142b91461946    
+2026-05-25 07:55:14 ⏩ Block history, #2542784 (138 peers), best: #8259787 (0x5ab9…63dd), finalized #8259785 (0xe2fa…2cd0), ⬇ 31.1MiB/s ⬆ 371.1kiB/s    
+2026-05-25 07:55:19 ⏩ Block history, #2553792 (139 peers), best: #8259787 (0x5ab9…63dd), finalized #8259785 (0xe2fa…2cd0), ⬇ 35.0MiB/s ⬆ 247.6kiB/s    
+2026-05-25 07:55:24 ⏩ Block history, #2565056 (140 peers), best: #8259787 (0x5ab9…63dd), finalized #8259785 (0xe2fa…2cd0), ⬇ 29.4MiB/s ⬆ 564.2kiB/s    
+2026-05-25 07:55:25 block #8259788 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:55:26 🏆 Imported #8259788 (0x5ab9…63dd → 0x2b07…2eae)    
+2026-05-25 07:55:29 Report 12D3KooWKiAgibvxHschmW4BdYDxfzao2VQybKtJ7RCyKPTQ53w1: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 07:55:29 ⏩ Block history, #2572032 (140 peers), best: #8259788 (0x2b07…2eae), finalized #8259786 (0x6605…bbe6), ⬇ 19.0MiB/s ⬆ 458.7kiB/s    
+2026-05-25 07:55:34 ⏩ Block history, #2582720 (141 peers), best: #8259788 (0x2b07…2eae), finalized #8259786 (0x6605…bbe6), ⬇ 26.7MiB/s ⬆ 252.2kiB/s    
+2026-05-25 07:55:36 block #8259789 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:55:37 🏆 Imported #8259789 (0x2b07…2eae → 0x96f2…5210)    
+2026-05-25 07:55:39 ⏩ Block history, #2594816 (141 peers), best: #8259789 (0x96f2…5210), finalized #8259787 (0x5ab9…63dd), ⬇ 27.6MiB/s ⬆ 525.7kiB/s    
+2026-05-25 07:55:44 ⏩ Block history, #2606528 (142 peers), best: #8259789 (0x96f2…5210), finalized #8259787 (0x5ab9…63dd), ⬇ 31.4MiB/s ⬆ 337.3kiB/s    
+2026-05-25 07:55:48 🏆 Imported #8259790 (0x96f2…5210 → 0x0447…3162)    
+2026-05-25 07:55:49 ⏩ Block history, #2620288 (142 peers), best: #8259790 (0x0447…3162), finalized #8259788 (0x2b07…2eae), ⬇ 31.3MiB/s ⬆ 375.7kiB/s    
+2026-05-25 07:55:54 ⏩ Block history, #2634688 (142 peers), best: #8259790 (0x0447…3162), finalized #8259788 (0x2b07…2eae), ⬇ 32.7MiB/s ⬆ 378.3kiB/s    
+2026-05-25 07:55:59 ⏩ Block history, #2647232 (142 peers), best: #8259790 (0x0447…3162), finalized #8259788 (0x2b07…2eae), ⬇ 29.7MiB/s ⬆ 456.8kiB/s    
+2026-05-25 07:56:00 block #8259791 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:56:01 🏆 Imported #8259791 (0x0447…3162 → 0x5890…7a86)    
+2026-05-25 07:56:04 ⏩ Block history, #2658368 (142 peers), best: #8259791 (0x5890…7a86), finalized #8259789 (0x96f2…5210), ⬇ 25.8MiB/s ⬆ 465.6kiB/s    
+2026-05-25 07:56:09 ⏩ Block history, #2667008 (143 peers), best: #8259791 (0x5890…7a86), finalized #8259789 (0x96f2…5210), ⬇ 16.6MiB/s ⬆ 466.7kiB/s    
+2026-05-25 07:56:12 block #8259792 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:56:13 🏆 Imported #8259792 (0x5890…7a86 → 0x2554…687e)    
+2026-05-25 07:56:14 ⏩ Block history, #2675904 (144 peers), best: #8259792 (0x2554…687e), finalized #8259790 (0x0447…3162), ⬇ 16.3MiB/s ⬆ 534.2kiB/s    
+2026-05-25 07:56:19 ⏩ Block history, #2685952 (144 peers), best: #8259792 (0x2554…687e), finalized #8259790 (0x0447…3162), ⬇ 20.8MiB/s ⬆ 341.0kiB/s    
+2026-05-25 07:56:24 ⏩ Block history, #2689728 (144 peers), best: #8259792 (0x2554…687e), finalized #8259790 (0x0447…3162), ⬇ 8.1MiB/s ⬆ 433.1kiB/s    
+2026-05-25 07:56:25 🏆 Imported #8259793 (0x2554…687e → 0xb951…8731)    
+2026-05-25 07:56:29 ⏩ Block history, #2695936 (144 peers), best: #8259793 (0xb951…8731), finalized #8259791 (0x5890…7a86), ⬇ 13.0MiB/s ⬆ 341.2kiB/s    
+2026-05-25 07:56:34 ⏩ Block history, #2710336 (145 peers), best: #8259793 (0xb951…8731), finalized #8259791 (0x5890…7a86), ⬇ 31.7MiB/s ⬆ 319.6kiB/s    
+2026-05-25 07:56:36 block #8259794 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:56:37 🏆 Imported #8259794 (0xb951…8731 → 0xdbb2…cc22)    
+2026-05-25 07:56:39 ⏩ Block history, #2725888 (147 peers), best: #8259794 (0xdbb2…cc22), finalized #8259792 (0x2554…687e), ⬇ 39.0MiB/s ⬆ 450.6kiB/s    
+2026-05-25 07:56:44 ⏩ Block history, #2739328 (148 peers), best: #8259794 (0xdbb2…cc22), finalized #8259792 (0x2554…687e), ⬇ 38.3MiB/s ⬆ 505.0kiB/s    
+2026-05-25 07:56:49 block #8259795 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:56:49 🏆 Imported #8259795 (0xdbb2…cc22 → 0xdb21…6361)    
+2026-05-25 07:56:49 ⏩ Block history, #2750336 (148 peers), best: #8259795 (0xdb21…6361), finalized #8259792 (0x2554…687e), ⬇ 30.4MiB/s ⬆ 520.7kiB/s    
+2026-05-25 07:56:54 ⏩ Block history, #2764032 (148 peers), best: #8259795 (0xdb21…6361), finalized #8259793 (0xb951…8731), ⬇ 34.2MiB/s ⬆ 286.0kiB/s    
+2026-05-25 07:56:59 ⏩ Block history, #2776640 (148 peers), best: #8259795 (0xdb21…6361), finalized #8259793 (0xb951…8731), ⬇ 30.9MiB/s ⬆ 472.6kiB/s    
+2026-05-25 07:57:00 block #8259796 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:57:01 🏆 Imported #8259796 (0xdb21…6361 → 0x60c6…d742)    
+2026-05-25 07:57:04 ⏩ Block history, #2789568 (149 peers), best: #8259796 (0x60c6…d742), finalized #8259794 (0xdbb2…cc22), ⬇ 37.1MiB/s ⬆ 398.6kiB/s    
+2026-05-25 07:57:09 ⏩ Block history, #2802880 (149 peers), best: #8259796 (0x60c6…d742), finalized #8259794 (0xdbb2…cc22), ⬇ 36.9MiB/s ⬆ 471.3kiB/s    
+2026-05-25 07:57:12 block #8259797 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:57:13 🏆 Imported #8259797 (0x60c6…d742 → 0x690d…d9d2)    
+2026-05-25 07:57:14 ⏩ Block history, #2811456 (149 peers), best: #8259797 (0x690d…d9d2), finalized #8259794 (0xdbb2…cc22), ⬇ 58.3MiB/s ⬆ 491.1kiB/s    
+2026-05-25 07:57:19 ⏩ Block history, #2822976 (149 peers), best: #8259797 (0x690d…d9d2), finalized #8259795 (0xdb21…6361), ⬇ 34.7MiB/s ⬆ 395.0kiB/s    
+2026-05-25 07:57:24 ⏩ Block history, #2834496 (149 peers), best: #8259797 (0x690d…d9d2), finalized #8259795 (0xdb21…6361), ⬇ 29.8MiB/s ⬆ 690.6kiB/s    
+2026-05-25 07:57:24 block #8259798 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 07:57:25 🏆 Imported #8259798 (0x690d…d9d2 → 0xfa0c…44b3)    
+2026-05-25 07:57:29 ⏩ Block history, #2848832 (149 peers), best: #8259798 (0xfa0c…44b3), finalized #8259796 (0x60c6…d742), ⬇ 34.3MiB/s ⬆ 455.4kiB/s    
+2026-05-25 07:57:34 ⏩ Block history, #2857856 (149 peers), best: #8259798 (0xfa0c…44b3), finalized #8259796 (0x60c6…d742), ⬇ 28.4MiB/s ⬆ 521.7kiB/s    
+2026-05-25 07:57:36 block #8259799 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:57:36 🏆 Imported #8259799 (0xfa0c…44b3 → 0xf8cc…f86c)    
+2026-05-25 07:57:39 ⏩ Block history, #2870400 (149 peers), best: #8259799 (0xf8cc…f86c), finalized #8259797 (0x690d…d9d2), ⬇ 43.0MiB/s ⬆ 371.8kiB/s    
+2026-05-25 07:57:44 ⏩ Block history, #2883648 (153 peers), best: #8259799 (0xf8cc…f86c), finalized #8259797 (0x690d…d9d2), ⬇ 56.2MiB/s ⬆ 426.2kiB/s    
+2026-05-25 07:57:48 block #8259800 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:57:48 🏆 Imported #8259800 (0xf8cc…f86c → 0x622d…19a6)    
+2026-05-25 07:57:49 ⏩ Block history, #2895296 (154 peers), best: #8259800 (0x622d…19a6), finalized #8259797 (0x690d…d9d2), ⬇ 48.8MiB/s ⬆ 527.0kiB/s    
+2026-05-25 07:57:54 ⏩ Block history, #2904512 (155 peers), best: #8259800 (0x622d…19a6), finalized #8259798 (0xfa0c…44b3), ⬇ 45.5MiB/s ⬆ 326.9kiB/s    
+2026-05-25 07:57:59 ⏩ Block history, #2913664 (156 peers), best: #8259800 (0x622d…19a6), finalized #8259798 (0xfa0c…44b3), ⬇ 43.0MiB/s ⬆ 306.8kiB/s    
+2026-05-25 07:58:00 🏆 Imported #8259801 (0x622d…19a6 → 0xa266…ece6)    
+2026-05-25 07:58:04 ⏩ Block history, #2919680 (156 peers), best: #8259801 (0xa266…ece6), finalized #8259799 (0xf8cc…f86c), ⬇ 18.0MiB/s ⬆ 574.2kiB/s    
+2026-05-25 07:58:09 ⏩ Block history, #2920960 (156 peers), best: #8259801 (0xa266…ece6), finalized #8259799 (0xf8cc…f86c), ⬇ 15.3MiB/s ⬆ 337.5kiB/s    
+2026-05-25 07:58:12 block #8259802 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 07:58:13 🏆 Imported #8259802 (0xa266…ece6 → 0x07d6…c2d1)    
+2026-05-25 07:58:14 ⏩ Block history, #2931904 (157 peers), best: #8259802 (0x07d6…c2d1), finalized #8259800 (0x622d…19a6), ⬇ 47.1MiB/s ⬆ 423.4kiB/s    
+2026-05-25 07:58:19 ⏩ Block history, #2942912 (157 peers), best: #8259802 (0x07d6…c2d1), finalized #8259800 (0x622d…19a6), ⬇ 45.4MiB/s ⬆ 308.3kiB/s    
+2026-05-25 07:58:24 ⏩ Block history, #2952128 (157 peers), best: #8259802 (0x07d6…c2d1), finalized #8259800 (0x622d…19a6), ⬇ 38.3MiB/s ⬆ 698.4kiB/s    
+2026-05-25 07:58:25 Precompile dispatch failed. message as: DispatchErrorWithPostInfo { post_info: PostDispatchInfo { actual_weight: None, pays_fee: Yes }, error: Module(ModuleError { index: 28, error: [3, 0, 0, 0], message: Some("PriceLimitExceeded") }) }    
+2026-05-25 07:58:25 🏆 Imported #8259803 (0x07d6…c2d1 → 0x8966…4f19)    
+2026-05-25 07:58:29 ⏩ Block history, #2961408 (158 peers), best: #8259803 (0x8966…4f19), finalized #8259801 (0xa266…ece6), ⬇ 35.3MiB/s ⬆ 555.9kiB/s    
+2026-05-25 07:58:34 ⏩ Block history, #2971520 (158 peers), best: #8259803 (0x8966…4f19), finalized #8259801 (0xa266…ece6), ⬇ 41.0MiB/s ⬆ 374.4kiB/s    
+2026-05-25 07:58:37 🏆 Imported #8259804 (0x8966…4f19 → 0xfc9e…5327)    
+2026-05-25 07:58:39 ⏩ Block history, #2981440 (158 peers), best: #8259804 (0xfc9e…5327), finalized #8259802 (0x07d6…c2d1), ⬇ 40.4MiB/s ⬆ 523.5kiB/s    
+2026-05-25 07:58:44 ⏩ Block history, #2993216 (160 peers), best: #8259804 (0xfc9e…5327), finalized #8259802 (0x07d6…c2d1), ⬇ 41.4MiB/s ⬆ 207.4kiB/s    
+2026-05-25 07:58:49 🏆 Imported #8259805 (0xfc9e…5327 → 0x74aa…8421)    
+2026-05-25 07:58:49 ⏩ Block history, #3004288 (160 peers), best: #8259805 (0x74aa…8421), finalized #8259802 (0x07d6…c2d1), ⬇ 45.3MiB/s ⬆ 459.5kiB/s    
+2026-05-25 07:58:54 ⏩ Block history, #3014720 (160 peers), best: #8259805 (0x74aa…8421), finalized #8259803 (0x8966…4f19), ⬇ 35.3MiB/s ⬆ 385.7kiB/s    
+2026-05-25 07:58:59 ⏩ Block history, #3027200 (160 peers), best: #8259805 (0x74aa…8421), finalized #8259803 (0x8966…4f19), ⬇ 30.4MiB/s ⬆ 147.8kiB/s    
+2026-05-25 07:59:01 block #8259806 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:59:01 🏆 Imported #8259806 (0x74aa…8421 → 0xdb71…42dd)    
+2026-05-25 07:59:04 ⏩ Block history, #3039872 (160 peers), best: #8259806 (0xdb71…42dd), finalized #8259804 (0xfc9e…5327), ⬇ 29.0MiB/s ⬆ 353.3kiB/s    
+2026-05-25 07:59:09 ⏩ Block history, #3051456 (160 peers), best: #8259806 (0xdb71…42dd), finalized #8259804 (0xfc9e…5327), ⬇ 28.3MiB/s ⬆ 587.1kiB/s    
+2026-05-25 07:59:12 🏆 Imported #8259807 (0xdb71…42dd → 0xbc90…9442)    
+2026-05-25 07:59:14 ⏩ Block history, #3064000 (162 peers), best: #8259807 (0xbc90…9442), finalized #8259805 (0x74aa…8421), ⬇ 29.7MiB/s ⬆ 775.8kiB/s    
+2026-05-25 07:59:19 ⏩ Block history, #3077440 (162 peers), best: #8259807 (0xbc90…9442), finalized #8259805 (0x74aa…8421), ⬇ 31.1MiB/s ⬆ 569.6kiB/s    
+2026-05-25 07:59:24 block #8259808 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:59:24 🏆 Imported #8259808 (0xbc90…9442 → 0x8584…3d6b)    
+2026-05-25 07:59:24 ⏩ Block history, #3089216 (162 peers), best: #8259808 (0x8584…3d6b), finalized #8259805 (0x74aa…8421), ⬇ 29.6MiB/s ⬆ 501.6kiB/s    
+2026-05-25 07:59:29 ⏩ Block history, #3102720 (162 peers), best: #8259808 (0x8584…3d6b), finalized #8259806 (0xdb71…42dd), ⬇ 32.0MiB/s ⬆ 685.8kiB/s    
+2026-05-25 07:59:34 ⏩ Block history, #3114816 (162 peers), best: #8259808 (0x8584…3d6b), finalized #8259806 (0xdb71…42dd), ⬇ 29.4MiB/s ⬆ 424.0kiB/s    
+2026-05-25 07:59:37 🏆 Imported #8259809 (0x8584…3d6b → 0x2951…981c)    
+2026-05-25 07:59:39 ⏩ Block history, #3124480 (161 peers), best: #8259809 (0x2951…981c), finalized #8259807 (0xbc90…9442), ⬇ 21.1MiB/s ⬆ 424.4kiB/s    
+2026-05-25 07:59:44 ⏩ Block history, #3130688 (162 peers), best: #8259809 (0x2951…981c), finalized #8259807 (0xbc90…9442), ⬇ 11.3MiB/s ⬆ 437.0kiB/s    
+2026-05-25 07:59:48 block #8259810 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 07:59:49 🏆 Imported #8259810 (0x2951…981c → 0x4f52…6647)    
+2026-05-25 07:59:49 ⏩ Block history, #3140864 (162 peers), best: #8259810 (0x4f52…6647), finalized #8259807 (0xbc90…9442), ⬇ 22.7MiB/s ⬆ 312.8kiB/s    
+2026-05-25 07:59:54 ⏩ Block history, #3151936 (164 peers), best: #8259810 (0x4f52…6647), finalized #8259808 (0x8584…3d6b), ⬇ 26.8MiB/s ⬆ 254.4kiB/s    
+2026-05-25 07:59:59 ⏩ Block history, #3165376 (164 peers), best: #8259810 (0x4f52…6647), finalized #8259808 (0x8584…3d6b), ⬇ 36.8MiB/s ⬆ 444.2kiB/s    
+2026-05-25 08:00:00 block #8259811 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:00:01 🏆 Imported #8259811 (0x4f52…6647 → 0xa80c…f84b)    
+2026-05-25 08:00:04 ⏩ Block history, #3173824 (165 peers), best: #8259811 (0xa80c…f84b), finalized #8259809 (0x2951…981c), ⬇ 22.2MiB/s ⬆ 340.6kiB/s    
+2026-05-25 08:00:09 ⏩ Block history, #3180288 (165 peers), best: #8259811 (0xa80c…f84b), finalized #8259809 (0x2951…981c), ⬇ 22.1MiB/s ⬆ 534.2kiB/s    
+2026-05-25 08:00:12 block #8259812 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:00:12 🏆 Imported #8259812 (0xa80c…f84b → 0x3482…aeb6)    
+2026-05-25 08:00:14 ⏩ Block history, #3190464 (165 peers), best: #8259812 (0x3482…aeb6), finalized #8259810 (0x4f52…6647), ⬇ 22.8MiB/s ⬆ 595.7kiB/s    
+2026-05-25 08:00:19 ⏩ Block history, #3200064 (166 peers), best: #8259812 (0x3482…aeb6), finalized #8259810 (0x4f52…6647), ⬇ 18.7MiB/s ⬆ 140.4kiB/s    
+2026-05-25 08:00:24 ⏩ Block history, #3213696 (166 peers), best: #8259812 (0x3482…aeb6), finalized #8259810 (0x4f52…6647), ⬇ 23.7MiB/s ⬆ 186.6kiB/s    
+2026-05-25 08:00:25 block #8259813 first announce attributed to 12D3KooWEG2QNgJrF4jxrinAaDpP8Ydq3jRBug9DKhqpDD3NvTVz (1 candidates)    
+2026-05-25 08:00:25 🏆 Imported #8259813 (0x3482…aeb6 → 0xc000…f773)    
+2026-05-25 08:00:29 ⏩ Block history, #3229120 (166 peers), best: #8259813 (0xc000…f773), finalized #8259811 (0xa80c…f84b), ⬇ 30.0MiB/s ⬆ 571.6kiB/s    
+2026-05-25 08:00:34 ⏩ Block history, #3241344 (166 peers), best: #8259813 (0xc000…f773), finalized #8259811 (0xa80c…f84b), ⬇ 18.4MiB/s ⬆ 1.2MiB/s    
+2026-05-25 08:00:37 🏆 Imported #8259814 (0xc000…f773 → 0x6120…eb1b)    
+2026-05-25 08:00:39 ⏩ Block history, #3255232 (167 peers), best: #8259814 (0x6120…eb1b), finalized #8259812 (0x3482…aeb6), ⬇ 26.1MiB/s ⬆ 623.0kiB/s    
+2026-05-25 08:00:44 ⏩ Block history, #3268672 (167 peers), best: #8259814 (0x6120…eb1b), finalized #8259812 (0x3482…aeb6), ⬇ 21.5MiB/s ⬆ 520.8kiB/s    
+2026-05-25 08:00:49 ⏩ Block history, #3279168 (167 peers), best: #8259814 (0x6120…eb1b), finalized #8259812 (0x3482…aeb6), ⬇ 16.9MiB/s ⬆ 475.3kiB/s    
+2026-05-25 08:00:49 🏆 Imported #8259815 (0x6120…eb1b → 0x190f…04bf)    
+2026-05-25 08:00:54 ⏩ Block history, #3291328 (167 peers), best: #8259815 (0x190f…04bf), finalized #8259813 (0xc000…f773), ⬇ 21.9MiB/s ⬆ 406.9kiB/s    
+2026-05-25 08:00:59 ⏩ Block history, #3304256 (167 peers), best: #8259815 (0x190f…04bf), finalized #8259813 (0xc000…f773), ⬇ 20.4MiB/s ⬆ 212.9kiB/s    
+2026-05-25 08:01:00 block #8259816 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:01:01 🏆 Imported #8259816 (0x190f…04bf → 0x61ee…a509)    
+2026-05-25 08:01:04 ⏩ Block history, #3329536 (166 peers), best: #8259816 (0x61ee…a509), finalized #8259814 (0x6120…eb1b), ⬇ 8.9MiB/s ⬆ 474.9kiB/s    
+2026-05-25 08:01:09 ⏩ Block history, #3358656 (166 peers), best: #8259816 (0x61ee…a509), finalized #8259814 (0x6120…eb1b), ⬇ 6.8MiB/s ⬆ 398.3kiB/s    
+2026-05-25 08:01:12 block #8259817 first announce attributed to 12D3KooWEG2QNgJrF4jxrinAaDpP8Ydq3jRBug9DKhqpDD3NvTVz (1 candidates)    
+2026-05-25 08:01:13 🏆 Imported #8259817 (0x61ee…a509 → 0xe6af…e2dd)    
+2026-05-25 08:01:14 ⏩ Block history, #3369984 (168 peers), best: #8259817 (0xe6af…e2dd), finalized #8259814 (0x6120…eb1b), ⬇ 25.0MiB/s ⬆ 329.5kiB/s    
+2026-05-25 08:01:15 Report 12D3KooWHKBtLzFGapGyjbDvNApmwouARMSy4wnbHvvLRjCBdphB: -536870912 to -1550600766. Reason: Not requested block data. Banned, disconnecting.    
+2026-05-25 08:01:19 ⏩ Block history, #3384576 (167 peers), best: #8259817 (0xe6af…e2dd), finalized #8259815 (0x190f…04bf), ⬇ 35.5MiB/s ⬆ 385.3kiB/s    
+2026-05-25 08:01:22 Report 12D3KooWHKBtLzFGapGyjbDvNApmwouARMSy4wnbHvvLRjCBdphB: -536870912 to -2034008631. Reason: Not requested block data. Banned, disconnecting.    
+2026-05-25 08:01:24 block #8259818 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:01:24 ⏩ Block history, #3398272 (167 peers), best: #8259817 (0xe6af…e2dd), finalized #8259815 (0x190f…04bf), ⬇ 33.4MiB/s ⬆ 277.3kiB/s    
+2026-05-25 08:01:24 🏆 Imported #8259818 (0xe6af…e2dd → 0x702d…05fa)    
+2026-05-25 08:01:29 ⏩ Block history, #3409088 (167 peers), best: #8259818 (0x702d…05fa), finalized #8259816 (0x61ee…a509), ⬇ 30.5MiB/s ⬆ 526.2kiB/s    
+2026-05-25 08:01:33 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:01:34 ⏩ Block history, #3421504 (167 peers), best: #8259818 (0x702d…05fa), finalized #8259816 (0x61ee…a509), ⬇ 36.1MiB/s ⬆ 479.8kiB/s    
+2026-05-25 08:01:36 block #8259819 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:01:37 🏆 Imported #8259819 (0x702d…05fa → 0x751f…349a)    
+2026-05-25 08:01:39 ⏩ Block history, #3433984 (167 peers), best: #8259819 (0x751f…349a), finalized #8259817 (0xe6af…e2dd), ⬇ 33.6MiB/s ⬆ 446.7kiB/s    
+2026-05-25 08:01:44 ⏩ Block history, #3443456 (167 peers), best: #8259819 (0x751f…349a), finalized #8259817 (0xe6af…e2dd), ⬇ 25.8MiB/s ⬆ 689.2kiB/s    
+2026-05-25 08:01:48 block #8259820 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:01:49 🏆 Imported #8259820 (0x751f…349a → 0x2329…0c3b)    
+2026-05-25 08:01:49 ⏩ Block history, #3452992 (167 peers), best: #8259820 (0x2329…0c3b), finalized #8259817 (0xe6af…e2dd), ⬇ 27.0MiB/s ⬆ 772.5kiB/s    
+2026-05-25 08:01:54 ⏩ Block history, #3465728 (168 peers), best: #8259820 (0x2329…0c3b), finalized #8259818 (0x702d…05fa), ⬇ 33.7MiB/s ⬆ 489.7kiB/s    
+2026-05-25 08:01:59 ⏩ Block history, #3478080 (169 peers), best: #8259820 (0x2329…0c3b), finalized #8259818 (0x702d…05fa), ⬇ 30.2MiB/s ⬆ 342.0kiB/s    
+2026-05-25 08:02:01 🏆 Imported #8259821 (0x2329…0c3b → 0xe34e…87fa)    
+2026-05-25 08:02:04 ⏩ Block history, #3487040 (170 peers), best: #8259821 (0xe34e…87fa), finalized #8259819 (0x751f…349a), ⬇ 27.1MiB/s ⬆ 709.0kiB/s    
+2026-05-25 08:02:09 ⏩ Block history, #3498816 (170 peers), best: #8259821 (0xe34e…87fa), finalized #8259819 (0x751f…349a), ⬇ 30.2MiB/s ⬆ 377.8kiB/s    
+2026-05-25 08:02:13 🏆 Imported #8259822 (0xe34e…87fa → 0xac05…6a83)    
+2026-05-25 08:02:14 ⏩ Block history, #3509504 (170 peers), best: #8259822 (0xac05…6a83), finalized #8259820 (0x2329…0c3b), ⬇ 30.4MiB/s ⬆ 743.8kiB/s    
+2026-05-25 08:02:19 ⏩ Block history, #3520896 (170 peers), best: #8259822 (0xac05…6a83), finalized #8259820 (0x2329…0c3b), ⬇ 30.2MiB/s ⬆ 580.1kiB/s    
+2026-05-25 08:02:23 Report 12D3KooWHKBtLzFGapGyjbDvNApmwouARMSy4wnbHvvLRjCBdphB: -536870912 to -2035040107. Reason: Not requested block data. Banned, disconnecting.    
+2026-05-25 08:02:24 block #8259823 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:02:24 ⏩ Block history, #3531904 (170 peers), best: #8259822 (0xac05…6a83), finalized #8259820 (0x2329…0c3b), ⬇ 30.6MiB/s ⬆ 718.2kiB/s    
+2026-05-25 08:02:25 🏆 Imported #8259823 (0xac05…6a83 → 0xadc8…aafa)    
+2026-05-25 08:02:29 ⏩ Block history, #3542400 (171 peers), best: #8259823 (0xadc8…aafa), finalized #8259821 (0xe34e…87fa), ⬇ 29.5MiB/s ⬆ 637.6kiB/s    
+2026-05-25 08:02:34 ⏩ Block history, #3556736 (171 peers), best: #8259823 (0xadc8…aafa), finalized #8259821 (0xe34e…87fa), ⬇ 32.3MiB/s ⬆ 321.8kiB/s    
+2026-05-25 08:02:36 block #8259824 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:02:37 🏆 Imported #8259824 (0xadc8…aafa → 0x956d…7510)    
+2026-05-25 08:02:39 ⏩ Block history, #3569408 (171 peers), best: #8259824 (0x956d…7510), finalized #8259822 (0xac05…6a83), ⬇ 29.0MiB/s ⬆ 658.0kiB/s    
+2026-05-25 08:02:43 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:02:44 ⏩ Block history, #3582016 (172 peers), best: #8259824 (0x956d…7510), finalized #8259822 (0xac05…6a83), ⬇ 28.7MiB/s ⬆ 632.8kiB/s    
+2026-05-25 08:02:49 🏆 Imported #8259825 (0x956d…7510 → 0xed48…88c3)    
+2026-05-25 08:02:49 ⏩ Block history, #3595776 (172 peers), best: #8259825 (0xed48…88c3), finalized #8259822 (0xac05…6a83), ⬇ 29.3MiB/s ⬆ 583.8kiB/s    
+2026-05-25 08:02:54 ⏩ Block history, #3611264 (172 peers), best: #8259825 (0xed48…88c3), finalized #8259823 (0xadc8…aafa), ⬇ 29.4MiB/s ⬆ 428.6kiB/s    
+2026-05-25 08:02:59 ⏩ Block history, #3623616 (174 peers), best: #8259825 (0xed48…88c3), finalized #8259823 (0xadc8…aafa), ⬇ 22.7MiB/s ⬆ 488.6kiB/s    
+2026-05-25 08:03:00 ✅ tx pre-built, nonce=103    
+2026-05-25 08:03:00 ✅ tx re-synced on start_txs, nonce=103    
+2026-05-25 08:03:00 🚀 sending tx on announce #8259826 (nonce=103, at=0xed48ca229e4785142814ea32ffa64ff158f6102fd80742c3001037047f4588c3)    
+2026-05-25 08:03:00 📤 submitting tx to pool (hash=0x8daf21eae5144ae3b188a6105346c8f8c4b9352699839c74b29dcb7391d66983, at=0xed48ca229e4785142814ea32ffa64ff158f6102fd80742c3001037047f4588c3)    
+2026-05-25 08:03:00 block #8259826 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:03:00 ✅ tx submitted to pool, hash=0x8daf21eae5144ae3b188a6105346c8f8c4b9352699839c74b29dcb7391d66983    
+2026-05-25 08:03:00 📡 immediate P2P propagate hash=0x8daf21eae5144ae3b188a6105346c8f8c4b9352699839c74b29dcb7391d66983    
+2026-05-25 08:03:00 ✅ tx in pool, hash = 0x8daf21eae5144ae3b188a6105346c8f8c4b9352699839c74b29dcb7391d66983    
+2026-05-25 08:03:00 ✅ tx pre-built, nonce=104    
+2026-05-25 08:03:00 ✅ tx pre-built for next send, nonce=104 (remaining=Some(4))    
+2026-05-25 08:03:01 🏆 Imported #8259826 (0xed48…88c3 → 0x3c06…7b0a)    
+2026-05-25 08:03:04 ⏩ Block history, #3637824 (175 peers), best: #8259826 (0x3c06…7b0a), finalized #8259824 (0x956d…7510), ⬇ 25.0MiB/s ⬆ 796.6kiB/s    
+2026-05-25 08:03:09 ⏩ Block history, #3651584 (175 peers), best: #8259826 (0x3c06…7b0a), finalized #8259824 (0x956d…7510), ⬇ 23.5MiB/s ⬆ 585.1kiB/s    
+2026-05-25 08:03:13 🚀 sending tx on announce #8259827 (nonce=104, at=0x3c0608a86b7f5484f5a2795b09853ec420c899719c21b035e7ea33486ed77b0a)    
+2026-05-25 08:03:13 📤 submitting tx to pool (hash=0xf52a12818ab8bf0c3aef93b9ddcf9010750205fa04051f81293fd12e1af0ed8a, at=0x3c0608a86b7f5484f5a2795b09853ec420c899719c21b035e7ea33486ed77b0a)    
+2026-05-25 08:03:13 block #8259827 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:03:13 ✅ tx submitted to pool, hash=0xf52a12818ab8bf0c3aef93b9ddcf9010750205fa04051f81293fd12e1af0ed8a    
+2026-05-25 08:03:13 📡 immediate P2P propagate hash=0xf52a12818ab8bf0c3aef93b9ddcf9010750205fa04051f81293fd12e1af0ed8a    
+2026-05-25 08:03:13 ✅ tx in pool, hash = 0xf52a12818ab8bf0c3aef93b9ddcf9010750205fa04051f81293fd12e1af0ed8a    
+2026-05-25 08:03:13 ✅ tx pre-built, nonce=105    
+2026-05-25 08:03:13 ✅ tx pre-built for next send, nonce=105 (remaining=Some(3))    
+2026-05-25 08:03:13 🏆 Imported #8259827 (0x3c06…7b0a → 0x5f47…fea5)    
+2026-05-25 08:03:14 ⏩ Block history, #3661696 (176 peers), best: #8259827 (0x5f47…fea5), finalized #8259824 (0x956d…7510), ⬇ 18.1MiB/s ⬆ 521.5kiB/s    
+2026-05-25 08:03:19 ⏩ Block history, #3670656 (176 peers), best: #8259827 (0x5f47…fea5), finalized #8259825 (0xed48…88c3), ⬇ 13.6MiB/s ⬆ 709.7kiB/s    
+2026-05-25 08:03:24 🚀 sending tx on announce #8259828 (nonce=105, at=0x5f47f437e13d5a140bf798c7a5df7b92f46647a1649eee3e98270a1cac0afea5)    
+2026-05-25 08:03:24 📤 submitting tx to pool (hash=0xf84417c863779eda338fd23c53ec8d5fba48e24b3021f3f20f59db0395d9b9bc, at=0x5f47f437e13d5a140bf798c7a5df7b92f46647a1649eee3e98270a1cac0afea5)    
+2026-05-25 08:03:24 ✅ tx submitted to pool, hash=0xf84417c863779eda338fd23c53ec8d5fba48e24b3021f3f20f59db0395d9b9bc    
+2026-05-25 08:03:24 📡 immediate P2P propagate hash=0xf84417c863779eda338fd23c53ec8d5fba48e24b3021f3f20f59db0395d9b9bc    
+2026-05-25 08:03:24 ✅ tx in pool, hash = 0xf84417c863779eda338fd23c53ec8d5fba48e24b3021f3f20f59db0395d9b9bc    
+2026-05-25 08:03:24 block #8259828 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:03:24 ✅ tx pre-built, nonce=106    
+2026-05-25 08:03:24 ✅ tx pre-built for next send, nonce=106 (remaining=Some(2))    
+2026-05-25 08:03:24 🏆 Imported #8259828 (0x5f47…fea5 → 0xc3b0…5f25)    
+2026-05-25 08:03:24 ⏩ Block history, #3679616 (176 peers), best: #8259828 (0xc3b0…5f25), finalized #8259825 (0xed48…88c3), ⬇ 19.0MiB/s ⬆ 435.0kiB/s    
+2026-05-25 08:03:29 ⏩ Block history, #3688576 (176 peers), best: #8259828 (0xc3b0…5f25), finalized #8259826 (0x3c06…7b0a), ⬇ 15.6MiB/s ⬆ 685.5kiB/s    
+2026-05-25 08:03:31 Report 12D3KooWCzgwYab3VqJGu3s2WTDFK99iMrcf1f2rAXqBnAtWaUQ9: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 08:03:34 ⏩ Block history, #3697280 (176 peers), best: #8259828 (0xc3b0…5f25), finalized #8259826 (0x3c06…7b0a), ⬇ 15.2MiB/s ⬆ 686.9kiB/s    
+2026-05-25 08:03:36 🚀 sending tx on announce #8259829 (nonce=106, at=0xc3b03cbb99d01b20af5fafa275ac172b8e843c7b8aa5cb9f277ced3bee4b5f25)    
+2026-05-25 08:03:36 📤 submitting tx to pool (hash=0x6978f264be1d39c2acff84aad7144c6531c9f6ea1196f001f38ecc0b58891da6, at=0xc3b03cbb99d01b20af5fafa275ac172b8e843c7b8aa5cb9f277ced3bee4b5f25)    
+2026-05-25 08:03:36 block #8259829 first announce attributed to 12D3KooWEG2QNgJrF4jxrinAaDpP8Ydq3jRBug9DKhqpDD3NvTVz (1 candidates)    
+2026-05-25 08:03:36 ✅ tx submitted to pool, hash=0x6978f264be1d39c2acff84aad7144c6531c9f6ea1196f001f38ecc0b58891da6    
+2026-05-25 08:03:36 📡 immediate P2P propagate hash=0x6978f264be1d39c2acff84aad7144c6531c9f6ea1196f001f38ecc0b58891da6    
+2026-05-25 08:03:36 ✅ tx in pool, hash = 0x6978f264be1d39c2acff84aad7144c6531c9f6ea1196f001f38ecc0b58891da6    
+2026-05-25 08:03:36 ✅ tx pre-built, nonce=107    
+2026-05-25 08:03:36 ✅ tx pre-built for next send, nonce=107 (remaining=Some(1))    
+2026-05-25 08:03:37 🏆 Imported #8259829 (0xc3b0…5f25 → 0x4f82…0da7)    
+2026-05-25 08:03:39 ⏩ Block history, #3706240 (175 peers), best: #8259829 (0x4f82…0da7), finalized #8259827 (0x5f47…fea5), ⬇ 16.3MiB/s ⬆ 620.7kiB/s    
+2026-05-25 08:03:44 ⏩ Block history, #3716352 (176 peers), best: #8259829 (0x4f82…0da7), finalized #8259827 (0x5f47…fea5), ⬇ 17.4MiB/s ⬆ 774.9kiB/s    
+2026-05-25 08:03:48 🚀 sending tx on announce #8259830 (nonce=107, at=0x4f827fd1b5e9c2081913a62245c6d301b92f5d1b18a84f645873634b72170da7)    
+2026-05-25 08:03:48 📤 submitting tx to pool (hash=0x7910922f559e8206000bba3cbc8fedac73113ada1c7d97b1a1b5246a0938e838, at=0x4f827fd1b5e9c2081913a62245c6d301b92f5d1b18a84f645873634b72170da7)    
+2026-05-25 08:03:48 block #8259830 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:03:48 ✅ tx submitted to pool, hash=0x7910922f559e8206000bba3cbc8fedac73113ada1c7d97b1a1b5246a0938e838    
+2026-05-25 08:03:48 📡 immediate P2P propagate hash=0x7910922f559e8206000bba3cbc8fedac73113ada1c7d97b1a1b5246a0938e838    
+2026-05-25 08:03:48 ✅ tx in pool, hash = 0x7910922f559e8206000bba3cbc8fedac73113ada1c7d97b1a1b5246a0938e838    
+2026-05-25 08:03:48 ✅ tx pre-built, nonce=108    
+2026-05-25 08:03:48 ✅ tx pre-built for next send, nonce=108 (remaining=Some(0))    
+2026-05-25 08:03:49 🏆 Imported #8259830 (0x4f82…0da7 → 0x3f2f…9de0)    
+2026-05-25 08:03:49 ⏩ Block history, #3726400 (176 peers), best: #8259830 (0x3f2f…9de0), finalized #8259827 (0x5f47…fea5), ⬇ 19.3MiB/s ⬆ 631.4kiB/s    
+2026-05-25 08:03:54 ⏩ Block history, #3735360 (176 peers), best: #8259830 (0x3f2f…9de0), finalized #8259828 (0xc3b0…5f25), ⬇ 17.8MiB/s ⬆ 686.0kiB/s    
+2026-05-25 08:03:56 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:03:59 ⏩ Block history, #3744320 (176 peers), best: #8259830 (0x3f2f…9de0), finalized #8259828 (0xc3b0…5f25), ⬇ 16.3MiB/s ⬆ 406.6kiB/s    
+2026-05-25 08:04:00 🏆 Imported #8259831 (0x3f2f…9de0 → 0xc6b3…154e)    
+2026-05-25 08:04:04 ⏩ Block history, #3753280 (176 peers), best: #8259831 (0xc6b3…154e), finalized #8259829 (0x4f82…0da7), ⬇ 18.2MiB/s ⬆ 501.2kiB/s    
+2026-05-25 08:04:09 ⏩ Block history, #3762240 (176 peers), best: #8259831 (0xc6b3…154e), finalized #8259829 (0x4f82…0da7), ⬇ 16.8MiB/s ⬆ 429.3kiB/s    
+2026-05-25 08:04:12 block #8259832 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:04:12 🏆 Imported #8259832 (0xc6b3…154e → 0x8929…32ea)    
+2026-05-25 08:04:14 ⏩ Block history, #3771840 (176 peers), best: #8259832 (0x8929…32ea), finalized #8259830 (0x3f2f…9de0), ⬇ 17.6MiB/s ⬆ 412.0kiB/s    
+2026-05-25 08:04:19 ⏩ Block history, #3784640 (176 peers), best: #8259832 (0x8929…32ea), finalized #8259830 (0x3f2f…9de0), ⬇ 22.1MiB/s ⬆ 508.9kiB/s    
+2026-05-25 08:04:24 ⏩ Block history, #3794880 (177 peers), best: #8259832 (0x8929…32ea), finalized #8259830 (0x3f2f…9de0), ⬇ 19.2MiB/s ⬆ 290.7kiB/s    
+2026-05-25 08:04:24 block #8259833 first announce attributed to 12D3KooWEG2QNgJrF4jxrinAaDpP8Ydq3jRBug9DKhqpDD3NvTVz (1 candidates)    
+2026-05-25 08:04:25 🏆 Imported #8259833 (0x8929…32ea → 0x002e…bd8f)    
+2026-05-25 08:04:29 ⏩ Block history, #3804800 (177 peers), best: #8259833 (0x002e…bd8f), finalized #8259831 (0xc6b3…154e), ⬇ 18.1MiB/s ⬆ 581.1kiB/s    
+2026-05-25 08:04:34 ⏩ Block history, #3813760 (177 peers), best: #8259833 (0x002e…bd8f), finalized #8259831 (0xc6b3…154e), ⬇ 21.4MiB/s ⬆ 313.1kiB/s    
+2026-05-25 08:04:37 🏆 Imported #8259834 (0x002e…bd8f → 0x768f…5af3)    
+2026-05-25 08:04:39 ⏩ Block history, #3824960 (177 peers), best: #8259834 (0x768f…5af3), finalized #8259832 (0x8929…32ea), ⬇ 21.9MiB/s ⬆ 556.4kiB/s    
+2026-05-25 08:04:44 ⏩ Block history, #3836160 (177 peers), best: #8259834 (0x768f…5af3), finalized #8259832 (0x8929…32ea), ⬇ 21.7MiB/s ⬆ 708.0kiB/s    
+2026-05-25 08:04:48 block #8259835 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:04:49 🏆 Imported #8259835 (0x768f…5af3 → 0xeb43…0501)    
+2026-05-25 08:04:49 ⏩ Block history, #3845120 (177 peers), best: #8259835 (0xeb43…0501), finalized #8259832 (0x8929…32ea), ⬇ 18.0MiB/s ⬆ 642.1kiB/s    
+2026-05-25 08:04:54 ⏩ Block history, #3854080 (177 peers), best: #8259835 (0xeb43…0501), finalized #8259833 (0x002e…bd8f), ⬇ 19.4MiB/s ⬆ 294.1kiB/s    
+2026-05-25 08:04:59 ⏩ Block history, #3863040 (178 peers), best: #8259835 (0xeb43…0501), finalized #8259833 (0x002e…bd8f), ⬇ 20.9MiB/s ⬆ 600.6kiB/s    
+2026-05-25 08:05:00 block #8259836 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:05:00 🏆 Imported #8259836 (0xeb43…0501 → 0x92f2…3378)    
+2026-05-25 08:05:04 ⏩ Block history, #3871872 (178 peers), best: #8259836 (0x92f2…3378), finalized #8259834 (0x768f…5af3), ⬇ 23.1MiB/s ⬆ 555.7kiB/s    
+2026-05-25 08:05:09 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:05:09 ⏩ Block history, #3878720 (178 peers), best: #8259836 (0x92f2…3378), finalized #8259834 (0x768f…5af3), ⬇ 28.1MiB/s ⬆ 326.9kiB/s    
+2026-05-25 08:05:12 🏆 Imported #8259837 (0x92f2…3378 → 0xae04…d675)    
+2026-05-25 08:05:14 ⏩ Block history, #3887680 (178 peers), best: #8259837 (0xae04…d675), finalized #8259835 (0xeb43…0501), ⬇ 20.2MiB/s ⬆ 489.0kiB/s    
+2026-05-25 08:05:19 ⏩ Block history, #3896640 (178 peers), best: #8259837 (0xae04…d675), finalized #8259835 (0xeb43…0501), ⬇ 19.4MiB/s ⬆ 423.6kiB/s    
+2026-05-25 08:05:24 block #8259838 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:05:24 ⏩ Block history, #3905600 (177 peers), best: #8259837 (0xae04…d675), finalized #8259835 (0xeb43…0501), ⬇ 24.0MiB/s ⬆ 418.4kiB/s    
+2026-05-25 08:05:24 🏆 Imported #8259838 (0xae04…d675 → 0x8f08…1d81)    
+2026-05-25 08:05:29 ⏩ Block history, #3912320 (179 peers), best: #8259838 (0x8f08…1d81), finalized #8259836 (0x92f2…3378), ⬇ 22.8MiB/s ⬆ 617.0kiB/s    
+2026-05-25 08:05:34 ⏩ Block history, #3921280 (179 peers), best: #8259838 (0x8f08…1d81), finalized #8259836 (0x92f2…3378), ⬇ 18.9MiB/s ⬆ 547.2kiB/s    
+2026-05-25 08:05:36 block #8259839 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:05:37 🏆 Imported #8259839 (0x8f08…1d81 → 0x0584…43e5)    
+2026-05-25 08:05:39 ⏩ Block history, #3930240 (179 peers), best: #8259839 (0x0584…43e5), finalized #8259837 (0xae04…d675), ⬇ 18.9MiB/s ⬆ 785.1kiB/s    
+2026-05-25 08:05:44 ⏩ Block history, #3939200 (179 peers), best: #8259839 (0x0584…43e5), finalized #8259837 (0xae04…d675), ⬇ 18.3MiB/s ⬆ 663.7kiB/s    
+2026-05-25 08:05:48 block #8259840 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:05:48 🏆 Imported #8259840 (0x0584…43e5 → 0x20ec…b4e6)    
+2026-05-25 08:05:49 ⏩ Block history, #3948928 (179 peers), best: #8259840 (0x20ec…b4e6), finalized #8259837 (0xae04…d675), ⬇ 20.8MiB/s ⬆ 664.2kiB/s    
+2026-05-25 08:05:54 ⏩ Block history, #3958400 (179 peers), best: #8259840 (0x20ec…b4e6), finalized #8259838 (0x8f08…1d81), ⬇ 19.0MiB/s ⬆ 771.6kiB/s    
+2026-05-25 08:05:59 ⏩ Block history, #3967360 (180 peers), best: #8259840 (0x20ec…b4e6), finalized #8259838 (0x8f08…1d81), ⬇ 17.0MiB/s ⬆ 387.0kiB/s    
+2026-05-25 08:06:00 block #8259841 first announce attributed to 12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa (1 candidates)    
+2026-05-25 08:06:01 🏆 Imported #8259841 (0x20ec…b4e6 → 0xb1d9…37c0)    
+2026-05-25 08:06:04 ⏩ Block history, #3978560 (180 peers), best: #8259841 (0xb1d9…37c0), finalized #8259839 (0x0584…43e5), ⬇ 20.7MiB/s ⬆ 835.1kiB/s    
+2026-05-25 08:06:09 ⏩ Block history, #3987520 (180 peers), best: #8259841 (0xb1d9…37c0), finalized #8259839 (0x0584…43e5), ⬇ 16.8MiB/s ⬆ 441.3kiB/s    
+2026-05-25 08:06:12 block #8259842 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:06:13 🏆 Imported #8259842 (0xb1d9…37c0 → 0xc776…97c8)    
+2026-05-25 08:06:14 ⏩ Block history, #3996480 (182 peers), best: #8259842 (0xc776…97c8), finalized #8259840 (0x20ec…b4e6), ⬇ 18.0MiB/s ⬆ 482.6kiB/s    
+2026-05-25 08:06:19 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:06:19 ⏩ Block history, #4007680 (183 peers), best: #8259842 (0xc776…97c8), finalized #8259840 (0x20ec…b4e6), ⬇ 20.5MiB/s ⬆ 513.6kiB/s    
+2026-05-25 08:06:24 block #8259843 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:06:24 ⏩ Block history, #4016640 (183 peers), best: #8259842 (0xc776…97c8), finalized #8259840 (0x20ec…b4e6), ⬇ 18.6MiB/s ⬆ 794.0kiB/s    
+2026-05-25 08:06:24 🏆 Imported #8259843 (0xc776…97c8 → 0x3d5b…9e58)    
+2026-05-25 08:06:29 ⏩ Block history, #4027520 (183 peers), best: #8259843 (0x3d5b…9e58), finalized #8259841 (0xb1d9…37c0), ⬇ 19.6MiB/s ⬆ 745.0kiB/s    
+2026-05-25 08:06:34 ⏩ Block history, #4036800 (183 peers), best: #8259843 (0x3d5b…9e58), finalized #8259841 (0xb1d9…37c0), ⬇ 19.1MiB/s ⬆ 426.9kiB/s    
+2026-05-25 08:06:36 block #8259844 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:06:37 🏆 Imported #8259844 (0x3d5b…9e58 → 0xab6d…4852)    
+2026-05-25 08:06:39 ⏩ Block history, #4047872 (183 peers), best: #8259844 (0xab6d…4852), finalized #8259842 (0xc776…97c8), ⬇ 17.6MiB/s ⬆ 221.8kiB/s    
+2026-05-25 08:06:44 ⏩ Block history, #4056960 (183 peers), best: #8259844 (0xab6d…4852), finalized #8259842 (0xc776…97c8), ⬇ 22.5MiB/s ⬆ 386.9kiB/s    
+2026-05-25 08:06:48 block #8259845 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:06:49 🏆 Imported #8259845 (0xab6d…4852 → 0xef9d…1720)    
+2026-05-25 08:06:49 ⏩ Block history, #4065920 (183 peers), best: #8259845 (0xef9d…1720), finalized #8259842 (0xc776…97c8), ⬇ 17.1MiB/s ⬆ 473.3kiB/s    
+2026-05-25 08:06:54 ⏩ Block history, #4077120 (184 peers), best: #8259845 (0xef9d…1720), finalized #8259843 (0x3d5b…9e58), ⬇ 20.9MiB/s ⬆ 611.1kiB/s    
+2026-05-25 08:06:59 ⏩ Block history, #4086080 (184 peers), best: #8259845 (0xef9d…1720), finalized #8259843 (0x3d5b…9e58), ⬇ 17.2MiB/s ⬆ 733.2kiB/s    
+2026-05-25 08:07:00 block #8259846 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:07:00 🏆 Imported #8259846 (0xef9d…1720 → 0x2252…7912)    
+2026-05-25 08:07:04 ⏩ Block history, #4097280 (184 peers), best: #8259846 (0x2252…7912), finalized #8259844 (0xab6d…4852), ⬇ 20.4MiB/s ⬆ 736.1kiB/s    
+2026-05-25 08:07:09 ⏩ Block history, #4106240 (184 peers), best: #8259846 (0x2252…7912), finalized #8259844 (0xab6d…4852), ⬇ 18.6MiB/s ⬆ 602.5kiB/s    
+2026-05-25 08:07:12 block #8259847 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:07:12 🏆 Imported #8259847 (0x2252…7912 → 0x81cd…b6a2)    
+2026-05-25 08:07:14 ⏩ Block history, #4117440 (185 peers), best: #8259847 (0x81cd…b6a2), finalized #8259845 (0xef9d…1720), ⬇ 19.3MiB/s ⬆ 465.1kiB/s    
+2026-05-25 08:07:19 ⏩ Block history, #4126400 (185 peers), best: #8259847 (0x81cd…b6a2), finalized #8259845 (0xef9d…1720), ⬇ 16.1MiB/s ⬆ 473.2kiB/s    
+2026-05-25 08:07:24 ⏩ Block history, #4137600 (185 peers), best: #8259847 (0x81cd…b6a2), finalized #8259845 (0xef9d…1720), ⬇ 18.4MiB/s ⬆ 587.9kiB/s    
+2026-05-25 08:07:24 🏆 Imported #8259848 (0x81cd…b6a2 → 0xa740…f0e0)    
+2026-05-25 08:07:29 ⏩ Block history, #4146560 (186 peers), best: #8259848 (0xa740…f0e0), finalized #8259846 (0x2252…7912), ⬇ 16.7MiB/s ⬆ 830.6kiB/s    
+2026-05-25 08:07:32 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:07:34 ⏩ Block history, #4157760 (187 peers), best: #8259848 (0xa740…f0e0), finalized #8259846 (0x2252…7912), ⬇ 19.8MiB/s ⬆ 287.1kiB/s    
+2026-05-25 08:07:36 block #8259849 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:07:36 🏆 Imported #8259849 (0xa740…f0e0 → 0xacf8…1551)    
+2026-05-25 08:07:39 ⏩ Block history, #4166720 (187 peers), best: #8259849 (0xacf8…1551), finalized #8259847 (0x81cd…b6a2), ⬇ 18.3MiB/s ⬆ 473.7kiB/s    
+2026-05-25 08:07:44 ⏩ Block history, #4177472 (187 peers), best: #8259849 (0xacf8…1551), finalized #8259847 (0x81cd…b6a2), ⬇ 16.6MiB/s ⬆ 295.0kiB/s    
+2026-05-25 08:07:48 block #8259850 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:07:48 🏆 Imported #8259850 (0xacf8…1551 → 0x449b…fd79)    
+2026-05-25 08:07:49 ⏩ Block history, #4186880 (187 peers), best: #8259850 (0x449b…fd79), finalized #8259847 (0x81cd…b6a2), ⬇ 19.2MiB/s ⬆ 384.5kiB/s    
+2026-05-25 08:07:54 ⏩ Block history, #4197952 (187 peers), best: #8259850 (0x449b…fd79), finalized #8259848 (0xa740…f0e0), ⬇ 16.0MiB/s ⬆ 613.5kiB/s    
+2026-05-25 08:07:59 ⏩ Block history, #4207040 (188 peers), best: #8259850 (0x449b…fd79), finalized #8259848 (0xa740…f0e0), ⬇ 19.6MiB/s ⬆ 288.2kiB/s    
+2026-05-25 08:08:00 block #8259851 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:08:00 🏆 Imported #8259851 (0x449b…fd79 → 0xc2bd…88b7)    
+2026-05-25 08:08:04 ⏩ Block history, #4216000 (189 peers), best: #8259851 (0xc2bd…88b7), finalized #8259849 (0xacf8…1551), ⬇ 16.1MiB/s ⬆ 403.9kiB/s    
+2026-05-25 08:08:09 ⏩ Block history, #4227200 (189 peers), best: #8259851 (0xc2bd…88b7), finalized #8259849 (0xacf8…1551), ⬇ 16.3MiB/s ⬆ 441.3kiB/s    
+2026-05-25 08:08:12 🏆 Imported #8259852 (0xc2bd…88b7 → 0x7dee…ddb7)    
+2026-05-25 08:08:14 ⏩ Block history, #4236160 (189 peers), best: #8259852 (0x7dee…ddb7), finalized #8259850 (0x449b…fd79), ⬇ 16.3MiB/s ⬆ 661.1kiB/s    
+2026-05-25 08:08:19 ⏩ Block history, #4245824 (189 peers), best: #8259852 (0x7dee…ddb7), finalized #8259850 (0x449b…fd79), ⬇ 15.2MiB/s ⬆ 227.7kiB/s    
+2026-05-25 08:08:24 ⏩ Block history, #4256320 (189 peers), best: #8259852 (0x7dee…ddb7), finalized #8259850 (0x449b…fd79), ⬇ 17.1MiB/s ⬆ 353.3kiB/s    
+2026-05-25 08:08:25 🏆 Imported #8259853 (0x7dee…ddb7 → 0x49a1…034b)    
+2026-05-25 08:08:29 ⏩ Block history, #4265280 (188 peers), best: #8259853 (0x49a1…034b), finalized #8259851 (0xc2bd…88b7), ⬇ 16.6MiB/s ⬆ 625.5kiB/s    
+2026-05-25 08:08:34 ⏩ Block history, #4276352 (188 peers), best: #8259853 (0x49a1…034b), finalized #8259851 (0xc2bd…88b7), ⬇ 15.2MiB/s ⬆ 498.8kiB/s    
+2026-05-25 08:08:36 block #8259854 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:08:37 🏆 Imported #8259854 (0x49a1…034b → 0xebc6…e58b)    
+2026-05-25 08:08:39 ⏩ Block history, #4285440 (188 peers), best: #8259854 (0xebc6…e58b), finalized #8259852 (0x7dee…ddb7), ⬇ 17.6MiB/s ⬆ 634.7kiB/s    
+2026-05-25 08:08:44 ⏩ Block history, #4296256 (188 peers), best: #8259854 (0xebc6…e58b), finalized #8259852 (0x7dee…ddb7), ⬇ 16.8MiB/s ⬆ 563.0kiB/s    
+2026-05-25 08:08:45 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:08:49 block #8259855 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:08:49 🏆 Imported #8259855 (0xebc6…e58b → 0xcbef…b9d1)    
+2026-05-25 08:08:49 ⏩ Block history, #4305600 (188 peers), best: #8259855 (0xcbef…b9d1), finalized #8259852 (0x7dee…ddb7), ⬇ 20.6MiB/s ⬆ 617.4kiB/s    
+2026-05-25 08:08:54 ⏩ Block history, #4314560 (188 peers), best: #8259855 (0xcbef…b9d1), finalized #8259853 (0x49a1…034b), ⬇ 17.6MiB/s ⬆ 484.6kiB/s    
+2026-05-25 08:08:59 ⏩ Block history, #4324224 (188 peers), best: #8259855 (0xcbef…b9d1), finalized #8259853 (0x49a1…034b), ⬇ 16.9MiB/s ⬆ 529.2kiB/s    
+2026-05-25 08:09:00 block #8259856 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:09:01 🏆 Imported #8259856 (0xcbef…b9d1 → 0x5947…6a85)    
+2026-05-25 08:09:04 ⏩ Block history, #4333952 (188 peers), best: #8259856 (0x5947…6a85), finalized #8259854 (0xebc6…e58b), ⬇ 17.7MiB/s ⬆ 694.1kiB/s    
+2026-05-25 08:09:09 ⏩ Block history, #4343488 (188 peers), best: #8259856 (0x5947…6a85), finalized #8259854 (0xebc6…e58b), ⬇ 19.1MiB/s ⬆ 626.2kiB/s    
+2026-05-25 08:09:12 block #8259857 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:09:13 🏆 Imported #8259857 (0x5947…6a85 → 0x43a4…d2a0)    
+2026-05-25 08:09:14 ⏩ Block history, #4352448 (188 peers), best: #8259857 (0x43a4…d2a0), finalized #8259855 (0xcbef…b9d1), ⬇ 16.1MiB/s ⬆ 602.9kiB/s    
+2026-05-25 08:09:19 ⏩ Block history, #4361408 (188 peers), best: #8259857 (0x43a4…d2a0), finalized #8259855 (0xcbef…b9d1), ⬇ 14.9MiB/s ⬆ 297.8kiB/s    
+2026-05-25 08:09:24 block #8259858 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:09:24 ⏩ Block history, #4372608 (188 peers), best: #8259857 (0x43a4…d2a0), finalized #8259855 (0xcbef…b9d1), ⬇ 18.1MiB/s ⬆ 605.6kiB/s    
+2026-05-25 08:09:24 🏆 Imported #8259858 (0x43a4…d2a0 → 0xf345…131c)    
+2026-05-25 08:09:29 ⏩ Block history, #4381568 (188 peers), best: #8259858 (0xf345…131c), finalized #8259856 (0x5947…6a85), ⬇ 15.5MiB/s ⬆ 473.3kiB/s    
+2026-05-25 08:09:34 ⏩ Block history, #4392768 (188 peers), best: #8259858 (0xf345…131c), finalized #8259856 (0x5947…6a85), ⬇ 17.9MiB/s ⬆ 160.6kiB/s    
+2026-05-25 08:09:36 block #8259859 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:09:36 🏆 Imported #8259859 (0xf345…131c → 0xad32…5309)    
+2026-05-25 08:09:37 ✅ tx pre-built, nonce=108    
+2026-05-25 08:09:37 ✅ tx re-synced on start_txs, nonce=108    
+2026-05-25 08:09:37 📌 injecting tx to pool front (nonce=108, at=0xad327033102377adf2f954e701d6c9f55c49ae8927cb059fe389411ad5215309)    
+2026-05-25 08:09:37 📤 submitting tx to pool (hash=0x6106c71027f688393ffcfed97016019d53b21419e7facb11097719d317589eee, at=0xad327033102377adf2f954e701d6c9f55c49ae8927cb059fe389411ad5215309)    
+2026-05-25 08:09:37 ✅ tx submitted to pool, hash=0x6106c71027f688393ffcfed97016019d53b21419e7facb11097719d317589eee    
+2026-05-25 08:09:37 📡 immediate P2P propagate hash=0x6106c71027f688393ffcfed97016019d53b21419e7facb11097719d317589eee    
+2026-05-25 08:09:37 ✅ tx in ready pool, hash = 0x6106c71027f688393ffcfed97016019d53b21419e7facb11097719d317589eee    
+2026-05-25 08:09:39 ⏩ Block history, #4401728 (188 peers), best: #8259859 (0xad32…5309), finalized #8259857 (0x43a4…d2a0), ⬇ 16.8MiB/s ⬆ 686.3kiB/s    
+2026-05-25 08:09:44 ⏩ Block history, #4412928 (188 peers), best: #8259859 (0xad32…5309), finalized #8259857 (0x43a4…d2a0), ⬇ 19.0MiB/s ⬆ 761.2kiB/s    
+2026-05-25 08:09:49 🏆 Imported #8259860 (0xad32…5309 → 0xde7c…c1c9)    
+2026-05-25 08:09:49 ✅ tx included, nonce=108 (remaining=Some(4))    
+2026-05-25 08:09:49 ✅ tx pre-built, nonce=109    
+2026-05-25 08:09:49 ✅ tx pre-built for next inject, nonce=109    
+2026-05-25 08:09:49 📌 injecting tx to pool front (nonce=109, at=0xde7ca0596a7f05dfcef45ba16d53b74d2e30390cc1bcc62b06cadae36ed3c1c9)    
+2026-05-25 08:09:49 📤 submitting tx to pool (hash=0x5297f0238446749792af241699cdadd5d5474905e1843b6cd35946b38d4a189a, at=0xde7ca0596a7f05dfcef45ba16d53b74d2e30390cc1bcc62b06cadae36ed3c1c9)    
+2026-05-25 08:09:49 ✅ tx submitted to pool, hash=0x5297f0238446749792af241699cdadd5d5474905e1843b6cd35946b38d4a189a    
+2026-05-25 08:09:49 📡 immediate P2P propagate hash=0x5297f0238446749792af241699cdadd5d5474905e1843b6cd35946b38d4a189a    
+2026-05-25 08:09:49 ✅ tx in ready pool, hash = 0x5297f0238446749792af241699cdadd5d5474905e1843b6cd35946b38d4a189a    
+2026-05-25 08:09:49 ⏩ Block history, #4421888 (189 peers), best: #8259860 (0xde7c…c1c9), finalized #8259857 (0x43a4…d2a0), ⬇ 16.9MiB/s ⬆ 484.3kiB/s    
+2026-05-25 08:09:53 Report 12D3KooWFw8eonbkME9nVhZdqvcUx5qQaoAjKTDxQKfS495sKzjh: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 08:09:54 ⏩ Block history, #4430848 (189 peers), best: #8259860 (0xde7c…c1c9), finalized #8259858 (0xf345…131c), ⬇ 22.7MiB/s ⬆ 488.5kiB/s    
+2026-05-25 08:09:56 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:09:59 ⏩ Block history, #4442048 (189 peers), best: #8259860 (0xde7c…c1c9), finalized #8259858 (0xf345…131c), ⬇ 17.8MiB/s ⬆ 180.1kiB/s    
+2026-05-25 08:10:00 block #8259861 first announce attributed to 12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh (1 candidates)    
+2026-05-25 08:10:01 🏆 Imported #8259861 (0xde7c…c1c9 → 0xa5df…0b3d)    
+2026-05-25 08:10:01 ✅ tx included, nonce=109 (remaining=Some(3))    
+2026-05-25 08:10:01 ✅ tx pre-built, nonce=110    
+2026-05-25 08:10:01 ✅ tx pre-built for next inject, nonce=110    
+2026-05-25 08:10:01 📌 injecting tx to pool front (nonce=110, at=0xa5df71b917a27db40ddfa65a1ee8e8f2613d4172d5370b7283221b4b03190b3d)    
+2026-05-25 08:10:01 📤 submitting tx to pool (hash=0x7b27aec90e37428ee0da494f2425f04c9c166cbe03ba6a4f4c36c48b7aec6715, at=0xa5df71b917a27db40ddfa65a1ee8e8f2613d4172d5370b7283221b4b03190b3d)    
+2026-05-25 08:10:01 ✅ tx submitted to pool, hash=0x7b27aec90e37428ee0da494f2425f04c9c166cbe03ba6a4f4c36c48b7aec6715    
+2026-05-25 08:10:01 📡 immediate P2P propagate hash=0x7b27aec90e37428ee0da494f2425f04c9c166cbe03ba6a4f4c36c48b7aec6715    
+2026-05-25 08:10:01 ✅ tx in ready pool, hash = 0x7b27aec90e37428ee0da494f2425f04c9c166cbe03ba6a4f4c36c48b7aec6715    
+2026-05-25 08:10:04 ⏩ Block history, #4449536 (189 peers), best: #8259861 (0xa5df…0b3d), finalized #8259859 (0xad32…5309), ⬇ 12.4MiB/s ⬆ 561.7kiB/s    
+2026-05-25 08:10:09 ⏩ Block history, #4460736 (189 peers), best: #8259861 (0xa5df…0b3d), finalized #8259859 (0xad32…5309), ⬇ 16.2MiB/s ⬆ 319.5kiB/s    
+2026-05-25 08:10:12 block #8259862 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:10:12 🏆 Imported #8259862 (0xa5df…0b3d → 0xf52f…4dc5)    
+2026-05-25 08:10:12 ✅ tx included, nonce=110 (remaining=Some(2))    
+2026-05-25 08:10:12 ✅ tx pre-built, nonce=111    
+2026-05-25 08:10:12 ✅ tx pre-built for next inject, nonce=111    
+2026-05-25 08:10:12 📌 injecting tx to pool front (nonce=111, at=0xf52fb26a2e89b157b5031fa14cdaebbfbf178f51e60026c01b1b31d690c94dc5)    
+2026-05-25 08:10:12 📤 submitting tx to pool (hash=0x32d2d4987a12b2b0bffa5f3893535bc971cd25a58b701e1ce4c8eb8c393ea124, at=0xf52fb26a2e89b157b5031fa14cdaebbfbf178f51e60026c01b1b31d690c94dc5)    
+2026-05-25 08:10:12 ✅ tx submitted to pool, hash=0x32d2d4987a12b2b0bffa5f3893535bc971cd25a58b701e1ce4c8eb8c393ea124    
+2026-05-25 08:10:12 📡 immediate P2P propagate hash=0x32d2d4987a12b2b0bffa5f3893535bc971cd25a58b701e1ce4c8eb8c393ea124    
+2026-05-25 08:10:12 ✅ tx in ready pool, hash = 0x32d2d4987a12b2b0bffa5f3893535bc971cd25a58b701e1ce4c8eb8c393ea124    
+2026-05-25 08:10:14 ⏩ Block history, #4469696 (189 peers), best: #8259862 (0xf52f…4dc5), finalized #8259860 (0xde7c…c1c9), ⬇ 13.8MiB/s ⬆ 313.2kiB/s    
+2026-05-25 08:10:19 ⏩ Block history, #4480768 (189 peers), best: #8259862 (0xf52f…4dc5), finalized #8259860 (0xde7c…c1c9), ⬇ 15.9MiB/s ⬆ 535.0kiB/s    
+2026-05-25 08:10:24 block #8259863 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:10:24 ⏩ Block history, #4489856 (189 peers), best: #8259862 (0xf52f…4dc5), finalized #8259860 (0xde7c…c1c9), ⬇ 15.6MiB/s ⬆ 395.8kiB/s    
+2026-05-25 08:10:25 🏆 Imported #8259863 (0xf52f…4dc5 → 0xe40d…848f)    
+2026-05-25 08:10:25 ✅ tx included, nonce=111 (remaining=Some(1))    
+2026-05-25 08:10:25 ✅ tx pre-built, nonce=112    
+2026-05-25 08:10:25 ✅ tx pre-built for next inject, nonce=112    
+2026-05-25 08:10:25 📌 injecting tx to pool front (nonce=112, at=0xe40d50ab1c15f9464a5b8c546cf9749458c0dbb42bb40dff46ba92483c0d848f)    
+2026-05-25 08:10:25 📤 submitting tx to pool (hash=0xffc0f5732f8db50c495fc841fc87bde8e6a091bf11c611daa50907df3f753ee0, at=0xe40d50ab1c15f9464a5b8c546cf9749458c0dbb42bb40dff46ba92483c0d848f)    
+2026-05-25 08:10:25 ✅ tx submitted to pool, hash=0xffc0f5732f8db50c495fc841fc87bde8e6a091bf11c611daa50907df3f753ee0    
+2026-05-25 08:10:25 📡 immediate P2P propagate hash=0xffc0f5732f8db50c495fc841fc87bde8e6a091bf11c611daa50907df3f753ee0    
+2026-05-25 08:10:25 ✅ tx in ready pool, hash = 0xffc0f5732f8db50c495fc841fc87bde8e6a091bf11c611daa50907df3f753ee0    
+2026-05-25 08:10:29 ⏩ Block history, #4499520 (189 peers), best: #8259863 (0xe40d…848f), finalized #8259861 (0xa5df…0b3d), ⬇ 14.2MiB/s ⬆ 561.9kiB/s    
+2026-05-25 08:10:34 ⏩ Block history, #4510016 (189 peers), best: #8259863 (0xe40d…848f), finalized #8259861 (0xa5df…0b3d), ⬇ 14.6MiB/s ⬆ 558.9kiB/s    
+2026-05-25 08:10:36 block #8259864 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:10:37 🏆 Imported #8259864 (0xe40d…848f → 0x7ca3…f25d)    
+2026-05-25 08:10:37 ✅ tx included, nonce=112 (remaining=Some(0))    
+2026-05-25 08:10:37 ✅ tx pre-built, nonce=113    
+2026-05-25 08:10:37 ✅ tx pre-built for next inject, nonce=113    
+2026-05-25 08:10:37 📌 injecting tx to pool front (nonce=113, at=0x7ca35c82b819f7498079947bcd6eb5eb707eb08bb66f50f879f678f7d448f25d)    
+2026-05-25 08:10:37 📤 submitting tx to pool (hash=0x3fc21acedd4d4e34adff94c103ac7220b4b431937aed2d0603990d66ed0e6533, at=0x7ca35c82b819f7498079947bcd6eb5eb707eb08bb66f50f879f678f7d448f25d)    
+2026-05-25 08:10:37 ✅ tx submitted to pool, hash=0x3fc21acedd4d4e34adff94c103ac7220b4b431937aed2d0603990d66ed0e6533    
+2026-05-25 08:10:37 📡 immediate P2P propagate hash=0x3fc21acedd4d4e34adff94c103ac7220b4b431937aed2d0603990d66ed0e6533    
+2026-05-25 08:10:37 ✅ tx in ready pool, hash = 0x3fc21acedd4d4e34adff94c103ac7220b4b431937aed2d0603990d66ed0e6533    
+2026-05-25 08:10:39 ⏩ Block history, #4521088 (189 peers), best: #8259864 (0x7ca3…f25d), finalized #8259862 (0xf52f…4dc5), ⬇ 16.1MiB/s ⬆ 519.1kiB/s    
+2026-05-25 08:10:44 ⏩ Block history, #4530176 (189 peers), best: #8259864 (0x7ca3…f25d), finalized #8259862 (0xf52f…4dc5), ⬇ 20.8MiB/s ⬆ 542.9kiB/s    
+2026-05-25 08:10:49 block #8259865 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:10:49 ⏩ Block history, #4539968 (189 peers), best: #8259864 (0x7ca3…f25d), finalized #8259862 (0xf52f…4dc5), ⬇ 16.3MiB/s ⬆ 494.0kiB/s    
+2026-05-25 08:10:50 🏆 Imported #8259865 (0x7ca3…f25d → 0xa747…9d7c)    
+2026-05-25 08:10:54 ⏩ Block history, #4551424 (189 peers), best: #8259865 (0xa747…9d7c), finalized #8259863 (0xe40d…848f), ⬇ 21.4MiB/s ⬆ 523.6kiB/s    
+2026-05-25 08:10:56 Started reindex for i03-18    
+2026-05-25 08:10:59 ⏩ Block history, #4560576 (189 peers), best: #8259865 (0xa747…9d7c), finalized #8259863 (0xe40d…848f), ⬇ 16.5MiB/s ⬆ 439.2kiB/s    
+2026-05-25 08:11:01 Completed reindex i03-18 into i03-19    
+2026-05-25 08:11:01 🏆 Imported #8259866 (0xa747…9d7c → 0x98d6…9508)    
+2026-05-25 08:11:04 ⏩ Block history, #4571648 (189 peers), best: #8259866 (0x98d6…9508), finalized #8259864 (0x7ca3…f25d), ⬇ 17.9MiB/s ⬆ 592.9kiB/s    
+2026-05-25 08:11:06 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:11:09 ⏩ Block history, #4580608 (189 peers), best: #8259866 (0x98d6…9508), finalized #8259864 (0x7ca3…f25d), ⬇ 16.4MiB/s ⬆ 200.9kiB/s    
+2026-05-25 08:11:12 🏆 Imported #8259867 (0x98d6…9508 → 0xeb76…6212)    
+2026-05-25 08:11:14 ⏩ Block history, #4591552 (189 peers), best: #8259867 (0xeb76…6212), finalized #8259865 (0xa747…9d7c), ⬇ 18.0MiB/s ⬆ 672.8kiB/s    
+2026-05-25 08:11:19 ⏩ Block history, #4598272 (189 peers), best: #8259867 (0xeb76…6212), finalized #8259865 (0xa747…9d7c), ⬇ 11.7MiB/s ⬆ 756.3kiB/s    
+2026-05-25 08:11:24 ⏩ Block history, #4609472 (189 peers), best: #8259867 (0xeb76…6212), finalized #8259865 (0xa747…9d7c), ⬇ 19.4MiB/s ⬆ 576.2kiB/s    
+2026-05-25 08:11:25 🏆 Imported #8259868 (0xeb76…6212 → 0xb58c…a462)    
+2026-05-25 08:11:29 ⏩ Block history, #4617472 (190 peers), best: #8259868 (0xb58c…a462), finalized #8259866 (0x98d6…9508), ⬇ 19.8MiB/s ⬆ 578.6kiB/s    
+2026-05-25 08:11:34 ⏩ Block history, #4627392 (190 peers), best: #8259868 (0xb58c…a462), finalized #8259866 (0x98d6…9508), ⬇ 18.2MiB/s ⬆ 495.3kiB/s    
+2026-05-25 08:11:35 Started reindex for i04-17    
+2026-05-25 08:11:35 Started reindex for i05-17    
+2026-05-25 08:11:36 block #8259869 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:11:37 Completed reindex i04-17 into i04-18    
+2026-05-25 08:11:37 🏆 Imported #8259869 (0xb58c…a462 → 0x8e81…b912)    
+2026-05-25 08:11:38 Completed reindex i05-17 into i05-18    
+2026-05-25 08:11:39 ⏩ Block history, #4636352 (190 peers), best: #8259869 (0x8e81…b912), finalized #8259867 (0xeb76…6212), ⬇ 16.9MiB/s ⬆ 500.8kiB/s    
+2026-05-25 08:11:44 ⏩ Block history, #4646720 (190 peers), best: #8259869 (0x8e81…b912), finalized #8259867 (0xeb76…6212), ⬇ 17.1MiB/s ⬆ 259.0kiB/s    
+2026-05-25 08:11:48 block #8259870 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:11:49 🏆 Imported #8259870 (0x8e81…b912 → 0x97ef…502a)    
+2026-05-25 08:11:49 ⏩ Block history, #4656512 (190 peers), best: #8259870 (0x97ef…502a), finalized #8259867 (0xeb76…6212), ⬇ 16.3MiB/s ⬆ 538.4kiB/s    
+2026-05-25 08:11:54 ⏩ Block history, #4669184 (190 peers), best: #8259870 (0x97ef…502a), finalized #8259868 (0xb58c…a462), ⬇ 21.0MiB/s ⬆ 619.4kiB/s    
+2026-05-25 08:11:59 ⏩ Block history, #4678144 (190 peers), best: #8259870 (0x97ef…502a), finalized #8259868 (0xb58c…a462), ⬇ 20.6MiB/s ⬆ 411.4kiB/s    
+2026-05-25 08:12:00 block #8259871 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:12:00 🏆 Imported #8259871 (0x97ef…502a → 0x3909…bb68)    
+2026-05-25 08:12:04 ⏩ Block history, #4687808 (190 peers), best: #8259871 (0x3909…bb68), finalized #8259869 (0x8e81…b912), ⬇ 19.1MiB/s ⬆ 596.9kiB/s    
+2026-05-25 08:12:09 ⏩ Block history, #4696768 (190 peers), best: #8259871 (0x3909…bb68), finalized #8259869 (0x8e81…b912), ⬇ 14.6MiB/s ⬆ 703.5kiB/s    
+2026-05-25 08:12:12 block #8259872 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:12:13 🏆 Imported #8259872 (0x3909…bb68 → 0x50d2…b82f)    
+2026-05-25 08:12:14 ⏩ Block history, #4707520 (190 peers), best: #8259872 (0x50d2…b82f), finalized #8259870 (0x97ef…502a), ⬇ 18.9MiB/s ⬆ 685.1kiB/s    
+2026-05-25 08:12:17 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:12:19 ⏩ Block history, #4716928 (190 peers), best: #8259872 (0x50d2…b82f), finalized #8259870 (0x97ef…502a), ⬇ 17.2MiB/s ⬆ 695.6kiB/s    
+2026-05-25 08:12:24 ⏩ Block history, #4726592 (191 peers), best: #8259872 (0x50d2…b82f), finalized #8259870 (0x97ef…502a), ⬇ 15.8MiB/s ⬆ 361.9kiB/s    
+2026-05-25 08:12:25 block #8259873 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:12:25 🏆 Imported #8259873 (0x50d2…b82f → 0xaf7e…ff9c)    
+2026-05-25 08:12:29 ⏩ Block history, #4736640 (191 peers), best: #8259873 (0xaf7e…ff9c), finalized #8259871 (0x3909…bb68), ⬇ 17.9MiB/s ⬆ 617.1kiB/s    
+2026-05-25 08:12:34 ⏩ Block history, #4748160 (191 peers), best: #8259873 (0xaf7e…ff9c), finalized #8259871 (0x3909…bb68), ⬇ 15.4MiB/s ⬆ 337.2kiB/s    
+2026-05-25 08:12:36 block #8259874 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:12:37 Post dispatch weight is greater than pre dispatch weight. Pre dispatch weight may underestimating the actual weight. Greater post dispatch weight components are ignored.
+					Pre dispatch weight: Weight { ref_time: 990011000, proof_size: 7848 },
+					Post dispatch weight: Weight { ref_time: 7525000000, proof_size: 69870 }    
+2026-05-25 08:12:37 🏆 Imported #8259874 (0xaf7e…ff9c → 0x7ca7…b9cc)    
+2026-05-25 08:12:39 ⏩ Block history, #4757248 (191 peers), best: #8259874 (0x7ca7…b9cc), finalized #8259872 (0x50d2…b82f), ⬇ 17.2MiB/s ⬆ 534.6kiB/s    
+2026-05-25 08:12:44 ⏩ Block history, #4766208 (191 peers), best: #8259874 (0x7ca7…b9cc), finalized #8259872 (0x50d2…b82f), ⬇ 14.0MiB/s ⬆ 372.3kiB/s    
+2026-05-25 08:12:49 🏆 Imported #8259875 (0x7ca7…b9cc → 0xe526…9bf5)    
+2026-05-25 08:12:49 ⏩ Block history, #4777408 (192 peers), best: #8259875 (0xe526…9bf5), finalized #8259872 (0x50d2…b82f), ⬇ 18.3MiB/s ⬆ 523.5kiB/s    
+2026-05-25 08:12:54 ⏩ Block history, #4786368 (192 peers), best: #8259875 (0xe526…9bf5), finalized #8259873 (0xaf7e…ff9c), ⬇ 15.7MiB/s ⬆ 709.0kiB/s    
+2026-05-25 08:12:55 Started reindex for i00-17    
+2026-05-25 08:12:59 Completed reindex i00-17 into i00-18    
+2026-05-25 08:12:59 ⏩ Block history, #4797568 (192 peers), best: #8259875 (0xe526…9bf5), finalized #8259873 (0xaf7e…ff9c), ⬇ 17.2MiB/s ⬆ 243.5kiB/s    
+2026-05-25 08:13:00 block #8259876 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:13:01 🏆 Imported #8259876 (0xe526…9bf5 → 0x76e7…3614)    
+2026-05-25 08:13:04 ⏩ Block history, #4807936 (192 peers), best: #8259876 (0x76e7…3614), finalized #8259874 (0x7ca7…b9cc), ⬇ 13.1MiB/s ⬆ 713.6kiB/s    
+2026-05-25 08:13:09 ⏩ Block history, #4815936 (192 peers), best: #8259876 (0x76e7…3614), finalized #8259874 (0x7ca7…b9cc), ⬇ 13.8MiB/s ⬆ 404.1kiB/s    
+2026-05-25 08:13:13 🏆 Imported #8259877 (0x76e7…3614 → 0x7351…37bc)    
+2026-05-25 08:13:14 ⏩ Block history, #4828928 (193 peers), best: #8259877 (0x7351…37bc), finalized #8259874 (0x7ca7…b9cc), ⬇ 17.0MiB/s ⬆ 338.0kiB/s    
+2026-05-25 08:13:19 ⏩ Block history, #4839744 (193 peers), best: #8259877 (0x7351…37bc), finalized #8259875 (0xe526…9bf5), ⬇ 13.5MiB/s ⬆ 936.1kiB/s    
+2026-05-25 08:13:24 block #8259878 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:13:24 ⏩ Block history, #4848704 (193 peers), best: #8259877 (0x7351…37bc), finalized #8259875 (0xe526…9bf5), ⬇ 12.7MiB/s ⬆ 614.1kiB/s    
+2026-05-25 08:13:25 🏆 Imported #8259878 (0x7351…37bc → 0x2833…5e58)    
+2026-05-25 08:13:29 ⏩ Block history, #4859904 (193 peers), best: #8259878 (0x2833…5e58), finalized #8259876 (0x76e7…3614), ⬇ 14.9MiB/s ⬆ 545.8kiB/s    
+2026-05-25 08:13:33 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:13:34 ⏩ Block history, #4868864 (193 peers), best: #8259878 (0x2833…5e58), finalized #8259876 (0x76e7…3614), ⬇ 14.4MiB/s ⬆ 417.8kiB/s    
+2026-05-25 08:13:36 block #8259879 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:13:36 🏆 Imported #8259879 (0x2833…5e58 → 0x950b…a42f)    
+2026-05-25 08:13:39 ⏩ Block history, #4877824 (193 peers), best: #8259879 (0x950b…a42f), finalized #8259877 (0x7351…37bc), ⬇ 19.8MiB/s ⬆ 649.2kiB/s    
+2026-05-25 08:13:44 ⏩ Block history, #4889024 (193 peers), best: #8259879 (0x950b…a42f), finalized #8259877 (0x7351…37bc), ⬇ 18.9MiB/s ⬆ 609.0kiB/s    
+2026-05-25 08:13:48 block #8259880 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:13:49 🏆 Imported #8259880 (0x950b…a42f → 0xaa50…4531)    
+2026-05-25 08:13:49 ⏩ Block history, #4897984 (193 peers), best: #8259880 (0xaa50…4531), finalized #8259877 (0x7351…37bc), ⬇ 15.8MiB/s ⬆ 838.8kiB/s    
+2026-05-25 08:13:54 ⏩ Block history, #4909056 (193 peers), best: #8259880 (0xaa50…4531), finalized #8259878 (0x2833…5e58), ⬇ 17.4MiB/s ⬆ 701.0kiB/s    
+2026-05-25 08:13:59 ⏩ Block history, #4918144 (193 peers), best: #8259880 (0xaa50…4531), finalized #8259878 (0x2833…5e58), ⬇ 17.3MiB/s ⬆ 882.3kiB/s    
+2026-05-25 08:14:01 🏆 Imported #8259881 (0xaa50…4531 → 0x8110…511a)    
+2026-05-25 08:14:04 ⏩ Block history, #4927104 (193 peers), best: #8259881 (0x8110…511a), finalized #8259879 (0x950b…a42f), ⬇ 20.0MiB/s ⬆ 756.2kiB/s    
+2026-05-25 08:14:09 ⏩ Block history, #4936064 (193 peers), best: #8259881 (0x8110…511a), finalized #8259879 (0x950b…a42f), ⬇ 19.3MiB/s ⬆ 533.7kiB/s    
+2026-05-25 08:14:12 🏆 Imported #8259882 (0x8110…511a → 0x1dcb…2ed0)    
+2026-05-25 08:14:14 ⏩ Block history, #4947264 (193 peers), best: #8259882 (0x1dcb…2ed0), finalized #8259880 (0xaa50…4531), ⬇ 15.4MiB/s ⬆ 404.5kiB/s    
+2026-05-25 08:14:19 ⏩ Block history, #4956224 (193 peers), best: #8259882 (0x1dcb…2ed0), finalized #8259880 (0xaa50…4531), ⬇ 14.6MiB/s ⬆ 447.7kiB/s    
+2026-05-25 08:14:24 block #8259883 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:14:24 ⏩ Block history, #4965184 (193 peers), best: #8259882 (0x1dcb…2ed0), finalized #8259880 (0xaa50…4531), ⬇ 17.1MiB/s ⬆ 486.3kiB/s    
+2026-05-25 08:14:24 🏆 Imported #8259883 (0x1dcb…2ed0 → 0x0828…4b9e)    
+2026-05-25 08:14:29 ⏩ Block history, #4974144 (193 peers), best: #8259883 (0x0828…4b9e), finalized #8259881 (0x8110…511a), ⬇ 16.2MiB/s ⬆ 953.4kiB/s    
+2026-05-25 08:14:34 ⏩ Block history, #4985344 (193 peers), best: #8259883 (0x0828…4b9e), finalized #8259881 (0x8110…511a), ⬇ 18.1MiB/s ⬆ 894.6kiB/s    
+2026-05-25 08:14:37 🏆 Imported #8259884 (0x0828…4b9e → 0xcd67…a7a7)    
+2026-05-25 08:14:39 ⏩ Block history, #4993792 (193 peers), best: #8259884 (0xcd67…a7a7), finalized #8259882 (0x1dcb…2ed0), ⬇ 13.0MiB/s ⬆ 743.0kiB/s    
+2026-05-25 08:14:44 ⏩ Block history, #5002240 (193 peers), best: #8259884 (0xcd67…a7a7), finalized #8259882 (0x1dcb…2ed0), ⬇ 12.0MiB/s ⬆ 311.1kiB/s    
+2026-05-25 08:14:48 block #8259885 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:14:48 🏆 Imported #8259885 (0xcd67…a7a7 → 0x70b7…2f3e)    
+2026-05-25 08:14:49 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:14:49 ⏩ Block history, #5013440 (193 peers), best: #8259885 (0x70b7…2f3e), finalized #8259883 (0x0828…4b9e), ⬇ 16.2MiB/s ⬆ 1004.9kiB/s    
+2026-05-25 08:14:54 ⏩ Block history, #5022400 (193 peers), best: #8259885 (0x70b7…2f3e), finalized #8259883 (0x0828…4b9e), ⬇ 13.7MiB/s ⬆ 545.6kiB/s    
+2026-05-25 08:14:59 ⏩ Block history, #5033472 (193 peers), best: #8259885 (0x70b7…2f3e), finalized #8259883 (0x0828…4b9e), ⬇ 15.7MiB/s ⬆ 488.9kiB/s    
+2026-05-25 08:15:00 block #8259886 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:15:01 🏆 Imported #8259886 (0x70b7…2f3e → 0x8cd1…e048)    
+2026-05-25 08:15:04 ⏩ Block history, #5040768 (193 peers), best: #8259886 (0x8cd1…e048), finalized #8259884 (0xcd67…a7a7), ⬇ 12.1MiB/s ⬆ 636.9kiB/s    
+2026-05-25 08:15:09 ⏩ Block history, #5049728 (193 peers), best: #8259886 (0x8cd1…e048), finalized #8259884 (0xcd67…a7a7), ⬇ 14.9MiB/s ⬆ 504.1kiB/s    
+2026-05-25 08:15:13 🏆 Imported #8259887 (0x8cd1…e048 → 0x2e75…149e)    
+2026-05-25 08:15:14 ⏩ Block history, #5060928 (193 peers), best: #8259887 (0x2e75…149e), finalized #8259885 (0x70b7…2f3e), ⬇ 18.1MiB/s ⬆ 476.9kiB/s    
+2026-05-25 08:15:19 ⏩ Block history, #5069888 (194 peers), best: #8259887 (0x2e75…149e), finalized #8259885 (0x70b7…2f3e), ⬇ 17.0MiB/s ⬆ 501.5kiB/s    
+2026-05-25 08:15:24 block #8259888 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:15:24 ⏩ Block history, #5081088 (194 peers), best: #8259887 (0x2e75…149e), finalized #8259885 (0x70b7…2f3e), ⬇ 18.0MiB/s ⬆ 674.1kiB/s    
+2026-05-25 08:15:24 🏆 Imported #8259888 (0x2e75…149e → 0xcc02…ee3c)    
+2026-05-25 08:15:29 ⏩ Block history, #5090048 (194 peers), best: #8259888 (0xcc02…ee3c), finalized #8259886 (0x8cd1…e048), ⬇ 16.7MiB/s ⬆ 368.9kiB/s    
+2026-05-25 08:15:34 ⏩ Block history, #5101248 (194 peers), best: #8259888 (0xcc02…ee3c), finalized #8259886 (0x8cd1…e048), ⬇ 18.0MiB/s ⬆ 779.8kiB/s    
+2026-05-25 08:15:36 block #8259889 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:15:37 🏆 Imported #8259889 (0xcc02…ee3c → 0xbb9d…d922)    
+2026-05-25 08:15:39 ⏩ Block history, #5110208 (195 peers), best: #8259889 (0xbb9d…d922), finalized #8259887 (0x2e75…149e), ⬇ 17.2MiB/s ⬆ 570.2kiB/s    
+2026-05-25 08:15:44 ⏩ Block history, #5119872 (196 peers), best: #8259889 (0xbb9d…d922), finalized #8259887 (0x2e75…149e), ⬇ 16.1MiB/s ⬆ 573.7kiB/s    
+2026-05-25 08:15:48 🏆 Imported #8259890 (0xbb9d…d922 → 0xe69d…06fe)    
+2026-05-25 08:15:49 ⏩ Block history, #5130368 (196 peers), best: #8259890 (0xe69d…06fe), finalized #8259887 (0x2e75…149e), ⬇ 15.5MiB/s ⬆ 772.9kiB/s    
+2026-05-25 08:15:54 ⏩ Block history, #5140992 (196 peers), best: #8259890 (0xe69d…06fe), finalized #8259888 (0xcc02…ee3c), ⬇ 13.3MiB/s ⬆ 691.8kiB/s    
+2026-05-25 08:15:59 ⏩ Block history, #5150528 (196 peers), best: #8259890 (0xe69d…06fe), finalized #8259888 (0xcc02…ee3c), ⬇ 15.4MiB/s ⬆ 831.2kiB/s    
+2026-05-25 08:16:00 block #8259891 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:16:01 🏆 Imported #8259891 (0xe69d…06fe → 0xb467…4d93)    
+2026-05-25 08:16:02 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:16:04 ⏩ Block history, #5161728 (196 peers), best: #8259891 (0xb467…4d93), finalized #8259889 (0xbb9d…d922), ⬇ 14.5MiB/s ⬆ 498.9kiB/s    
+2026-05-25 08:16:09 ⏩ Block history, #5174272 (196 peers), best: #8259891 (0xb467…4d93), finalized #8259889 (0xbb9d…d922), ⬇ 14.8MiB/s ⬆ 749.6kiB/s    
+2026-05-25 08:16:12 block #8259892 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:16:13 🏆 Imported #8259892 (0xb467…4d93 → 0x67d7…3134)    
+2026-05-25 08:16:14 ⏩ Block history, #5184128 (196 peers), best: #8259892 (0x67d7…3134), finalized #8259889 (0xbb9d…d922), ⬇ 13.8MiB/s ⬆ 587.0kiB/s    
+2026-05-25 08:16:19 ⏩ Block history, #5195328 (196 peers), best: #8259892 (0x67d7…3134), finalized #8259890 (0xe69d…06fe), ⬇ 13.5MiB/s ⬆ 744.9kiB/s    
+2026-05-25 08:16:24 block #8259893 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:16:24 Precompile dispatch failed. message as: DispatchErrorWithPostInfo { post_info: PostDispatchInfo { actual_weight: None, pays_fee: Yes }, error: Module(ModuleError { index: 7, error: [84, 0, 0, 0], message: Some("SlippageTooHigh") }) }    
+2026-05-25 08:16:24 🏆 Imported #8259893 (0x67d7…3134 → 0xc388…c3f1)    
+2026-05-25 08:16:24 ⏩ Block history, #5206528 (196 peers), best: #8259893 (0xc388…c3f1), finalized #8259890 (0xe69d…06fe), ⬇ 13.4MiB/s ⬆ 250.9kiB/s    
+2026-05-25 08:16:29 ⏩ Block history, #5212544 (196 peers), best: #8259893 (0xc388…c3f1), finalized #8259891 (0xb467…4d93), ⬇ 8.4MiB/s ⬆ 446.9kiB/s    
+2026-05-25 08:16:34 ⏩ Block history, #5222208 (196 peers), best: #8259893 (0xc388…c3f1), finalized #8259891 (0xb467…4d93), ⬇ 12.7MiB/s ⬆ 496.2kiB/s    
+2026-05-25 08:16:37 🏆 Imported #8259894 (0xc388…c3f1 → 0x9a99…f762)    
+2026-05-25 08:16:39 ⏩ Block history, #5232256 (196 peers), best: #8259894 (0x9a99…f762), finalized #8259892 (0x67d7…3134), ⬇ 14.0MiB/s ⬆ 636.5kiB/s    
+2026-05-25 08:16:44 ⏩ Block history, #5239872 (196 peers), best: #8259894 (0x9a99…f762), finalized #8259892 (0x67d7…3134), ⬇ 11.4MiB/s ⬆ 562.3kiB/s    
+2026-05-25 08:16:48 block #8259895 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:16:49 🏆 Imported #8259895 (0x9a99…f762 → 0x8094…05ad)    
+2026-05-25 08:16:49 ⏩ Block history, #5251200 (196 peers), best: #8259895 (0x8094…05ad), finalized #8259892 (0x67d7…3134), ⬇ 14.6MiB/s ⬆ 215.6kiB/s    
+2026-05-25 08:16:54 ⏩ Block history, #5260288 (196 peers), best: #8259895 (0x8094…05ad), finalized #8259893 (0xc388…c3f1), ⬇ 15.7MiB/s ⬆ 355.5kiB/s    
+2026-05-25 08:16:59 ⏩ Block history, #5269248 (196 peers), best: #8259895 (0x8094…05ad), finalized #8259893 (0xc388…c3f1), ⬇ 14.8MiB/s ⬆ 380.0kiB/s    
+2026-05-25 08:17:01 🏆 Imported #8259896 (0x8094…05ad → 0x1bb1…ccb0)    
+2026-05-25 08:17:04 ⏩ Block history, #5274496 (196 peers), best: #8259896 (0x1bb1…ccb0), finalized #8259894 (0x9a99…f762), ⬇ 9.8MiB/s ⬆ 455.1kiB/s    
+2026-05-25 08:17:09 ⏩ Block history, #5279744 (196 peers), best: #8259896 (0x1bb1…ccb0), finalized #8259894 (0x9a99…f762), ⬇ 9.7MiB/s ⬆ 454.1kiB/s    
+2026-05-25 08:17:13 block #8259897 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:17:13 🏆 Imported #8259897 (0x1bb1…ccb0 → 0xd3a2…c0f2)    
+2026-05-25 08:17:14 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:17:14 ⏩ Block history, #5290944 (196 peers), best: #8259897 (0xd3a2…c0f2), finalized #8259894 (0x9a99…f762), ⬇ 20.0MiB/s ⬆ 502.1kiB/s    
+2026-05-25 08:17:19 ⏩ Block history, #5299904 (197 peers), best: #8259897 (0xd3a2…c0f2), finalized #8259895 (0x8094…05ad), ⬇ 16.6MiB/s ⬆ 454.1kiB/s    
+2026-05-25 08:17:24 ⏩ Block history, #5310208 (197 peers), best: #8259897 (0xd3a2…c0f2), finalized #8259895 (0x8094…05ad), ⬇ 15.1MiB/s ⬆ 346.4kiB/s    
+2026-05-25 08:17:25 block #8259898 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:17:25 🏆 Imported #8259898 (0xd3a2…c0f2 → 0x15e6…3ac9)    
+2026-05-25 08:17:29 ⏩ Block history, #5318080 (199 peers), best: #8259898 (0x15e6…3ac9), finalized #8259896 (0x1bb1…ccb0), ⬇ 12.2MiB/s ⬆ 518.3kiB/s    
+2026-05-25 08:17:34 ⏩ Block history, #5328832 (199 peers), best: #8259898 (0x15e6…3ac9), finalized #8259896 (0x1bb1…ccb0), ⬇ 14.7MiB/s ⬆ 613.8kiB/s    
+2026-05-25 08:17:36 block #8259899 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:17:36 🏆 Imported #8259899 (0x15e6…3ac9 → 0x425b…4084)    
+2026-05-25 08:17:39 ⏩ Block history, #5337792 (199 peers), best: #8259899 (0x425b…4084), finalized #8259897 (0xd3a2…c0f2), ⬇ 15.9MiB/s ⬆ 615.0kiB/s    
+2026-05-25 08:17:44 ⏩ Block history, #5349696 (199 peers), best: #8259899 (0x425b…4084), finalized #8259897 (0xd3a2…c0f2), ⬇ 17.9MiB/s ⬆ 469.4kiB/s    
+2026-05-25 08:17:49 🏆 Imported #8259900 (0x425b…4084 → 0x4bbf…3735)    
+2026-05-25 08:17:49 ⏩ Block history, #5362432 (199 peers), best: #8259900 (0x4bbf…3735), finalized #8259897 (0xd3a2…c0f2), ⬇ 18.9MiB/s ⬆ 407.0kiB/s    
+2026-05-25 08:17:54 ⏩ Block history, #5373184 (199 peers), best: #8259900 (0x4bbf…3735), finalized #8259898 (0x15e6…3ac9), ⬇ 14.7MiB/s ⬆ 414.3kiB/s    
+2026-05-25 08:17:59 ⏩ Block history, #5382592 (199 peers), best: #8259900 (0x4bbf…3735), finalized #8259898 (0x15e6…3ac9), ⬇ 14.0MiB/s ⬆ 372.1kiB/s    
+2026-05-25 08:18:01 block #8259901 first announce attributed to 12D3KooWLQLFLQoCXSBT6TpX9qKYYRJ4XqK27YJMdu8KGEVwwk1r (1 candidates)    
+2026-05-25 08:18:01 🏆 Imported #8259901 (0x4bbf…3735 → 0xfe41…d032)    
+2026-05-25 08:18:04 ⏩ Block history, #5393792 (199 peers), best: #8259901 (0xfe41…d032), finalized #8259899 (0x425b…4084), ⬇ 16.2MiB/s ⬆ 676.5kiB/s    
+2026-05-25 08:18:09 ⏩ Block history, #5402752 (199 peers), best: #8259901 (0xfe41…d032), finalized #8259899 (0x425b…4084), ⬇ 14.3MiB/s ⬆ 401.2kiB/s    
+2026-05-25 08:18:12 block #8259902 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:18:12 🏆 Imported #8259902 (0xfe41…d032 → 0x6047…e700)    
+2026-05-25 08:18:14 ⏩ Block history, #5413952 (199 peers), best: #8259902 (0x6047…e700), finalized #8259900 (0x4bbf…3735), ⬇ 17.3MiB/s ⬆ 695.8kiB/s    
+2026-05-25 08:18:19 ⏩ Block history, #5422912 (199 peers), best: #8259902 (0x6047…e700), finalized #8259900 (0x4bbf…3735), ⬇ 13.3MiB/s ⬆ 587.2kiB/s    
+2026-05-25 08:18:24 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:18:24 ⏩ Block history, #5434112 (199 peers), best: #8259902 (0x6047…e700), finalized #8259900 (0x4bbf…3735), ⬇ 17.0MiB/s ⬆ 659.1kiB/s    
+2026-05-25 08:18:25 🏆 Imported #8259903 (0x6047…e700 → 0xfd45…061f)    
+2026-05-25 08:18:29 ⏩ Block history, #5445184 (200 peers), best: #8259903 (0xfd45…061f), finalized #8259901 (0xfe41…d032), ⬇ 14.5MiB/s ⬆ 680.2kiB/s    
+2026-05-25 08:18:34 ⏩ Block history, #5454272 (201 peers), best: #8259903 (0xfd45…061f), finalized #8259901 (0xfe41…d032), ⬇ 16.1MiB/s ⬆ 500.4kiB/s    
+2026-05-25 08:18:37 block #8259904 first announce attributed to 12D3KooWEG2QNgJrF4jxrinAaDpP8Ydq3jRBug9DKhqpDD3NvTVz (1 candidates)    
+2026-05-25 08:18:38 🏆 Imported #8259904 (0xfd45…061f → 0x611b…6d06)    
+2026-05-25 08:18:39 ⏩ Block history, #5463232 (201 peers), best: #8259904 (0x611b…6d06), finalized #8259902 (0x6047…e700), ⬇ 13.7MiB/s ⬆ 434.3kiB/s    
+2026-05-25 08:18:44 ⏩ Block history, #5472192 (201 peers), best: #8259904 (0x611b…6d06), finalized #8259902 (0x6047…e700), ⬇ 13.9MiB/s ⬆ 711.1kiB/s    
+2026-05-25 08:18:46 Report 12D3KooWDRDv6ztaK6XJMKumQDC22L5zXVdfytnzt39aKYL8fGVr: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 08:18:48 block #8259905 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:18:48 🏆 Imported #8259905 (0x611b…6d06 → 0x0f4c…1134)    
+2026-05-25 08:18:49 ⏩ Block history, #5483392 (201 peers), best: #8259905 (0x0f4c…1134), finalized #8259902 (0x6047…e700), ⬇ 15.8MiB/s ⬆ 709.8kiB/s    
+2026-05-25 08:18:54 ⏩ Block history, #5492352 (201 peers), best: #8259905 (0x0f4c…1134), finalized #8259903 (0xfd45…061f), ⬇ 15.7MiB/s ⬆ 463.8kiB/s    
+2026-05-25 08:18:59 ⏩ Block history, #5503104 (201 peers), best: #8259905 (0x0f4c…1134), finalized #8259903 (0xfd45…061f), ⬇ 17.8MiB/s ⬆ 799.6kiB/s    
+2026-05-25 08:19:00 block #8259906 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:19:01 🏆 Imported #8259906 (0x0f4c…1134 → 0x72df…4297)    
+2026-05-25 08:19:04 ⏩ Block history, #5510976 (201 peers), best: #8259906 (0x72df…4297), finalized #8259904 (0x611b…6d06), ⬇ 14.7MiB/s ⬆ 584.3kiB/s    
+2026-05-25 08:19:09 ⏩ Block history, #5523456 (201 peers), best: #8259906 (0x72df…4297), finalized #8259904 (0x611b…6d06), ⬇ 18.9MiB/s ⬆ 414.1kiB/s    
+2026-05-25 08:19:12 block #8259907 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:19:12 🏆 Imported #8259907 (0x72df…4297 → 0x4907…14b9)    
+2026-05-25 08:19:14 ⏩ Block history, #5532416 (201 peers), best: #8259907 (0x4907…14b9), finalized #8259905 (0x0f4c…1134), ⬇ 16.2MiB/s ⬆ 482.6kiB/s    
+2026-05-25 08:19:19 ⏩ Block history, #5543488 (201 peers), best: #8259907 (0x4907…14b9), finalized #8259905 (0x0f4c…1134), ⬇ 15.6MiB/s ⬆ 392.3kiB/s    
+2026-05-25 08:19:24 ⏩ Block history, #5551040 (201 peers), best: #8259907 (0x4907…14b9), finalized #8259905 (0x0f4c…1134), ⬇ 16.3MiB/s ⬆ 174.7kiB/s    
+2026-05-25 08:19:24 block #8259908 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:19:25 🏆 Imported #8259908 (0x4907…14b9 → 0x73c7…f5ab)    
+2026-05-25 08:19:25 Report 12D3KooWRzU7ACJ4qHgCYKp6jdUXyT6NRtcqhnxK18HRGRNmuUwF: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-25 08:19:29 ⏩ Block history, #5561536 (201 peers), best: #8259908 (0x73c7…f5ab), finalized #8259906 (0x72df…4297), ⬇ 17.3MiB/s ⬆ 364.7kiB/s    
+2026-05-25 08:19:34 ⏩ Block history, #5571904 (201 peers), best: #8259908 (0x73c7…f5ab), finalized #8259906 (0x72df…4297), ⬇ 14.6MiB/s ⬆ 261.2kiB/s    
+2026-05-25 08:19:37 🏆 Imported #8259909 (0x73c7…f5ab → 0xa72b…80ff)    
+2026-05-25 08:19:39 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:19:39 ⏩ Block history, #5581696 (202 peers), best: #8259909 (0xa72b…80ff), finalized #8259907 (0x4907…14b9), ⬇ 15.1MiB/s ⬆ 385.6kiB/s    
+2026-05-25 08:19:44 ⏩ Block history, #5592576 (202 peers), best: #8259909 (0xa72b…80ff), finalized #8259907 (0x4907…14b9), ⬇ 13.1MiB/s ⬆ 182.0kiB/s    
+2026-05-25 08:19:48 block #8259910 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:19:48 🏆 Imported #8259910 (0xa72b…80ff → 0x2b52…f114)    
+2026-05-25 08:19:49 ⏩ Block history, #5601856 (202 peers), best: #8259910 (0x2b52…f114), finalized #8259908 (0x73c7…f5ab), ⬇ 15.2MiB/s ⬆ 305.8kiB/s    
+2026-05-25 08:19:54 ⏩ Block history, #5610816 (202 peers), best: #8259910 (0x2b52…f114), finalized #8259908 (0x73c7…f5ab), ⬇ 21.5MiB/s ⬆ 214.7kiB/s    
+2026-05-25 08:19:57 Justifications were skipped for block #5614869 0xb49f8cd2a49b51a493fc55a8c9524ba08c3aa6b702f20af02878c1ec68e3ff5f.    
+2026-05-25 08:19:57 Justifications were skipped for block #5614888 0x04c71efb77060bfacfb49cd61826d594148ccda2ee23d66c7db819b16b55911c.    
+2026-05-25 08:19:59 ⏩ Block history, #5620928 (202 peers), best: #8259910 (0x2b52…f114), finalized #8259908 (0x73c7…f5ab), ⬇ 38.4MiB/s ⬆ 200.8kiB/s    
+2026-05-25 08:20:00 block #8259911 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:20:01 🏆 Imported #8259911 (0x2b52…f114 → 0x512e…fcbc)    
+2026-05-25 08:20:04 ⏩ Block history, #5627712 (202 peers), best: #8259911 (0x512e…fcbc), finalized #8259909 (0xa72b…80ff), ⬇ 11.6MiB/s ⬆ 330.0kiB/s    
+2026-05-25 08:20:09 ⏩ Block history, #5637888 (202 peers), best: #8259911 (0x512e…fcbc), finalized #8259909 (0xa72b…80ff), ⬇ 14.4MiB/s ⬆ 292.2kiB/s    
+2026-05-25 08:20:12 block #8259912 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:20:13 🏆 Imported #8259912 (0x512e…fcbc → 0x2192…78d5)    
+2026-05-25 08:20:14 ⏩ Block history, #5649088 (202 peers), best: #8259912 (0x2192…78d5), finalized #8259910 (0x2b52…f114), ⬇ 15.6MiB/s ⬆ 401.4kiB/s    
+2026-05-25 08:20:18 Report 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:20:19 ⏩ Block history, #5659712 (201 peers), best: #8259912 (0x2192…78d5), finalized #8259910 (0x2b52…f114), ⬇ 13.6MiB/s ⬆ 205.0kiB/s    
+2026-05-25 08:20:24 ⏩ Block history, #5669248 (201 peers), best: #8259912 (0x2192…78d5), finalized #8259910 (0x2b52…f114), ⬇ 14.9MiB/s ⬆ 95.8kiB/s    
+2026-05-25 08:20:24 block #8259913 first announce attributed to 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV (1 candidates)    
+2026-05-25 08:20:25 🏆 Imported #8259913 (0x2192…78d5 → 0x0966…9cfc)    
+2026-05-25 08:20:29 ⏩ Block history, #5680448 (201 peers), best: #8259913 (0x0966…9cfc), finalized #8259911 (0x512e…fcbc), ⬇ 15.7MiB/s ⬆ 327.9kiB/s    
+2026-05-25 08:20:34 ⏩ Block history, #5691648 (201 peers), best: #8259913 (0x0966…9cfc), finalized #8259911 (0x512e…fcbc), ⬇ 14.0MiB/s ⬆ 160.7kiB/s    
+2026-05-25 08:20:36 block #8259914 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:20:37 🏆 Imported #8259914 (0x0966…9cfc → 0xe81f…ef2f)    
+2026-05-25 08:20:39 ⏩ Block history, #5702080 (201 peers), best: #8259914 (0xe81f…ef2f), finalized #8259912 (0x2192…78d5), ⬇ 14.0MiB/s ⬆ 303.5kiB/s    
+2026-05-25 08:20:44 ⏩ Block history, #5708800 (201 peers), best: #8259914 (0xe81f…ef2f), finalized #8259912 (0x2192…78d5), ⬇ 8.6MiB/s ⬆ 284.8kiB/s    
+2026-05-25 08:20:49 🏆 Imported #8259915 (0xe81f…ef2f → 0xff51…fcf7)    
+2026-05-25 08:20:49 ⏩ Block history, #5717760 (201 peers), best: #8259915 (0xff51…fcf7), finalized #8259912 (0x2192…78d5), ⬇ 14.2MiB/s ⬆ 351.9kiB/s    
+2026-05-25 08:20:52 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:20:54 ⏩ Block history, #5728960 (201 peers), best: #8259915 (0xff51…fcf7), finalized #8259913 (0x0966…9cfc), ⬇ 15.4MiB/s ⬆ 192.7kiB/s    
+2026-05-25 08:20:59 ⏩ Block history, #5740160 (201 peers), best: #8259915 (0xff51…fcf7), finalized #8259913 (0x0966…9cfc), ⬇ 15.2MiB/s ⬆ 301.7kiB/s    
+2026-05-25 08:21:01 🏆 Imported #8259916 (0xff51…fcf7 → 0x00cd…15d1)    
+2026-05-25 08:21:04 ⏩ Block history, #5749824 (201 peers), best: #8259916 (0x00cd…15d1), finalized #8259914 (0xe81f…ef2f), ⬇ 13.2MiB/s ⬆ 300.9kiB/s    
+2026-05-25 08:21:09 ⏩ Block history, #5762560 (201 peers), best: #8259916 (0x00cd…15d1), finalized #8259914 (0xe81f…ef2f), ⬇ 16.2MiB/s ⬆ 172.6kiB/s    
+2026-05-25 08:21:12 block #8259917 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:21:12 🏆 Imported #8259917 (0x00cd…15d1 → 0x75db…8a1d)    
+2026-05-25 08:21:14 ⏩ Block history, #5772224 (201 peers), best: #8259917 (0x75db…8a1d), finalized #8259914 (0xe81f…ef2f), ⬇ 13.0MiB/s ⬆ 318.7kiB/s    
+2026-05-25 08:21:19 ⏩ Block history, #5782720 (201 peers), best: #8259917 (0x75db…8a1d), finalized #8259915 (0xff51…fcf7), ⬇ 15.2MiB/s ⬆ 1.2MiB/s    
+2026-05-25 08:21:24 ⏩ Block history, #5793920 (201 peers), best: #8259917 (0x75db…8a1d), finalized #8259915 (0xff51…fcf7), ⬇ 15.3MiB/s ⬆ 373.6kiB/s    
+2026-05-25 08:21:25 block #8259918 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:21:25 Precompile dispatch failed. message as: DispatchErrorWithPostInfo { post_info: PostDispatchInfo { actual_weight: None, pays_fee: Yes }, error: Module(ModuleError { index: 28, error: [3, 0, 0, 0], message: Some("PriceLimitExceeded") }) }    
+2026-05-25 08:21:25 🏆 Imported #8259918 (0x75db…8a1d → 0x36a8…9796)    
+2026-05-25 08:21:29 ⏩ Block history, #5805120 (202 peers), best: #8259918 (0x36a8…9796), finalized #8259916 (0x00cd…15d1), ⬇ 15.2MiB/s ⬆ 632.4kiB/s    
+2026-05-25 08:21:31 Report 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:21:34 ⏩ Block history, #5816320 (201 peers), best: #8259918 (0x36a8…9796), finalized #8259916 (0x00cd…15d1), ⬇ 15.1MiB/s ⬆ 300.7kiB/s    
+2026-05-25 08:21:36 block #8259919 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:21:37 🏆 Imported #8259919 (0x36a8…9796 → 0x70b4…b4b8)    
+2026-05-25 08:21:39 ⏩ Block history, #5827520 (201 peers), best: #8259919 (0x70b4…b4b8), finalized #8259917 (0x75db…8a1d), ⬇ 15.6MiB/s ⬆ 1.1MiB/s    
+2026-05-25 08:21:44 ⏩ Block history, #5838528 (201 peers), best: #8259919 (0x70b4…b4b8), finalized #8259917 (0x75db…8a1d), ⬇ 15.3MiB/s ⬆ 251.7kiB/s    
+2026-05-25 08:21:49 block #8259920 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:21:49 ⏩ Block history, #5849920 (201 peers), best: #8259919 (0x70b4…b4b8), finalized #8259917 (0x75db…8a1d), ⬇ 13.9MiB/s ⬆ 77.8kiB/s    
+2026-05-25 08:21:50 🏆 Imported #8259920 (0x70b4…b4b8 → 0xfc8c…7668)    
+2026-05-25 08:21:54 ⏩ Block history, #5860224 (201 peers), best: #8259920 (0xfc8c…7668), finalized #8259918 (0x36a8…9796), ⬇ 13.7MiB/s ⬆ 373.1kiB/s    
+2026-05-25 08:21:59 ⏩ Block history, #5868544 (201 peers), best: #8259920 (0xfc8c…7668), finalized #8259918 (0x36a8…9796), ⬇ 12.0MiB/s ⬆ 137.6kiB/s    
+2026-05-25 08:22:01 block #8259921 first announce attributed to 12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa (1 candidates)    
+2026-05-25 08:22:01 🏆 Imported #8259921 (0xfc8c…7668 → 0xea70…649d)    
+2026-05-25 08:22:04 ⏩ Block history, #5879488 (201 peers), best: #8259921 (0xea70…649d), finalized #8259919 (0x70b4…b4b8), ⬇ 14.7MiB/s ⬆ 282.6kiB/s    
+2026-05-25 08:22:09 ⏩ Block history, #5890688 (201 peers), best: #8259921 (0xea70…649d), finalized #8259919 (0x70b4…b4b8), ⬇ 15.0MiB/s ⬆ 280.6kiB/s    
+2026-05-25 08:22:10 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:22:13 block #8259922 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:22:14 🏆 Imported #8259922 (0xea70…649d → 0x5811…0c3b)    
+2026-05-25 08:22:14 ⏩ Block history, #5901056 (201 peers), best: #8259922 (0x5811…0c3b), finalized #8259919 (0x70b4…b4b8), ⬇ 13.5MiB/s ⬆ 195.5kiB/s    
+2026-05-25 08:22:19 ⏩ Block history, #5910848 (201 peers), best: #8259922 (0x5811…0c3b), finalized #8259920 (0xfc8c…7668), ⬇ 15.8MiB/s ⬆ 157.3kiB/s    
+2026-05-25 08:22:24 ⏩ Block history, #5924288 (201 peers), best: #8259922 (0x5811…0c3b), finalized #8259920 (0xfc8c…7668), ⬇ 18.7MiB/s ⬆ 197.7kiB/s    
+2026-05-25 08:22:25 block #8259923 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:22:25 🏆 Imported #8259923 (0x5811…0c3b → 0xa691…befe)    
+2026-05-25 08:22:29 ⏩ Block history, #5937280 (201 peers), best: #8259923 (0xa691…befe), finalized #8259921 (0xea70…649d), ⬇ 16.3MiB/s ⬆ 335.3kiB/s    
+2026-05-25 08:22:34 ⏩ Block history, #5945152 (201 peers), best: #8259923 (0xa691…befe), finalized #8259921 (0xea70…649d), ⬇ 13.6MiB/s ⬆ 163.7kiB/s    
+2026-05-25 08:22:37 block #8259924 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:22:37 🏆 Imported #8259924 (0xa691…befe → 0xd963…0e94)    
+2026-05-25 08:22:39 ⏩ Block history, #5956992 (201 peers), best: #8259924 (0xd963…0e94), finalized #8259922 (0x5811…0c3b), ⬇ 15.8MiB/s ⬆ 310.4kiB/s    
+2026-05-25 08:22:44 ⏩ Block history, #5968192 (201 peers), best: #8259924 (0xd963…0e94), finalized #8259922 (0x5811…0c3b), ⬇ 16.0MiB/s ⬆ 159.9kiB/s    
+2026-05-25 08:22:49 🏆 Imported #8259925 (0xd963…0e94 → 0x8841…ec96)    
+2026-05-25 08:22:49 ⏩ Block history, #5979392 (202 peers), best: #8259925 (0x8841…ec96), finalized #8259922 (0x5811…0c3b), ⬇ 15.7MiB/s ⬆ 500.8kiB/s    
+2026-05-25 08:22:54 ⏩ Block history, #5990464 (202 peers), best: #8259925 (0x8841…ec96), finalized #8259923 (0xa691…befe), ⬇ 13.3MiB/s ⬆ 175.2kiB/s    
+2026-05-25 08:22:59 ⏩ Block history, #5999552 (202 peers), best: #8259925 (0x8841…ec96), finalized #8259923 (0xa691…befe), ⬇ 16.5MiB/s ⬆ 130.5kiB/s    
+2026-05-25 08:23:00 block #8259926 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:23:01 🏆 Imported #8259926 (0x8841…ec96 → 0x4d23…99f9)    
+2026-05-25 08:23:04 ⏩ Block history, #6010752 (202 peers), best: #8259926 (0x4d23…99f9), finalized #8259924 (0xd963…0e94), ⬇ 18.1MiB/s ⬆ 379.5kiB/s    
+2026-05-25 08:23:09 ⏩ Block history, #6021120 (202 peers), best: #8259926 (0x4d23…99f9), finalized #8259924 (0xd963…0e94), ⬇ 15.0MiB/s ⬆ 253.1kiB/s    
+2026-05-25 08:23:13 block #8259927 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:23:13 🏆 Imported #8259927 (0x4d23…99f9 → 0x4364…5250)    
+2026-05-25 08:23:14 ⏩ Block history, #6030912 (202 peers), best: #8259927 (0x4364…5250), finalized #8259924 (0xd963…0e94), ⬇ 14.5MiB/s ⬆ 209.6kiB/s    
+2026-05-25 08:23:19 ⏩ Block history, #6042112 (202 peers), best: #8259927 (0x4364…5250), finalized #8259925 (0x8841…ec96), ⬇ 15.2MiB/s ⬆ 202.5kiB/s    
+2026-05-25 08:23:24 ⏩ Block history, #6051072 (202 peers), best: #8259927 (0x4364…5250), finalized #8259925 (0x8841…ec96), ⬇ 12.5MiB/s ⬆ 130.5kiB/s    
+2026-05-25 08:23:26 🏆 Imported #8259928 (0x4364…5250 → 0x98c0…b60a)    
+2026-05-25 08:23:27 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:23:29 ⏩ Block history, #6061632 (202 peers), best: #8259928 (0x98c0…b60a), finalized #8259926 (0x4d23…99f9), ⬇ 14.3MiB/s ⬆ 254.3kiB/s    
+2026-05-25 08:23:34 ⏩ Block history, #6068352 (202 peers), best: #8259928 (0x98c0…b60a), finalized #8259926 (0x4d23…99f9), ⬇ 8.2MiB/s ⬆ 206.1kiB/s    
+2026-05-25 08:23:38 block #8259929 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:23:39 🏆 Imported #8259929 (0x98c0…b60a → 0x1ae2…4ad0)    
+2026-05-25 08:23:39 ⏩ Block history, #6071872 (202 peers), best: #8259929 (0x1ae2…4ad0), finalized #8259926 (0x4d23…99f9), ⬇ 6.5MiB/s ⬆ 279.7kiB/s    
+2026-05-25 08:23:44 ⏩ Block history, #6082560 (202 peers), best: #8259929 (0x1ae2…4ad0), finalized #8259927 (0x4364…5250), ⬇ 14.0MiB/s ⬆ 253.5kiB/s    
+2026-05-25 08:23:49 block #8259930 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:23:49 ⏩ Block history, #6093888 (202 peers), best: #8259929 (0x1ae2…4ad0), finalized #8259927 (0x4364…5250), ⬇ 15.3MiB/s ⬆ 144.3kiB/s    
+2026-05-25 08:23:50 🏆 Imported #8259930 (0x1ae2…4ad0 → 0x9b9e…2232)    
+2026-05-25 08:23:54 ⏩ Block history, #6105088 (202 peers), best: #8259930 (0x9b9e…2232), finalized #8259928 (0x98c0…b60a), ⬇ 14.3MiB/s ⬆ 252.3kiB/s    
+2026-05-25 08:23:59 ⏩ Block history, #6117376 (202 peers), best: #8259930 (0x9b9e…2232), finalized #8259928 (0x98c0…b60a), ⬇ 13.4MiB/s ⬆ 266.0kiB/s    
+2026-05-25 08:24:01 🏆 Imported #8259931 (0x9b9e…2232 → 0xffd7…333b)    
+2026-05-25 08:24:04 ⏩ Block history, #6126016 (203 peers), best: #8259931 (0xffd7…333b), finalized #8259929 (0x1ae2…4ad0), ⬇ 13.2MiB/s ⬆ 460.3kiB/s    
+2026-05-25 08:24:09 ⏩ Block history, #6132736 (203 peers), best: #8259931 (0xffd7…333b), finalized #8259929 (0x1ae2…4ad0), ⬇ 8.1MiB/s ⬆ 253.9kiB/s    
+2026-05-25 08:24:13 🏆 Imported #8259932 (0xffd7…333b → 0x6cb9…7fdf)    
+2026-05-25 08:24:14 ⏩ Block history, #6143424 (203 peers), best: #8259932 (0x6cb9…7fdf), finalized #8259929 (0x1ae2…4ad0), ⬇ 13.2MiB/s ⬆ 329.1kiB/s    
+2026-05-25 08:24:19 ⏩ Block history, #6153600 (203 peers), best: #8259932 (0x6cb9…7fdf), finalized #8259930 (0x9b9e…2232), ⬇ 14.7MiB/s ⬆ 324.7kiB/s    
+2026-05-25 08:24:24 ⏩ Block history, #6164800 (203 peers), best: #8259932 (0x6cb9…7fdf), finalized #8259930 (0x9b9e…2232), ⬇ 14.6MiB/s ⬆ 235.4kiB/s    
+2026-05-25 08:24:25 block #8259933 first announce attributed to 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV (1 candidates)    
+2026-05-25 08:24:26 🏆 Imported #8259933 (0x6cb9…7fdf → 0x86b5…7308)    
+2026-05-25 08:24:29 ⏩ Block history, #6175296 (203 peers), best: #8259933 (0x86b5…7308), finalized #8259931 (0xffd7…333b), ⬇ 14.6MiB/s ⬆ 484.1kiB/s    
+2026-05-25 08:24:34 ⏩ Block history, #6186496 (203 peers), best: #8259933 (0x86b5…7308), finalized #8259931 (0xffd7…333b), ⬇ 13.7MiB/s ⬆ 140.3kiB/s    
+2026-05-25 08:24:37 block #8259934 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:24:38 🏆 Imported #8259934 (0x86b5…7308 → 0xed57…f8e1)    
+2026-05-25 08:24:39 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:24:39 ⏩ Block history, #6195456 (204 peers), best: #8259934 (0xed57…f8e1), finalized #8259931 (0xffd7…333b), ⬇ 12.0MiB/s ⬆ 367.2kiB/s    
+2026-05-25 08:24:44 ⏩ Block history, #6206656 (204 peers), best: #8259934 (0xed57…f8e1), finalized #8259932 (0x6cb9…7fdf), ⬇ 14.6MiB/s ⬆ 208.1kiB/s    
+2026-05-25 08:24:48 block #8259935 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:24:49 🏆 Imported #8259935 (0xed57…f8e1 → 0xc2a8…7799)    
+2026-05-25 08:24:49 ⏩ Block history, #6214464 (205 peers), best: #8259935 (0xc2a8…7799), finalized #8259932 (0x6cb9…7fdf), ⬇ 10.7MiB/s ⬆ 657.7kiB/s    
+2026-05-25 08:24:54 ⏩ Block history, #6225664 (205 peers), best: #8259935 (0xc2a8…7799), finalized #8259933 (0x86b5…7308), ⬇ 14.0MiB/s ⬆ 263.8kiB/s    
+2026-05-25 08:24:59 ⏩ Block history, #6234624 (204 peers), best: #8259935 (0xc2a8…7799), finalized #8259933 (0x86b5…7308), ⬇ 12.9MiB/s ⬆ 173.2kiB/s    
+2026-05-25 08:25:01 🏆 Imported #8259936 (0xc2a8…7799 → 0x4397…19c8)    
+2026-05-25 08:25:04 ⏩ Block history, #6245632 (205 peers), best: #8259936 (0x4397…19c8), finalized #8259934 (0xed57…f8e1), ⬇ 14.0MiB/s ⬆ 472.1kiB/s    
+2026-05-25 08:25:09 ⏩ Block history, #6256832 (205 peers), best: #8259936 (0x4397…19c8), finalized #8259934 (0xed57…f8e1), ⬇ 15.4MiB/s ⬆ 160.1kiB/s    
+2026-05-25 08:25:13 🏆 Imported #8259937 (0x4397…19c8 → 0x5008…67d9)    
+2026-05-25 08:25:14 ⏩ Block history, #6267136 (205 peers), best: #8259937 (0x5008…67d9), finalized #8259935 (0xc2a8…7799), ⬇ 13.5MiB/s ⬆ 339.6kiB/s    
+2026-05-25 08:25:19 ⏩ Block history, #6279104 (205 peers), best: #8259937 (0x5008…67d9), finalized #8259935 (0xc2a8…7799), ⬇ 13.9MiB/s ⬆ 188.6kiB/s    
+2026-05-25 08:25:24 ⏩ Block history, #6288192 (207 peers), best: #8259937 (0x5008…67d9), finalized #8259935 (0xc2a8…7799), ⬇ 13.8MiB/s ⬆ 187.7kiB/s    
+2026-05-25 08:25:26 🏆 Imported #8259938 (0x5008…67d9 → 0xba11…d53f)    
+2026-05-25 08:25:29 ⏩ Block history, #6300672 (207 peers), best: #8259938 (0xba11…d53f), finalized #8259936 (0x4397…19c8), ⬇ 14.4MiB/s ⬆ 497.7kiB/s    
+2026-05-25 08:25:34 ⏩ Block history, #6311744 (207 peers), best: #8259938 (0xba11…d53f), finalized #8259936 (0x4397…19c8), ⬇ 13.6MiB/s ⬆ 183.8kiB/s    
+2026-05-25 08:25:37 🏆 Imported #8259939 (0xba11…d53f → 0xc4e5…2387)    
+2026-05-25 08:25:39 ⏩ Block history, #6319872 (207 peers), best: #8259939 (0xc4e5…2387), finalized #8259937 (0x5008…67d9), ⬇ 13.2MiB/s ⬆ 402.1kiB/s    
+2026-05-25 08:25:44 ⏩ Block history, #6329536 (207 peers), best: #8259939 (0xc4e5…2387), finalized #8259937 (0x5008…67d9), ⬇ 14.2MiB/s ⬆ 128.0kiB/s    
+2026-05-25 08:25:48 block #8259940 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:25:49 🏆 Imported #8259940 (0xc4e5…2387 → 0x6162…ff9c)    
+2026-05-25 08:25:49 ⏩ Block history, #6340736 (207 peers), best: #8259940 (0x6162…ff9c), finalized #8259937 (0x5008…67d9), ⬇ 15.0MiB/s ⬆ 548.1kiB/s    
+2026-05-25 08:25:54 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:25:54 ⏩ Block history, #6349696 (206 peers), best: #8259940 (0x6162…ff9c), finalized #8259938 (0xba11…d53f), ⬇ 14.3MiB/s ⬆ 355.3kiB/s    
+2026-05-25 08:25:59 ⏩ Block history, #6360576 (206 peers), best: #8259940 (0x6162…ff9c), finalized #8259938 (0xba11…d53f), ⬇ 15.0MiB/s ⬆ 225.3kiB/s    
+2026-05-25 08:26:02 block #8259941 first announce attributed to 12D3KooWLQLFLQoCXSBT6TpX9qKYYRJ4XqK27YJMdu8KGEVwwk1r (1 candidates)    
+2026-05-25 08:26:02 🏆 Imported #8259941 (0x6162…ff9c → 0x8c4f…d01a)    
+2026-05-25 08:26:04 ⏩ Block history, #6369536 (206 peers), best: #8259941 (0x8c4f…d01a), finalized #8259939 (0xc4e5…2387), ⬇ 12.0MiB/s ⬆ 273.1kiB/s    
+2026-05-25 08:26:09 ⏩ Block history, #6380736 (207 peers), best: #8259941 (0x8c4f…d01a), finalized #8259939 (0xc4e5…2387), ⬇ 17.5MiB/s ⬆ 114.3kiB/s    
+2026-05-25 08:26:13 block #8259942 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:26:14 🏆 Imported #8259942 (0x8c4f…d01a → 0xf35a…8e40)    
+2026-05-25 08:26:14 ⏩ Block history, #6387904 (207 peers), best: #8259942 (0xf35a…8e40), finalized #8259939 (0xc4e5…2387), ⬇ 11.7MiB/s ⬆ 401.9kiB/s    
+2026-05-25 08:26:19 ⏩ Block history, #6397760 (207 peers), best: #8259942 (0xf35a…8e40), finalized #8259940 (0x6162…ff9c), ⬇ 15.1MiB/s ⬆ 434.3kiB/s    
+2026-05-25 08:26:24 ⏩ Block history, #6408960 (207 peers), best: #8259942 (0xf35a…8e40), finalized #8259940 (0x6162…ff9c), ⬇ 15.7MiB/s ⬆ 402.3kiB/s    
+2026-05-25 08:26:25 block #8259943 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:26:26 🏆 Imported #8259943 (0xf35a…8e40 → 0x9fa7…7e02)    
+2026-05-25 08:26:29 ⏩ Block history, #6420160 (207 peers), best: #8259943 (0x9fa7…7e02), finalized #8259941 (0x8c4f…d01a), ⬇ 15.4MiB/s ⬆ 743.7kiB/s    
+2026-05-25 08:26:34 ⏩ Block history, #6431360 (207 peers), best: #8259943 (0x9fa7…7e02), finalized #8259941 (0x8c4f…d01a), ⬇ 14.7MiB/s ⬆ 446.2kiB/s    
+2026-05-25 08:26:37 block #8259944 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:26:37 🏆 Imported #8259944 (0x9fa7…7e02 → 0x0618…3963)    
+2026-05-25 08:26:39 ⏩ Block history, #6440320 (207 peers), best: #8259944 (0x0618…3963), finalized #8259942 (0xf35a…8e40), ⬇ 13.4MiB/s ⬆ 436.3kiB/s    
+2026-05-25 08:26:44 ⏩ Block history, #6451520 (207 peers), best: #8259944 (0x0618…3963), finalized #8259942 (0xf35a…8e40), ⬇ 16.6MiB/s ⬆ 166.0kiB/s    
+2026-05-25 08:26:49 block #8259945 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:26:49 ⏩ Block history, #6461184 (208 peers), best: #8259944 (0x0618…3963), finalized #8259942 (0xf35a…8e40), ⬇ 14.2MiB/s ⬆ 268.2kiB/s    
+2026-05-25 08:26:49 🏆 Imported #8259945 (0x0618…3963 → 0x0836…cceb)    
+2026-05-25 08:26:53 Report 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:26:54 ⏩ Block history, #6471680 (207 peers), best: #8259945 (0x0836…cceb), finalized #8259943 (0x9fa7…7e02), ⬇ 16.3MiB/s ⬆ 339.8kiB/s    
+2026-05-25 08:26:59 ⏩ Block history, #6482880 (207 peers), best: #8259945 (0x0836…cceb), finalized #8259943 (0x9fa7…7e02), ⬇ 16.3MiB/s ⬆ 294.1kiB/s    
+2026-05-25 08:27:01 block #8259946 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:27:02 🏆 Imported #8259946 (0x0836…cceb → 0x2f0f…9895)    
+2026-05-25 08:27:04 ⏩ Block history, #6494080 (207 peers), best: #8259946 (0x2f0f…9895), finalized #8259944 (0x0618…3963), ⬇ 15.3MiB/s ⬆ 221.2kiB/s    
+2026-05-25 08:27:06 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:27:09 ⏩ Block history, #6503040 (207 peers), best: #8259946 (0x2f0f…9895), finalized #8259944 (0x0618…3963), ⬇ 14.0MiB/s ⬆ 211.8kiB/s    
+2026-05-25 08:27:13 block #8259947 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:27:14 🏆 Imported #8259947 (0x2f0f…9895 → 0x66d2…9145)    
+2026-05-25 08:27:14 ⏩ Block history, #6514240 (207 peers), best: #8259947 (0x66d2…9145), finalized #8259944 (0x0618…3963), ⬇ 16.0MiB/s ⬆ 244.9kiB/s    
+2026-05-25 08:27:19 ⏩ Block history, #6524544 (207 peers), best: #8259947 (0x66d2…9145), finalized #8259945 (0x0836…cceb), ⬇ 15.2MiB/s ⬆ 192.0kiB/s    
+2026-05-25 08:27:24 ⏩ Block history, #6535872 (207 peers), best: #8259947 (0x66d2…9145), finalized #8259945 (0x0836…cceb), ⬇ 16.4MiB/s ⬆ 220.9kiB/s    
+2026-05-25 08:27:26 block #8259948 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:27:27 🏆 Imported #8259948 (0x66d2…9145 → 0x5d10…ffd2)    
+2026-05-25 08:27:29 ⏩ Block history, #6545344 (207 peers), best: #8259948 (0x5d10…ffd2), finalized #8259946 (0x2f0f…9895), ⬇ 15.2MiB/s ⬆ 201.4kiB/s    
+2026-05-25 08:27:34 ⏩ Block history, #6556544 (207 peers), best: #8259948 (0x5d10…ffd2), finalized #8259946 (0x2f0f…9895), ⬇ 17.1MiB/s ⬆ 251.0kiB/s    
+2026-05-25 08:27:36 block #8259949 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:27:37 🏆 Imported #8259949 (0x5d10…ffd2 → 0x0f16…0b11)    
+2026-05-25 08:27:39 ⏩ Block history, #6564480 (207 peers), best: #8259949 (0x0f16…0b11), finalized #8259947 (0x66d2…9145), ⬇ 14.8MiB/s ⬆ 354.2kiB/s    
+2026-05-25 08:27:44 ⏩ Block history, #6575680 (207 peers), best: #8259949 (0x0f16…0b11), finalized #8259947 (0x66d2…9145), ⬇ 18.2MiB/s ⬆ 144.7kiB/s    
+2026-05-25 08:27:49 block #8259950 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:27:49 ⏩ Block history, #6586752 (207 peers), best: #8259949 (0x0f16…0b11), finalized #8259947 (0x66d2…9145), ⬇ 14.9MiB/s ⬆ 166.3kiB/s    
+2026-05-25 08:27:49 🏆 Imported #8259950 (0x0f16…0b11 → 0xe14a…fba3)    
+2026-05-25 08:27:54 ⏩ Block history, #6594368 (207 peers), best: #8259950 (0xe14a…fba3), finalized #8259948 (0x5d10…ffd2), ⬇ 12.2MiB/s ⬆ 362.2kiB/s    
+2026-05-25 08:27:59 ⏩ Block history, #6603456 (207 peers), best: #8259950 (0xe14a…fba3), finalized #8259948 (0x5d10…ffd2), ⬇ 15.7MiB/s ⬆ 203.4kiB/s    
+2026-05-25 08:28:00 block #8259951 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:28:01 🏆 Imported #8259951 (0xe14a…fba3 → 0xa195…acb2)    
+2026-05-25 08:28:04 ⏩ Block history, #6614016 (208 peers), best: #8259951 (0xa195…acb2), finalized #8259949 (0x0f16…0b11), ⬇ 15.5MiB/s ⬆ 383.5kiB/s    
+2026-05-25 08:28:05 Report 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:28:09 ⏩ Block history, #6623616 (207 peers), best: #8259951 (0xa195…acb2), finalized #8259949 (0x0f16…0b11), ⬇ 18.3MiB/s ⬆ 168.8kiB/s    
+2026-05-25 08:28:13 block #8259952 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:28:14 🏆 Imported #8259952 (0xa195…acb2 → 0xe829…b8fe)    
+2026-05-25 08:28:14 ⏩ Block history, #6634112 (207 peers), best: #8259952 (0xe829…b8fe), finalized #8259949 (0x0f16…0b11), ⬇ 15.9MiB/s ⬆ 317.6kiB/s    
+2026-05-25 08:28:19 ⏩ Block history, #6643776 (207 peers), best: #8259952 (0xe829…b8fe), finalized #8259950 (0xe14a…fba3), ⬇ 17.7MiB/s ⬆ 161.0kiB/s    
+2026-05-25 08:28:20 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:28:24 ⏩ Block history, #6654976 (208 peers), best: #8259952 (0xe829…b8fe), finalized #8259950 (0xe14a…fba3), ⬇ 16.3MiB/s ⬆ 233.1kiB/s    
+2026-05-25 08:28:25 block #8259953 first announce attributed to 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV (1 candidates)    
+2026-05-25 08:28:25 🏆 Imported #8259953 (0xe829…b8fe → 0xc5a0…90b6)    
+2026-05-25 08:28:29 ⏩ Block history, #6663936 (208 peers), best: #8259953 (0xc5a0…90b6), finalized #8259951 (0xa195…acb2), ⬇ 16.6MiB/s ⬆ 364.7kiB/s    
+2026-05-25 08:28:34 ⏩ Block history, #6675136 (208 peers), best: #8259953 (0xc5a0…90b6), finalized #8259951 (0xa195…acb2), ⬇ 17.4MiB/s ⬆ 186.9kiB/s    
+2026-05-25 08:28:37 block #8259954 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:28:38 🏆 Imported #8259954 (0xc5a0…90b6 → 0xafd2…8645)    
+2026-05-25 08:28:39 ⏩ Block history, #6684096 (208 peers), best: #8259954 (0xafd2…8645), finalized #8259951 (0xa195…acb2), ⬇ 14.6MiB/s ⬆ 285.4kiB/s    
+2026-05-25 08:28:44 ⏩ Block history, #6695296 (208 peers), best: #8259954 (0xafd2…8645), finalized #8259952 (0xe829…b8fe), ⬇ 15.7MiB/s ⬆ 113.9kiB/s    
+2026-05-25 08:28:48 block #8259955 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:28:49 🏆 Imported #8259955 (0xafd2…8645 → 0x1d33…6b49)    
+2026-05-25 08:28:49 ⏩ Block history, #6706496 (208 peers), best: #8259955 (0x1d33…6b49), finalized #8259952 (0xe829…b8fe), ⬇ 15.5MiB/s ⬆ 279.2kiB/s    
+2026-05-25 08:28:54 ⏩ Block history, #6715456 (208 peers), best: #8259955 (0x1d33…6b49), finalized #8259953 (0xc5a0…90b6), ⬇ 15.1MiB/s ⬆ 124.1kiB/s    
+2026-05-25 08:28:59 ⏩ Block history, #6726656 (208 peers), best: #8259955 (0x1d33…6b49), finalized #8259953 (0xc5a0…90b6), ⬇ 16.6MiB/s ⬆ 215.0kiB/s    
+2026-05-25 08:29:01 block #8259956 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:29:02 🏆 Imported #8259956 (0x1d33…6b49 → 0xc49a…b576)    
+2026-05-25 08:29:04 ⏩ Block history, #6737728 (208 peers), best: #8259956 (0xc49a…b576), finalized #8259954 (0xafd2…8645), ⬇ 14.4MiB/s ⬆ 318.4kiB/s    
+2026-05-25 08:29:09 ⏩ Block history, #6746816 (208 peers), best: #8259956 (0xc49a…b576), finalized #8259954 (0xafd2…8645), ⬇ 14.6MiB/s ⬆ 240.3kiB/s    
+2026-05-25 08:29:13 🏆 Imported #8259957 (0xc49a…b576 → 0x2a2e…2ac9)    
+2026-05-25 08:29:14 ⏩ Block history, #6757504 (208 peers), best: #8259957 (0x2a2e…2ac9), finalized #8259954 (0xafd2…8645), ⬇ 15.4MiB/s ⬆ 346.7kiB/s    
+2026-05-25 08:29:19 ⏩ Block history, #6766976 (209 peers), best: #8259957 (0x2a2e…2ac9), finalized #8259955 (0x1d33…6b49), ⬇ 14.6MiB/s ⬆ 185.9kiB/s    
+2026-05-25 08:29:24 ⏩ Block history, #6778176 (209 peers), best: #8259957 (0x2a2e…2ac9), finalized #8259955 (0x1d33…6b49), ⬇ 17.2MiB/s ⬆ 173.4kiB/s    
+2026-05-25 08:29:26 block #8259958 first announce attributed to 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (1 candidates)    
+2026-05-25 08:29:26 🏆 Imported #8259958 (0x2a2e…2ac9 → 0xc68c…3204)    
+2026-05-25 08:29:29 ⏩ Block history, #6787136 (209 peers), best: #8259958 (0xc68c…3204), finalized #8259956 (0xc49a…b576), ⬇ 14.5MiB/s ⬆ 344.9kiB/s    
+2026-05-25 08:29:33 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:29:34 ⏩ Block history, #6796800 (209 peers), best: #8259958 (0xc68c…3204), finalized #8259956 (0xc49a…b576), ⬇ 14.0MiB/s ⬆ 193.1kiB/s    
+2026-05-25 08:29:37 block #8259959 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:29:37 🏆 Imported #8259959 (0xc68c…3204 → 0x10a3…dca8)    
+2026-05-25 08:29:39 ⏩ Block history, #6803520 (209 peers), best: #8259959 (0x10a3…dca8), finalized #8259957 (0x2a2e…2ac9), ⬇ 10.9MiB/s ⬆ 275.1kiB/s    
+2026-05-25 08:29:44 ⏩ Block history, #6814016 (209 peers), best: #8259959 (0x10a3…dca8), finalized #8259957 (0x2a2e…2ac9), ⬇ 16.2MiB/s ⬆ 113.3kiB/s    
+2026-05-25 08:29:49 block #8259960 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:29:49 ⏩ Block history, #6823552 (209 peers), best: #8259959 (0x10a3…dca8), finalized #8259957 (0x2a2e…2ac9), ⬇ 16.0MiB/s ⬆ 111.1kiB/s    
+2026-05-25 08:29:50 🏆 Imported #8259960 (0x10a3…dca8 → 0x4e96…5b0e)    
+2026-05-25 08:29:54 ⏩ Block history, #6834752 (209 peers), best: #8259960 (0x4e96…5b0e), finalized #8259958 (0xc68c…3204), ⬇ 17.8MiB/s ⬆ 329.0kiB/s    
+2026-05-25 08:29:59 ⏩ Block history, #6843712 (209 peers), best: #8259960 (0x4e96…5b0e), finalized #8259958 (0xc68c…3204), ⬇ 14.0MiB/s ⬆ 159.2kiB/s    
+2026-05-25 08:30:01 block #8259961 first announce attributed to 12D3KooWLQLFLQoCXSBT6TpX9qKYYRJ4XqK27YJMdu8KGEVwwk1r (1 candidates)    
+2026-05-25 08:30:01 🏆 Imported #8259961 (0x4e96…5b0e → 0xa89d…4e8e)    
+2026-05-25 08:30:04 ⏩ Block history, #6851200 (209 peers), best: #8259961 (0xa89d…4e8e), finalized #8259959 (0x10a3…dca8), ⬇ 11.4MiB/s ⬆ 229.3kiB/s    
+2026-05-25 08:30:09 ⏩ Block history, #6858688 (209 peers), best: #8259961 (0xa89d…4e8e), finalized #8259959 (0x10a3…dca8), ⬇ 12.2MiB/s ⬆ 241.4kiB/s    
+2026-05-25 08:30:13 block #8259962 first announce attributed to 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (1 candidates)    
+2026-05-25 08:30:13 🏆 Imported #8259962 (0xa89d…4e8e → 0xcda0…97c7)    
+2026-05-25 08:30:14 ⏩ Block history, #6868864 (209 peers), best: #8259962 (0xcda0…97c7), finalized #8259960 (0x4e96…5b0e), ⬇ 16.0MiB/s ⬆ 327.2kiB/s    
+2026-05-25 08:30:19 ⏩ Block history, #6878848 (208 peers), best: #8259962 (0xcda0…97c7), finalized #8259960 (0x4e96…5b0e), ⬇ 14.9MiB/s ⬆ 112.7kiB/s    
+2026-05-25 08:30:24 block #8259963 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:30:24 ⏩ Block history, #6890048 (210 peers), best: #8259962 (0xcda0…97c7), finalized #8259960 (0x4e96…5b0e), ⬇ 15.1MiB/s ⬆ 338.4kiB/s    
+2026-05-25 08:30:24 🏆 Imported #8259963 (0xcda0…97c7 → 0x1b39…8717)    
+2026-05-25 08:30:29 ⏩ Block history, #6901248 (210 peers), best: #8259963 (0x1b39…8717), finalized #8259961 (0xa89d…4e8e), ⬇ 15.3MiB/s ⬆ 264.4kiB/s    
+2026-05-25 08:30:34 ⏩ Block history, #6911872 (210 peers), best: #8259963 (0x1b39…8717), finalized #8259961 (0xa89d…4e8e), ⬇ 14.0MiB/s ⬆ 120.1kiB/s    
+2026-05-25 08:30:37 🏆 Imported #8259964 (0x1b39…8717 → 0x9682…4df7)    
+2026-05-25 08:30:39 ⏩ Block history, #6921408 (210 peers), best: #8259964 (0x9682…4df7), finalized #8259962 (0xcda0…97c7), ⬇ 16.0MiB/s ⬆ 270.7kiB/s    
+2026-05-25 08:30:44 ⏩ Block history, #6932608 (210 peers), best: #8259964 (0x9682…4df7), finalized #8259962 (0xcda0…97c7), ⬇ 15.2MiB/s ⬆ 192.7kiB/s    
+2026-05-25 08:30:45 Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Same block request multiple times. Banned, disconnecting.    
+2026-05-25 08:30:49 block #8259965 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:30:49 ⏩ Block history, #6941568 (210 peers), best: #8259964 (0x9682…4df7), finalized #8259962 (0xcda0…97c7), ⬇ 12.9MiB/s ⬆ 136.1kiB/s    
+2026-05-25 08:30:49 🏆 Imported #8259965 (0x9682…4df7 → 0xa4c1…aeb3)    
+2026-05-25 08:30:54 ⏩ Block history, #6952768 (210 peers), best: #8259965 (0xa4c1…aeb3), finalized #8259963 (0x1b39…8717), ⬇ 15.4MiB/s ⬆ 279.2kiB/s    
+2026-05-25 08:30:59 ⏩ Block history, #6961728 (210 peers), best: #8259965 (0xa4c1…aeb3), finalized #8259963 (0x1b39…8717), ⬇ 14.3MiB/s ⬆ 146.9kiB/s    
+2026-05-25 08:31:01 🏆 Imported #8259966 (0xa4c1…aeb3 → 0xc74a…d949)    
+2026-05-25 08:31:04 ⏩ Block history, #6972928 (210 peers), best: #8259966 (0xc74a…d949), finalized #8259964 (0x9682…4df7), ⬇ 15.7MiB/s ⬆ 362.3kiB/s    
+2026-05-25 08:31:09 ⏩ Block history, #6983616 (210 peers), best: #8259966 (0xc74a…d949), finalized #8259964 (0x9682…4df7), ⬇ 19.2MiB/s ⬆ 208.5kiB/s    
+2026-05-25 08:31:12 block #8259967 first announce attributed to 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (1 candidates)    
+2026-05-25 08:31:13 🏆 Imported #8259967 (0xc74a…d949 → 0xcc46…d7d7)    
+2026-05-25 08:31:14 ⏩ Block history, #6994816 (210 peers), best: #8259967 (0xcc46…d7d7), finalized #8259965 (0xa4c1…aeb3), ⬇ 27.8MiB/s ⬆ 383.9kiB/s    
+2026-05-25 08:31:19 ⏩ Block history, #7004224 (210 peers), best: #8259967 (0xcc46…d7d7), finalized #8259965 (0xa4c1…aeb3), ⬇ 18.2MiB/s ⬆ 219.5kiB/s    
+2026-05-25 08:31:20 Essential task `txpool-background` failed. Shutting down service.    

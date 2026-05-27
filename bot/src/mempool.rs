@@ -11,178 +11,175 @@ use codec::{Decode, Encode};
 use futures::{future::BoxFuture, FutureExt, StreamExt};
 use sc_service::TaskManager;
 use sc_transaction_pool_api::{InPoolTransaction, TransactionPool};
-use sp_runtime::{generic::Preamble, traits::ExtrinsicCall};
+use sp_runtime::traits::ExtrinsicCall;
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
 
 use node_subtensor_runtime::{
     opaque::Block,
     RuntimeCall, UncheckedExtrinsic,
 };
 
-/// Spawn a background task that logs every tx entering the ready pool.
+/// Runtime control for the optional mempool watcher task.
+pub struct MempoolWatcherControl {
+    running: AtomicBool,
+}
+
+impl Default for MempoolWatcherControl {
+    fn default() -> Self {
+        Self {
+            running: AtomicBool::new(false),
+        }
+    }
+}
+
+impl MempoolWatcherControl {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn start(&self) {
+        self.running.store(true, Ordering::SeqCst);
+        log::info!(target: "bot::mempool", "mempool watcher enabled");
+    }
+
+    pub fn stop(&self) {
+        self.running.store(false, Ordering::SeqCst);
+        log::info!(target: "bot::mempool", "mempool watcher disabled");
+    }
+
+    pub fn is_running(&self) -> bool {
+        self.running.load(Ordering::SeqCst)
+    }
+}
+
+/// Spawn a background task that logs every tx entering the ready pool when enabled.
 ///
 /// Called from `service.rs` or alongside `start_bot`:
 /// ```rust
-/// subtensor_bot::mempool::start_mempool_watcher(&task_manager, transaction_pool.clone());
+/// subtensor_bot::mempool::start_mempool_watcher(
+///     &task_manager,
+///     transaction_pool.clone(),
+///     mempool_watcher_control.clone(),
+/// );
 /// ```
-pub fn start_mempool_watcher<P>(task_manager: &TaskManager, pool: Arc<P>)
-where
+pub fn start_mempool_watcher<P>(
+    task_manager: &TaskManager,
+    pool: Arc<P>,
+    control: Arc<MempoolWatcherControl>,
+) where
     P: TransactionPool<Block = Block> + 'static,
 {
     task_manager.spawn_handle().spawn(
         "bot-mempool-watcher",
         None,
-        watch(pool),
+        watch(pool, control),
     );
 }
 
-fn watch<P>(pool: Arc<P>) -> BoxFuture<'static, ()>
+fn watch<P>(pool: Arc<P>, control: Arc<MempoolWatcherControl>) -> BoxFuture<'static, ()>
 where
     P: TransactionPool<Block = Block> + 'static,
 {
     async move {
-        log::info!(
-            target: "bot::mempool",
-            "🔍 mempool watcher started"
-        );
+        loop {
+            if !control.is_running() {
+                tokio::time::sleep(Duration::from_secs(1)).await;
+                continue;
+            }
 
-        let mut stream = pool.import_notification_stream();
-
-        while let Some(tx_hash) = stream.next().await {
             log::info!(
                 target: "bot::mempool",
-                "📥 tx hash: {:?}",
-                tx_hash
+                "🔍 mempool watcher started"
             );
 
-            for tx in pool.ready() {
-                if tx.hash() != &tx_hash {
-                    continue;
-                }
+            let mut stream = pool.import_notification_stream();
 
-                let opaque = tx.data();
-                log::info!(
-                    target: "bot::mempool",
-                    "✅ extrinsic captured"
-                );
+            loop {
+                tokio::select! {
+                    tx_hash = stream.next() => {
+                        let Some(tx_hash) = tx_hash else {
+                            log::warn!(
+                                target: "bot::mempool",
+                                "mempool stream ended"
+                            );
+                            break;
+                        };
 
-                // Pool stores opaque extrinsics; decode into the typed runtime extrinsic.
-                let encoded = opaque.encode();
-                match UncheckedExtrinsic::decode(&mut &encoded[..]) {
-                    Ok(ext) => {
-                        let call = ext.call();
-                        log::info!(
-                            target: "bot::mempool",
-                            "call = {:?}",
-                            call
-                        );
-                        decode_call(call);
-
-                        match &ext.0.preamble {
-                            Preamble::Signed(address, signature, extra) => {
-                                log::info!(
-                                    target: "bot::mempool",
-                                    "signer: {:?}",
-                                    address
-                                );
-                                log::debug!(
-                                    target: "bot::mempool",
-                                    "signature: {:?}, extra: {:?}",
-                                    signature,
-                                    extra
-                                );
-                            }
-                            Preamble::Bare(_) => {
-                                log::debug!(
-                                    target: "bot::mempool",
-                                    "bare extrinsic (inherent or self-contained)"
-                                );
-                            }
-                            Preamble::General(_, extra) => {
-                                log::debug!(
-                                    target: "bot::mempool",
-                                    "general extrinsic, extra: {:?}",
-                                    extra
-                                );
-                            }
+                        if !control.is_running() {
+                            break;
                         }
+
+                        process_import(&pool, tx_hash).await;
                     }
-                    Err(err) => {
-                        log::warn!(
-                            target: "bot::mempool",
-                            "⚠️ failed to decode extrinsic: {:?}",
-                            err
-                        );
+                    _ = tokio::time::sleep(Duration::from_secs(1)) => {
+                        if !control.is_running() {
+                            break;
+                        }
                     }
                 }
             }
 
-            let status = pool.status();
-            log::debug!(
+            log::info!(
                 target: "bot::mempool",
-                "pool => ready={}, future={}",
-                status.ready,
-                status.future
+                "mempool watcher paused"
             );
         }
-
-        log::warn!(
-            target: "bot::mempool",
-            "mempool stream ended"
-        );
     }
     .boxed()
 }
 
-/// Decode runtime calls
-fn decode_call(call: &RuntimeCall) {
-    match call {
-        RuntimeCall::SubtensorModule(inner) => {
-            log::info!(
-                target: "bot::mempool",
-                "📦 Subtensor call: {:?}",
-                inner
-            );
+async fn process_import<P>(pool: &Arc<P>, tx_hash: <P as TransactionPool>::Hash)
+where
+    P: TransactionPool<Block = Block> + 'static,
+{
+    for tx in pool.ready() {
+        if tx.hash() != &tx_hash {
+            continue;
         }
 
-        RuntimeCall::Balances(inner) => {
-            log::info!(
-                target: "bot::mempool",
-                "💰 Balances call: {:?}",
-                inner
-            );
-        }
+        let opaque = tx.data();
 
-        RuntimeCall::Sudo(inner) => {
-            log::warn!(
-                target: "bot::mempool",
-                "⚠️ Sudo call: {:?}",
-                inner
-            );
-        }
-
-        RuntimeCall::Utility(inner) => {
-            log::info!(
-                target: "bot::mempool",
-                "🛠 Utility call: {:?}",
-                inner
-            );
-        }
-
-        RuntimeCall::Ethereum(inner) => {
-            log::info!(
-                target: "bot::mempool",
-                "⚡ Ethereum call: {:?}",
-                inner
-            );
-        }
-
-        _ => {
-            log::info!(
-                target: "bot::mempool",
-                "📄 Other call: {:?}",
-                call
-            );
+        // Pool stores opaque extrinsics; decode into the typed runtime extrinsic.
+        let encoded = opaque.encode();
+        match UncheckedExtrinsic::decode(&mut &encoded[..]) {
+            Ok(ext) => {
+                if let RuntimeCall::Ethereum(pallet_ethereum::Call::transact { transaction }) =
+                    ext.call()
+                {
+                    log_ethereum_call(transaction);
+                }
+            }
+            Err(err) => {
+                log::warn!(
+                    target: "bot::mempool",
+                    "⚠️ failed to decode extrinsic: {:?}",
+                    err
+                );
+            }
         }
     }
+
+    let status = pool.status();
+    log::debug!(
+        target: "bot::mempool",
+        "pool => ready={}, future={}",
+        status.ready,
+        status.future
+    );
+}
+
+fn log_ethereum_call(transaction: &pallet_ethereum::Transaction) {
+    let data: pallet_ethereum::TransactionData = transaction.into();
+    let chain_id = data.chain_id.unwrap_or(0);
+    let nonce = data.nonce.low_u64();
+
+    log::info!(
+        target: "bot::mempool",
+        "⚡ Ethereum call: chain_id={}, nonce={}, action: {:?}",
+        chain_id,
+        nonce,
+        data.action,
+    );
 }

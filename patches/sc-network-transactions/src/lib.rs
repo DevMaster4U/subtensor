@@ -30,7 +30,7 @@ use crate::config::*;
 
 use codec::{Decode, Encode};
 use futures::{prelude::*, stream::FuturesUnordered};
-use log::{debug, trace, warn};
+use log::{debug, info, trace, warn};
 
 use prometheus_endpoint::{register, Counter, PrometheusError, Registry, U64};
 use sc_network::{
@@ -43,7 +43,7 @@ use sc_network::{
 	},
 	types::ProtocolName,
 	utils::{interval, LruHashSet},
-	NetworkBackend, NetworkEventStream, NetworkPeers,
+	Multiaddr, NetworkBackend, NetworkEventStream, NetworkPeers,
 };
 use sc_network_common::{role::ObservedRole, ExHashT};
 use sc_network_sync::{SyncEvent, SyncEventStream};
@@ -52,7 +52,7 @@ use sc_utils::mpsc::{tracing_unbounded, TracingUnboundedReceiver, TracingUnbound
 use sp_runtime::traits::Block as BlockT;
 
 use std::{
-	collections::{hash_map::Entry, HashMap},
+	collections::{hash_map::Entry, HashMap, HashSet},
 	iter,
 	num::NonZeroUsize,
 	pin::Pin,
@@ -62,11 +62,17 @@ use std::{
 
 pub mod config;
 
+pub use config::{PeerRanker, PropagationObserver, PropagationStrategy};
+
 /// A set of transactions.
 pub type Transactions<E> = Vec<E>;
 
 /// Logging target for the file.
 const LOG_TARGET: &str = "sync";
+
+fn peer_id_from_multiaddr(addr: &Multiaddr) -> Option<PeerId> {
+	PeerId::try_from_multiaddr(addr)
+}
 
 mod rep {
 	use sc_network::ReputationChange as Rep;
@@ -201,6 +207,9 @@ impl TransactionsHandlerPrototype {
 			peers: HashMap::new(),
 			transaction_pool,
 			from_controller,
+			peer_ranker: None,
+			propagation_observer: None,
+			propagation_strategy: None,
 			metrics: if let Some(r) = metrics_registry {
 				Some(Metrics::register(r)?)
 			} else {
@@ -241,13 +250,36 @@ impl<H: ExHashT> TransactionsHandlerController<H> {
 	pub fn propagate_transaction(&self, hash: H) {
 		let _ = self.to_handler.unbounded_send(ToHandler::PropagateTransaction(hash));
 	}
+
+	/// Install a peer ranker used to order outbound transaction gossip.
+	pub fn set_peer_ranker(&self, ranker: Arc<dyn PeerRanker>) {
+		let _ = self.to_handler.unbounded_send(ToHandler::SetPeerRanker(ranker));
+	}
+
+	/// Install an observer notified after each single-tx propagation round.
+	pub fn set_propagation_observer(&self, observer: Arc<dyn PropagationObserver<H>>) {
+		let _ = self
+			.to_handler
+			.unbounded_send(ToHandler::SetPropagationObserver(observer));
+	}
+
+	/// Install a strategy that can restrict or reorder outbound transaction gossip.
+	pub fn set_propagation_strategy(&self, strategy: Arc<dyn PropagationStrategy>) {
+		let _ = self
+			.to_handler
+			.unbounded_send(ToHandler::SetPropagationStrategy(strategy));
+	}
 }
 
 enum ToHandler<H: ExHashT> {
 	PropagateTransactions,
 	PropagateTransaction(H),
+	SetPeerRanker(Arc<dyn PeerRanker>),
+	SetPropagationObserver(Arc<dyn PropagationObserver<H>>),
+	SetPropagationStrategy(Arc<dyn PropagationStrategy>),
 }
 
+/// Who should receive a propagation round.
 /// Handler for transactions. Call [`TransactionsHandler::run`] to start the processing.
 pub struct TransactionsHandler<
 	B: BlockT + 'static,
@@ -275,6 +307,9 @@ pub struct TransactionsHandler<
 	peers: HashMap<PeerId, Peer<H>>,
 	transaction_pool: Arc<dyn TransactionPool<H, B>>,
 	from_controller: TracingUnboundedReceiver<ToHandler<H>>,
+	peer_ranker: Option<Arc<dyn PeerRanker>>,
+	propagation_observer: Option<Arc<dyn PropagationObserver<H>>>,
+	propagation_strategy: Option<Arc<dyn PropagationStrategy>>,
 	/// Prometheus metrics.
 	metrics: Option<Metrics>,
 	/// Handle that is used to communicate with `sc_network::Notifications`.
@@ -323,6 +358,18 @@ where
 					match message {
 						ToHandler::PropagateTransaction(hash) => self.propagate_transaction(&hash),
 						ToHandler::PropagateTransactions => self.propagate_transactions(),
+						ToHandler::SetPeerRanker(ranker) => self.peer_ranker = Some(ranker),
+						ToHandler::SetPropagationObserver(observer) =>
+							self.propagation_observer = Some(observer),
+						ToHandler::SetPropagationStrategy(strategy) => {
+							if strategy.bootnode_first() {
+								let candidates: HashSet<PeerId> =
+									strategy.candidate_peers().into_iter().collect();
+								let addrs = strategy.candidate_multiaddrs();
+								self.ensure_priority_peers_for_tx_propagation(&candidates, &addrs);
+							}
+							self.propagation_strategy = Some(strategy);
+						},
 					}
 				},
 				event = self.notification_service.next_event().fuse() => {
@@ -457,8 +504,8 @@ where
 		}
 	}
 
-	/// Propagate one transaction.
-	pub fn propagate_transaction(&mut self, hash: &H) {
+	/// Propagate one transaction (default Substrate behaviour — all full-node peers).
+	fn propagate_transaction(&mut self, hash: &H) {
 		// Accept transactions only when node is not major syncing
 		if self.sync.is_major_syncing() {
 			return
@@ -466,7 +513,11 @@ where
 
 		debug!(target: LOG_TARGET, "Propagating transaction [{:?}]", hash);
 		if let Some(transaction) = self.transaction_pool.transaction(hash) {
-			let propagated_to = self.do_propagate_transactions(&[(hash.clone(), transaction)]);
+			let propagated_to =
+				self.do_propagate_transactions(&[(hash.clone(), transaction)], true);
+			if let Some(observer) = &self.propagation_observer {
+				observer.on_propagated(propagated_to.clone());
+			}
 			self.transaction_pool.on_broadcasted(propagated_to);
 		} else {
 			debug!(target: "sync", "Propagating transaction failure [{:?}]", hash);
@@ -476,11 +527,152 @@ where
 	fn do_propagate_transactions(
 		&mut self,
 		transactions: &[(H, Arc<B::Extrinsic>)],
+		log_dest_peers: bool,
 	) -> HashMap<H, Vec<String>> {
+		if let Some(strategy) = &self.propagation_strategy {
+			if strategy.bootnode_first() {
+				let bootnodes = strategy.bootnode_peers();
+				let candidate_peers = strategy.candidate_peers();
+				let candidate_multiaddrs = strategy.candidate_multiaddrs();
+				let candidate_set: HashSet<PeerId> = candidate_peers.iter().copied().collect();
+				info!(
+					target: LOG_TARGET,
+					"bootnode-first propagation, bootnodes={:?} candidates={:?}",
+					bootnodes.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
+					candidate_peers.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
+				);
+				self.ensure_priority_peers_for_tx_propagation(&candidate_set, &candidate_multiaddrs);
+
+				let connected_candidates: Vec<PeerId> = candidate_peers
+					.iter()
+					.filter(|id| self.peers.contains_key(id))
+					.copied()
+					.collect();
+				info!(
+					target: LOG_TARGET,
+					"bootnode-first propagation, connected={}/{}",
+					connected_candidates.len(),
+					candidate_peers.len(),
+				);
+
+				let mut propagated_to = self.do_propagate_transactions_to(
+					transactions,
+					log_dest_peers,
+					Some(connected_candidates),
+					|_| true,
+				);
+				let rest = self.do_propagate_transactions_to(
+					transactions,
+					log_dest_peers,
+					None,
+					|who| !candidate_set.contains(who),
+				);
+				for (hash, peers) in rest {
+					propagated_to.entry(hash).or_default().extend(peers);
+				}
+				return propagated_to
+			}
+		}
+
+		self.do_propagate_transactions_to(transactions, log_dest_peers, None, |_| true)
+	}
+
+	/// Register priority peers on the tx protocol and request dials for any missing connections.
+	fn ensure_priority_peers_for_tx_propagation(
+		&mut self,
+		candidates: &HashSet<PeerId>,
+		candidate_multiaddrs: &[Multiaddr],
+	) {
+		let missing: Vec<PeerId> = candidates
+			.iter()
+			.copied()
+			.filter(|id| !self.peers.contains_key(id))
+			.collect();
+
+		let to_dial: HashSet<Multiaddr> = if missing.is_empty() {
+			HashSet::new()
+		} else {
+			info!(
+				target: LOG_TARGET,
+				"bootnode-first: {} candidate(s) not in tx peer set, requesting dial: {:?}",
+				missing.len(),
+				missing.iter().map(|id| id.to_base58()).collect::<Vec<_>>(),
+			);
+
+			candidate_multiaddrs
+				.iter()
+				.filter(|addr| {
+					peer_id_from_multiaddr(addr)
+						.map(|id| missing.contains(&id))
+						.unwrap_or(false)
+				})
+				.cloned()
+				.collect()
+		};
+
+		if to_dial.is_empty() {
+			if !missing.is_empty() {
+				warn!(
+					target: LOG_TARGET,
+					"bootnode-first: no dial multiaddrs for missing candidates (configured={:?})",
+					candidate_multiaddrs
+						.iter()
+						.map(|addr| addr.to_string())
+						.collect::<Vec<_>>(),
+				);
+			}
+			return
+		}
+
+		if let Err(err) = self.network.add_peers_to_reserved_set(
+			self.protocol_name.clone(),
+			to_dial,
+		) {
+			warn!(
+				target: LOG_TARGET,
+				"bootnode-first: failed to add candidates to tx reserved set: {}",
+				err,
+			);
+		}
+	}
+
+	fn do_propagate_transactions_to<F>(
+		&mut self,
+		transactions: &[(H, Arc<B::Extrinsic>)],
+		log_dest_peers: bool,
+		candidate_peers: Option<Vec<PeerId>>,
+		include_peer: F,
+	) -> HashMap<H, Vec<String>>
+	where
+		F: Fn(&PeerId) -> bool,
+	{
 		let mut propagated_to = HashMap::<_, Vec<_>>::new();
 		let mut propagated_transactions = 0;
 
-		for (who, peer) in self.peers.iter_mut() {
+		let mut peer_ids: Vec<PeerId> = match &candidate_peers {
+			Some(candidates) => candidates
+				.iter()
+				.filter(|who| self.peers.contains_key(who) && include_peer(who))
+				.copied()
+				.collect(),
+			None => self
+				.peers
+				.keys()
+				.copied()
+				.filter(|who| include_peer(who))
+				.collect(),
+		};
+		if candidate_peers.is_none() {
+			if let Some(ranker) = &self.peer_ranker {
+				peer_ids = ranker.rank_peers(&peer_ids);
+			}
+		}
+
+		for who in peer_ids {
+			let Some(peer) = self.peers.get_mut(&who) else {
+				continue
+			};
+
 			// never send transactions to the light node
 			if matches!(peer.role, ObservedRole::Light) {
 				continue
@@ -496,22 +688,20 @@ where
 
 			if !to_send.is_empty() {
 				for hash in hashes {
-					propagated_to.entry(hash).or_default().push(who.to_base58());
+					propagated_to.entry(hash.clone()).or_default().push(who.to_base58());
+					if log_dest_peers {
+						info!(
+							target: LOG_TARGET,
+							"hash={:?} peer={}",
+							hash,
+							who.to_base58(),
+						);
+					}
 				}
-				trace!(target: "sync", "Sending {} transactions to {}", to_send.len(), who);
-				// Historically, the format of a notification of the transactions protocol
-				// consisted in a (SCALE-encoded) `Vec<Transaction>`.
-				// After RFC 56, the format was modified in a backwards-compatible way to be
-				// a (SCALE-encoded) tuple `(Compact(1), Transaction)`, which is the same encoding
-				// as a `Vec` of length one. This is no coincidence, as the change was
-				// intentionally done in a backwards-compatible way.
-				// In other words, the `Vec` that is sent below **must** always have only a single
-				// element in it.
-				// See <https://github.com/polkadot-fellows/RFCs/blob/main/text/0056-one-transaction-per-notification.md>
 				for to_send in to_send {
 					let _ = self
 						.notification_service
-						.send_sync_notification(who, vec![to_send].encode());
+						.send_sync_notification(&who, vec![to_send].encode());
 				}
 			}
 		}
@@ -538,7 +728,7 @@ where
 
 		debug!(target: LOG_TARGET, "Propagating transactions");
 
-		let propagated_to = self.do_propagate_transactions(&transactions);
+		let propagated_to = self.do_propagate_transactions(&transactions, false);
 		self.transaction_pool.on_broadcasted(propagated_to);
 	}
 }

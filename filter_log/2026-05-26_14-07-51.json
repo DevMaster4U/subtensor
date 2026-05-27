@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-05-26_14-07-51",
+  "trigger": "auto",
+  "interval_secs": 1800,
+  "keep_count": 96,
+  "connected_before": 0,
+  "kept_count": 0,
+  "dropped_count": 0,
+  "kept": [],
+  "dropped": []
+}

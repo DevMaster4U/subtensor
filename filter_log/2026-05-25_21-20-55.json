@@ -1,0 +1,155 @@
+{
+  "timestamp": "2026-05-25_21-20-55",
+  "trigger": "auto",
+  "interval_secs": 300,
+  "keep_count": 48,
+  "connected_before": 13,
+  "kept_count": 13,
+  "dropped_count": 0,
+  "kept": [
+    {
+      "peer_id": "12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY",
+      "addr": "/ip4/46.225.88.59/tcp/30333/ws/p2p/12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWRNgLrStY4Xz67QHpr2UvUDfMEVjB6sq38eNXg8zZNV5B",
+      "addr": "/ip4/109.94.97.155/tcp/45616/ws/p2p/12D3KooWRNgLrStY4Xz67QHpr2UvUDfMEVjB6sq38eNXg8zZNV5B",
+      "roles": "FULL",
+      "best_hash": "0x585577b095966871efcf53f0f607fc295c552c3355b6e7a72ea4bb808bb22b03",
+      "best_number": 3456298,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq",
+      "addr": "/ip4/94.130.77.84/tcp/30333/ws/p2p/12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWKNRCwFjcRcJGvUtspEwcFeWLWCdZsAFF3VTGpq1kwNsA",
+      "addr": "/ip4/178.105.108.3/tcp/30333/ws/p2p/12D3KooWKNRCwFjcRcJGvUtspEwcFeWLWCdZsAFF3VTGpq1kwNsA",
+      "roles": "FULL",
+      "best_hash": "0x2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03",
+      "best_number": 0,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS",
+      "addr": "/ip4/205.172.59.24/tcp/30333/ws/p2p/12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1",
+      "addr": "/ip4/178.105.59.71/tcp/30333/ws/p2p/12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT",
+      "addr": "/ip4/178.104.83.169/tcp/30333/ws/p2p/12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk",
+      "addr": "/ip4/178.105.80.163/tcp/30333/ws/p2p/12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWMyY3oB7P2YJtV2BADY8wwXgtvAqpoP141x16Aarfz51V",
+      "addr": "/ip4/3.140.248.178/tcp/26798/ws/p2p/12D3KooWMyY3oB7P2YJtV2BADY8wwXgtvAqpoP141x16Aarfz51V",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWGA1kRzpD7DRLMsktMh6vijw3dfwgBSfHq5zeaWh4FtfE",
+      "addr": "/ip4/45.59.169.148/tcp/65309/ws/p2p/12D3KooWGA1kRzpD7DRLMsktMh6vijw3dfwgBSfHq5zeaWh4FtfE",
+      "roles": "FULL",
+      "best_hash": "0xa234ac4dc8b74bc91ee85292146a3213d7f1a45d06ef2b31d6321f3328fc08ef",
+      "best_number": 8263813,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWAxHXk94ArgCowRiqSexTWG6RYxvjgm8mMyeCEXmV7uUm",
+      "addr": "/ip4/3.140.248.178/tcp/43261/ws/p2p/12D3KooWAxHXk94ArgCowRiqSexTWG6RYxvjgm8mMyeCEXmV7uUm",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks",
+      "addr": "/ip4/91.99.197.252/tcp/30333/ws/p2p/12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    },
+    {
+      "peer_id": "12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS",
+      "addr": "/ip4/49.13.232.89/tcp/30333/ws/p2p/12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS",
+      "roles": "FULL",
+      "best_hash": "0xe30aeab0c9f02d9a24a119ba0e82f2cfba5801c95fe93e56c39796b9f96136a6",
+      "best_number": 8263815,
+      "score": 0,
+      "first_announce_hits": 0,
+      "last_best_number": 0,
+      "tracker_roles": null
+    }
+  ],
+  "dropped": []
+}

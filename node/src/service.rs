@@ -347,7 +347,31 @@ where
     let announce_hub_for_network = announce_hub.clone();
     let announce_rx = announce_hub.subscribe();
     let bot_control = Arc::new(subtensor_bot::control::BotControl::new());
+    let auto_filter_control = Arc::new(subtensor_bot::AutoFilterControl::new());
+    let mempool_watcher_control = Arc::new(subtensor_bot::MempoolWatcherControl::new());
+    let tx_propagation_control = Arc::new(subtensor_bot::TxPropagationControl::new());
+    let bootnode_peer_ids: Vec<sc_network::PeerId> = config
+        .network
+        .boot_nodes
+        .iter()
+        .map(|node| node.peer_id.into())
+        .collect();
+    let bootnode_multiaddrs: Vec<sc_network::Multiaddr> = config
+        .network
+        .boot_nodes
+        .iter()
+        .map(|node| node.concat())
+        .collect();
+    let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
+    let shared_inject_state = subtensor_bot::SharedInjectState::new();
+    let sync_inject_handle = subtensor_bot::SyncInjectHandle::new();
+    let sync_inject_for_validator = sync_inject_handle.clone();
+    let genesis_hash = client
+        .block_hash(0u32)?
+        .expect("Genesis block exists; qed");
+    let block_announces_protocol =
+        subtensor_bot::block_announces_protocol_name(genesis_hash.as_ref());
 
     let (network, system_rpc_tx, tx_handler_controller, sync_service) =
         sc_service::build_network(sc_service::BuildNetworkParams {
@@ -361,12 +385,53 @@ where
                 Box::new(crate::bot_block_announce::NotifyingBlockAnnounceValidator::new(
                     client,
                     announce_hub_for_network,
+                    sync_inject_for_validator,
                 ))
             })),
             warp_sync_config,
             block_relay: None,
             metrics,
         })?;
+
+    let tx_peer_ranker = Arc::new(subtensor_bot::BotPeerRanker::new(peer_tracker.clone()));
+    let tx_propagation_observer =
+        Arc::new(subtensor_bot::BotPropagationObserver::new(peer_tracker.clone()));
+    let tx_propagation_strategy = Arc::new(subtensor_bot::BotPropagationStrategy::new(
+        tx_propagation_control.clone(),
+        bootnode_peer_ids,
+        bootnode_multiaddrs,
+        reserved_nodes,
+    ));
+    tx_handler_controller.set_peer_ranker(tx_peer_ranker);
+    tx_handler_controller.set_propagation_observer(tx_propagation_observer);
+    tx_handler_controller.set_propagation_strategy(tx_propagation_strategy);
+
+    let tx_propagator =
+        subtensor_bot::TxPropagator::new(tx_handler_controller.clone());
+
+    sync_inject_handle.install(
+        client.clone(),
+        transaction_pool.clone(),
+        bot_control.clone(),
+        shared_inject_state.clone(),
+        tx_propagator.clone(),
+        subtensor_bot::transact::TxConfig::from_env(),
+    );
+
+    let peer_pruner = Arc::new(subtensor_bot::PeerPruner::new(
+        sync_service.clone(),
+        network.clone(),
+        network.clone(),
+        block_announces_protocol.clone(),
+        peer_tracker.clone(),
+    ));
+
+    subtensor_bot::auto_filter::start_auto_filter(
+        &task_manager,
+        peer_pruner.clone(),
+        auto_filter_control.clone(),
+        subtensor_bot::auto_filter::config_from_env(),
+    );
 
     consensus_mechanism.spawn_essential_handles(
         &mut task_manager,
@@ -480,7 +545,11 @@ where
             select_chain.clone(),
         )?;
         let bot_control = bot_control.clone();
+        let auto_filter_control = auto_filter_control.clone();
+        let mempool_watcher_control = mempool_watcher_control.clone();
+        let tx_propagation_control = tx_propagation_control.clone();
         let peer_tracker = peer_tracker.clone();
+        let peer_pruner = peer_pruner.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -526,16 +595,21 @@ where
             .map_err(|e: Box<dyn std::error::Error + Send + Sync>| sc_service::Error::from(e))?;
             module
                 .merge(
-                    subtensor_bot::rpc::BotRpc::new(bot_control.clone(), peer_tracker.clone())
-                        .into_rpc(),
+                    subtensor_bot::rpc::BotRpc::new(
+                        bot_control.clone(),
+                        auto_filter_control.clone(),
+                        mempool_watcher_control.clone(),
+                        tx_propagation_control.clone(),
+                        peer_tracker.clone(),
+                        peer_pruner.clone(),
+                        network.clone(),
+                    )
+                    .into_rpc(),
                 )
                 .map_err(|e| sc_service::Error::Other(format!("failed to merge bot RPC: {e}")))?;
             Ok(module)
         })
     };
-
-    let tx_propagator =
-        subtensor_bot::TxPropagator::new(tx_handler_controller.clone());
 
     let _rpc_handlers = sc_service::spawn_tasks(sc_service::SpawnTasksParams {
         config,
@@ -574,6 +648,7 @@ where
         sync_service.clone(),
         announce_rx,
         bot_control.clone(),
+        shared_inject_state.clone(),
         peer_tracker,
         tx_propagator.clone(),
     );
@@ -582,9 +657,14 @@ where
         client.clone(),
         transaction_pool.clone(),
         bot_control,
+        shared_inject_state,
         tx_propagator,
     );
-    // subtensor_bot::mempool::start_mempool_watcher(&task_manager, transaction_pool.clone());
+    subtensor_bot::mempool::start_mempool_watcher(
+        &task_manager,
+        transaction_pool.clone(),
+        mempool_watcher_control.clone(),
+    );
     // -------------------------------------------------------------------------
 
     if role.is_authority() {

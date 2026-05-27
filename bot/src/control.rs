@@ -1,6 +1,7 @@
 //! Runtime control for the bot: start, stop, and transaction bursts.
 
 use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU8, Ordering};
+use tokio::sync::Notify;
 
 /// How the bot submits transactions to the pool.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -9,12 +10,15 @@ pub enum InjectMode {
     OnAnnounce,
     /// Pre-submit and keep the tx in the ready queue (FCFS front position).
     PoolFront,
+    /// Pool-front presence plus announce refresh (sync hook + import re-inject).
+    Hybrid,
 }
 
 impl InjectMode {
     fn from_u8(value: u8) -> Self {
         match value {
             1 => Self::PoolFront,
+            2 => Self::Hybrid,
             _ => Self::OnAnnounce,
         }
     }
@@ -23,12 +27,25 @@ impl InjectMode {
         match self {
             Self::OnAnnounce => 0,
             Self::PoolFront => 1,
+            Self::Hybrid => 2,
         }
+    }
+
+    pub fn uses_pool_front(&self) -> bool {
+        matches!(self, Self::PoolFront | Self::Hybrid)
+    }
+
+    pub fn uses_announce_inject(&self) -> bool {
+        matches!(self, Self::OnAnnounce | Self::Hybrid)
+    }
+
+    /// Synchronous inject from the block announce validator hook.
+    pub fn uses_sync_announce_inject(&self) -> bool {
+        matches!(self, Self::OnAnnounce | Self::PoolFront | Self::Hybrid)
     }
 }
 
 /// Shared bot control state, toggled at runtime via RPC.
-#[derive(Debug, Default)]
 pub struct BotControl {
     running: AtomicBool,
     /// Remaining sends for the current session. `u32::MAX` means unlimited.
@@ -36,11 +53,31 @@ pub struct BotControl {
     tx_sent: AtomicU32,
     needs_nonce_resync: AtomicBool,
     inject_mode: AtomicU8,
+    /// Wakes the pool-front injector on arm/resync without polling.
+    pool_wake: Notify,
+}
+
+impl Default for BotControl {
+    fn default() -> Self {
+        Self {
+            running: AtomicBool::new(false),
+            tx_remaining: AtomicU32::new(0),
+            tx_sent: AtomicU32::new(0),
+            needs_nonce_resync: AtomicBool::new(false),
+            inject_mode: AtomicU8::new(InjectMode::OnAnnounce.as_u8()),
+            pool_wake: Notify::new(),
+        }
+    }
 }
 
 impl BotControl {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Wait until [`Self::start_txs_pool_front`] or [`Self::start_txs`] arms the bot.
+    pub fn pool_wake(&self) -> tokio::sync::futures::Notified<'_> {
+        self.pool_wake.notified()
     }
 
     /// Arm the bot. Does not send until [`Self::start_txs`] is called.
@@ -68,12 +105,19 @@ impl BotControl {
         self.start_txs_with_mode(count, InjectMode::PoolFront);
     }
 
+    /// Pool-front presence plus synchronous announce refresh on each new header.
+    /// `count = 0` means unlimited sends while running.
+    pub fn start_txs_hybrid(&self, count: u32) {
+        self.start_txs_with_mode(count, InjectMode::Hybrid);
+    }
+
     fn start_txs_with_mode(&self, count: u32, mode: InjectMode) {
         let stored = if count == 0 { u32::MAX } else { count };
         self.tx_remaining.store(stored, Ordering::SeqCst);
         self.inject_mode.store(mode.as_u8(), Ordering::SeqCst);
         self.running.store(true, Ordering::SeqCst);
         self.needs_nonce_resync.store(true, Ordering::SeqCst);
+        self.pool_wake.notify_waiters();
     }
 
     pub fn inject_mode(&self) -> InjectMode {

@@ -59,20 +59,34 @@ bot::transact 🔑 bot address = 0x...  chain_id = 964
 
 ## Injection modes
 
-Two submission strategies are available. Only one is active at a time.
+Three submission strategies are available. Only one is active at a time.
 
 | Mode | RPC | When txs are submitted |
 |------|-----|------------------------|
-| **Announce** | `bot_startTxs` | On pre-import block announce (earliest public network hook) |
+| **Announce** | `bot_startTxs` | Synchronously on block announce (sync hook) + async fallback |
 | **Pool front** | `bot_startTxsFront` | Immediately on arm + right after each on-chain inclusion |
+| **Hybrid** | `bot_startTxsHybrid` | Pool front **plus** sync announce refresh on every new header |
 
 ### Announce mode
 
-Reacts to block headers as soon as the sync engine receives a network block announce — before block download and import complete. This is the fastest hook available on a **non-validator** node.
+Submits inside `BlockAnnounceValidator::validate()` — before async validation and before the broadcast channel — then falls back to the async processor if sync inject fails.
 
 ### Pool front mode
 
 Subtensor assigns flat priority `1` to normal EVM transactions. Within that tier the ready pool is **first-come-first-served**. Pool front mode injects early so your transaction sits at the front of the queue before competitors submit on the same block announce.
+
+### Hybrid mode (recommended for FCFS races)
+
+Combines both strategies:
+
+1. **Pool front loop** — keeps your tx in the ready queue continuously; re-injects after on-chain inclusion.
+2. **Sync announce refresh** — re-submits on every pre-import block announce so competitors who inject on the same announce cannot jump ahead.
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_startTxsHybrid","params":[5],"id":1}' \
+  http://127.0.0.1:9944
+```
 
 ---
 
@@ -84,7 +98,7 @@ Base URL used in examples: `http://127.0.0.1:9944`
 
 ### `bot_start`
 
-Arm the bot. Does **not** send transactions until `bot_startTxs` or `bot_startTxsFront` is called.
+Arm the bot. Does **not** send transactions until `bot_startTxs`, `bot_startTxsFront`, or `bot_startTxsHybrid` is called.
 
 **Params:** none  
 **Returns:** `true`
@@ -152,6 +166,23 @@ curl -s -H "Content-Type: application/json" \
 
 ---
 
+### `bot_startTxsHybrid`
+
+Begin sending in **hybrid mode** (pool front + sync announce refresh).
+
+**Params:** `[tx_count: u32]`  
+- `tx_count = 0` → unlimited sends while running
+
+**Returns:** `true`
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_startTxsHybrid","params":[10],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+---
+
 ### `bot_status`
 
 Current bot state.
@@ -173,7 +204,7 @@ Current bot state.
 | `running` | Whether the bot is armed and may send |
 | `tx_remaining` | Sends left in current session; `null` when unlimited |
 | `tx_sent` | Total sends completed in current session |
-| `inject_mode` | `"announce"` or `"pool_front"` |
+| `inject_mode` | `"announce"`, `"pool_front"`, or `"hybrid"` |
 
 ```bash
 curl -s -H "Content-Type: application/json" \
@@ -237,17 +268,128 @@ curl -s -H "Content-Type: application/json" \
 
 ---
 
+### `bot_keepTopPeers`
+
+Keep the top N connected peers (by announce score) and disconnect the rest. Writes a JSON log to `filter_log/`.
+
+**Params:** `[keep_count: u32]`
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_keepTopPeers","params":[96],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+---
+
+### `bot_setReservedPeersFromFile`
+
+Replace all reserved peers with multiaddrs from a file (one per line; `#` comments allowed).
+
+**Params:** `[path: string]`
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/root/subtensor/reserved_peers.txt"],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+Example `reserved_peers.txt`:
+
+```text
+# one multiaddr per line
+/ip4/178.105.87.99/tcp/30333/ws/p2p/12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx
+```
+
+---
+
+### `bot_startAutoFilter` / `bot_stopAutoFilter`
+
+Run `bot_keepTopPeers` on a timer. Also configurable via env (`BOT_AUTO_FILTER=1`, `BOT_AUTO_FILTER_INTERVAL`, `BOT_AUTO_FILTER_KEEP`).
+
+```bash
+# Keep top 96 peers every 30 minutes
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_startAutoFilter","params":[1800,96],"id":1}' \
+  http://127.0.0.1:9944
+
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_stopAutoFilter","params":[],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+---
+
+## Peer control workflow
+
+Typical sequence to trim slow peers and pin fast ones:
+
+1. Run the bot in announce or hybrid mode for a while so `bot_peerStats` accumulates scores.
+2. Inspect leaders: `bot_peerStats` / `bot_peerRecommendations`.
+3. Prune: `bot_keepTopPeers` (one-shot) or `bot_startAutoFilter` (periodic).
+4. Pin the best addresses: write them to a file, then `bot_setReservedPeersFromFile`.
+
+Filter run logs land in `filter_log/` (same format as your existing JSON snapshots).
+
+---
+
+## Running as an authority (validator)
+
+The bot targets **non-validator** full nodes. On an authority node, the block **proposer** picks transaction order from its local pool when building blocks — that beats any pool-front strategy.
+
+To run a local validator (dev/localnet):
+
+```bash
+# Local three-node testnet (see scripts/localnet.sh)
+./scripts/localnet.sh
+
+# Or single validator manually:
+./target/release/node-subtensor \
+  --chain local \
+  --base-path /tmp/validator \
+  --validator \
+  --alice \
+  --rpc-port 9944
+```
+
+Insert session keys if not using a dev preset account:
+
+```bash
+./target/release/node-subtensor key insert \
+  --base-path /tmp/validator \
+  --chain local \
+  --scheme Sr25519 \
+  --suri "//Alice" \
+  --key-type aura
+
+./target/release/node-subtensor key insert \
+  --base-path /tmp/validator \
+  --chain local \
+  --scheme Ed25519 \
+  --suri "//Alice" \
+  --key-type gran
+```
+
+On **Finney/mainnet**, becoming a block author requires being in the active Subtensor validator set (on-chain registration and stake) — not just the `--validator` flag. The flag tells the node to attempt block production when your keys are in the authority set.
+
+---
+
 ## Quick reference
 
 | Method | Purpose |
 |--------|---------|
 | `bot_start` | Arm bot (no sends yet) |
 | `bot_stop` | Stop immediately |
-| `bot_startTxs` | Send on block announce |
+| `bot_startTxs` | Send on block announce (sync + fallback) |
 | `bot_startTxsFront` | Pre-submit to pool front |
+| `bot_startTxsHybrid` | Pool front + sync announce refresh |
 | `bot_status` | Running state + counters |
 | `bot_peerStats` | Peer announce leaderboard |
 | `bot_peerRecommendations` | Suggested `--reserved-peers` |
+| `bot_keepTopPeers` | Disconnect peers outside top N |
+| `bot_setReservedPeersFromFile` | Pin reserved peers from file |
+| `bot_startAutoFilter` | Periodic peer pruning |
+| `bot_stopAutoFilter` | Stop periodic pruning |
 
 ---
 
@@ -278,7 +420,14 @@ curl ... -d '{"jsonrpc":"2.0","method":"bot_startTxsFront","params":[10],"id":1}
 curl ... -d '{"jsonrpc":"2.0","method":"bot_status","params":[],"id":1}'
 ```
 
-`bot_startTxs` and `bot_startTxsFront` both resync the EVM nonce from chain state when called, so you can call them again after a pause without restarting the node.
+### Hybrid mode
+
+```bash
+curl ... -d '{"jsonrpc":"2.0","method":"bot_startTxsHybrid","params":[10],"id":1}'
+curl ... -d '{"jsonrpc":"2.0","method":"bot_status","params":[],"id":1}'
+```
+
+`bot_startTxs`, `bot_startTxsFront`, and `bot_startTxsHybrid` all resync the EVM nonce from chain state when called, so you can call them again after a pause without restarting the node.
 
 ---
 
@@ -286,16 +435,19 @@ curl ... -d '{"jsonrpc":"2.0","method":"bot_status","params":[],"id":1}'
 
 ```
 Network block announce
-  → NotifyingBlockAnnounceValidator (pre-validation notify)
-  → BlockAnnounceHub broadcast
-  → processor loop
+  → NotifyingBlockAnnounceValidator::validate()
+      → sync_inject (OnAnnounce + Hybrid: submit_local immediately)
+      → BlockAnnounceHub broadcast
+  → processor loop (OnAnnounce fallback only)
       → peer_tracker.record_announce()
-      → [announce mode] pool.submit_one() on new block
 
-bot_startTxsFront
+bot_startTxsFront / bot_startTxsHybrid
   → pool_inject loop
       → inject immediately on arm
       → re-inject after inclusion (import notification + nonce check)
+
+bot_startTxsHybrid additionally:
+  → sync_inject refresh on every announce (re-submit to hold FCFS position)
 ```
 
 ### Crate layout
@@ -303,12 +455,14 @@ bot_startTxsFront
 | Module | Role |
 |--------|------|
 | `transact.rs` | EIP-1559 signing, prebuild, pool submission |
-| `processor.rs` | Block announce listener + announce-mode sends |
+| `inject_shared.rs` | Shared pending tx state across inject paths |
+| `sync_inject.rs` | Synchronous inject from announce validator |
+| `processor.rs` | Async announce fallback + peer tracking |
 | `pool_inject.rs` | Pool-front early injection |
 | `control.rs` | Shared runtime state (running, budget, mode) |
 | `rpc.rs` | JSON-RPC control interface |
 | `announce.rs` | Block announce notification types |
-| `peers.rs` | Peer scoring for `--reserved-peers` research |
+| `peers.rs` | Peer scoring, pruning, reserved-peer management |
 | `mempool.rs` | Optional pool import watcher (debug) |
 
 ### Log targets
@@ -322,7 +476,8 @@ RUST_LOG=bot=info,node=info ./target/release/node-subtensor ...
 | Target | Content |
 |--------|---------|
 | `bot::transact` | Key load, prebuild, submission |
-| `bot::processor` | Announce-triggered sends |
+| `bot::sync_inject` | Sync announce injections |
+| `bot::processor` | Async announce fallback |
 | `bot::pool_inject` | Pool-front injections |
 | `bot::peers` | Peer attribution per block |
 | `bot::mempool` | Ready-pool import watcher |

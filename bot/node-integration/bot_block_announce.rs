@@ -5,6 +5,9 @@
 //! that point - before async announce validation runs - so the processor can
 //! submit to the pool while validation and block download proceed in parallel.
 //!
+//! When a sync injector is installed, it also submits to the pool from this
+//! hook (zero broadcast latency).
+//!
 //! Deeper hooks (inside the network worker, before the validator queue) are
 //! not exposed by Substrate's public API. Validator proposer injection is
 //! faster still but requires an authority role.
@@ -19,6 +22,7 @@ use sp_runtime::traits::Block as BlockT;
 use std::pin::Pin;
 use std::sync::Arc;
 use subtensor_bot::announce::{self, BlockAnnounceHub};
+use subtensor_bot::SyncInjectHandle;
 
 use crate::client::FullClient;
 
@@ -26,14 +30,20 @@ pub struct NotifyingBlockAnnounceValidator {
     inner: DefaultBlockAnnounceValidator,
     client: Arc<FullClient>,
     hub: BlockAnnounceHub,
+    sync_inject: Arc<SyncInjectHandle>,
 }
 
 impl NotifyingBlockAnnounceValidator {
-    pub fn new(client: Arc<FullClient>, hub: BlockAnnounceHub) -> Self {
+    pub fn new(
+        client: Arc<FullClient>,
+        hub: BlockAnnounceHub,
+        sync_inject: Arc<SyncInjectHandle>,
+    ) -> Self {
         Self {
             inner: DefaultBlockAnnounceValidator,
             client,
             hub,
+            sync_inject,
         }
     }
 }
@@ -51,16 +61,17 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
     > {
         let best_number = self.client.info().best_number;
         if announce::is_ahead_of_best(header, best_number) {
+            let block_number = *header.number();
+            self.sync_inject.on_announce(block_number);
             self.hub.notify(header);
             log::debug!(
                 target: "bot::announce",
-                "pre-validation announce #{} (local best #{best_number}) hash={:?}",
-                header.number(),
+                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?}",
                 header.hash(),
             );
         }
 
-        let validation = self.inner.validate(header, data);
+        let validation = BlockAnnounceValidator::<Block>::validate(&mut self.inner, header, data);
 
         async move { validation.await }.boxed()
     }

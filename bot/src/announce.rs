@@ -1,12 +1,12 @@
 //! Pre-import block announce notifications forwarded from the network layer.
 //!
 //! Signal timeline on a non-validator node (fastest → slowest):
-//!   1. `BlockAnnounceValidator::validate()` entry — earliest public hook (announce path)
+//!   1. `BlockAnnounceValidator::validate()` entry — sync pool inject + hub notify
 //!   2. Announce validation completes
 //!   3. Block body download + import
-//!   4. `client.import_notification_stream()` (pool-front path)
+//!   4. `client.import_notification_stream()` (inclusion / nonce advance only)
 //!
-//! Pool-front injection pre-submits before announces to hold FCFS queue position.
+//! Hybrid mode combines pool-front pre-submit with sync announce refresh.
 //! Validator proposer injection is faster but requires authority role.
 
 use node_subtensor_runtime::opaque::Block;
@@ -21,13 +21,23 @@ pub struct BlockAnnounceNotification {
     pub parent_hash: <Block as BlockT>::Hash,
 }
 
-/// Returns true when `header` is the next block or further ahead of local best.
+/// Returns true when `header` is the immediate next block after local best.
+///
+/// Only this case triggers inject — not farther-ahead announces (`best + 2`, …),
+/// which would otherwise burn the send budget before those blocks import.
+pub fn is_immediate_next_block<H>(header: &H, best_number: u32) -> bool
+where
+    H: HeaderT<Number = u32>,
+{
+    *header.number() == best_number.saturating_add(1)
+}
+
+/// Deprecated alias — prefer [`is_immediate_next_block`].
 pub fn is_ahead_of_best<H>(header: &H, best_number: u32) -> bool
 where
     H: HeaderT<Number = u32>,
 {
-    let announced = *header.number();
-    announced > best_number || announced == best_number.saturating_add(1)
+    is_immediate_next_block(header, best_number)
 }
 
 /// Broadcast hub for pre-import block announce events.

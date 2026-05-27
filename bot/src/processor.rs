@@ -6,23 +6,18 @@
 
 use crate::announce::BlockAnnounceNotification;
 use crate::control::{BotControl, InjectMode};
+use crate::inject_shared::{SharedInjectState, build_tx_at, resync_pending};
 use crate::peers::PeerTracker;
-use crate::transact::{PrebuiltTx, TxConfig, TxPropagator, fetch_nonce, prebuild, send};
+use crate::transact::{TxConfig, TxPropagator, fetch_nonce, send};
 use fp_rpc::EthereumRuntimeRPCApi;
 use futures::{FutureExt, future::BoxFuture};
 use node_subtensor_runtime::opaque::Block;
 use sc_network_sync::SyncingService;
-use sc_transaction_pool_api::{TransactionPool, error::IntoPoolError};
-use sp_core::U256;
+use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool, error::IntoPoolError};
 use sp_runtime::traits::{Block as BlockT, SaturatedConversion};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::broadcast;
-
-struct PendingTx {
-    tx: PrebuiltTx,
-    nonce: U256,
-}
 
 /// Spawn the bot background task.
 pub fn start_bot<C, P>(
@@ -32,6 +27,7 @@ pub fn start_bot<C, P>(
     sync: Arc<SyncingService<Block>>,
     announce_rx: broadcast::Receiver<BlockAnnounceNotification>,
     control: Arc<BotControl>,
+    state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
     propagator: TxPropagator,
 ) where
@@ -41,33 +37,43 @@ pub fn start_bot<C, P>(
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
+        + LocalTransactionPool<
+            Block = Block,
+            Hash = <Block as BlockT>::Hash,
+            Error = <P as TransactionPool>::Error,
+        >
+        + 'static,
 {
     task_manager.spawn_handle().spawn(
         "bot-processor",
         None,
-        run(client, pool, sync, announce_rx, control, peer_tracker, propagator),
+        run(
+            client,
+            pool,
+            sync,
+            announce_rx,
+            control,
+            state,
+            peer_tracker,
+            propagator,
+        ),
     );
 }
 
-fn build_tx_at(cfg: &TxConfig, nonce: U256) -> PendingTx {
-    PendingTx {
-        tx: prebuild(cfg, nonce, vec![0u8; 4]),
-        nonce,
-    }
-}
-
-async fn wait_for_pending<C>(client: &C, cfg: &TxConfig) -> (PendingTx, U256)
+async fn wait_for_pending<C>(client: &C, cfg: &TxConfig, state: &SharedInjectState)
 where
     C: sp_api::ProvideRuntimeApi<Block> + sp_blockchain::HeaderBackend<Block>,
     C::Api: EthereumRuntimeRPCApi<Block>,
 {
+    if state.is_ready() {
+        return;
+    }
     loop {
         match fetch_nonce(client, cfg.from) {
             Ok(nonce) => {
-                let pending = build_tx_at(cfg, nonce);
-                let next_nonce = nonce.saturating_add(U256::from(1));
-                return (pending, next_nonce);
+                state.init_pending(build_tx_at(cfg, nonce));
+                return;
             }
             Err(e) => {
                 log::debug!(
@@ -78,23 +84,6 @@ where
             }
         }
     }
-}
-
-fn resync_pending<C>(client: &C, cfg: &TxConfig) -> Result<(PendingTx, U256), String>
-where
-    C: sp_api::ProvideRuntimeApi<Block> + sp_blockchain::HeaderBackend<Block>,
-    C::Api: EthereumRuntimeRPCApi<Block>,
-{
-    let nonce = fetch_nonce(client, cfg.from)?;
-    let pending = build_tx_at(cfg, nonce);
-    let next_nonce = nonce.saturating_add(U256::from(1));
-    Ok((pending, next_nonce))
-}
-
-fn advance_pending(cfg: &TxConfig, next_nonce: U256) -> (PendingTx, U256) {
-    let pending = build_tx_at(cfg, next_nonce);
-    let following = next_nonce.saturating_add(U256::from(1));
-    (pending, following)
 }
 
 fn record_peer_candidates(
@@ -131,6 +120,7 @@ fn run<C, P>(
     sync: Arc<SyncingService<Block>>,
     mut announce_rx: broadcast::Receiver<BlockAnnounceNotification>,
     control: Arc<BotControl>,
+    state: Arc<SharedInjectState>,
     peer_tracker: Arc<PeerTracker>,
     propagator: TxPropagator,
 ) -> BoxFuture<'static, ()>
@@ -141,20 +131,27 @@ where
         + Sync
         + 'static,
     C::Api: EthereumRuntimeRPCApi<Block>,
-    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
+        + LocalTransactionPool<
+            Block = Block,
+            Hash = <Block as BlockT>::Hash,
+            Error = <P as TransactionPool>::Error,
+        >
+        + 'static,
 {
     async move {
         let cfg = TxConfig::from_env();
+        wait_for_pending(client.as_ref(), &cfg, state.as_ref()).await;
 
-        let (mut pending, mut next_nonce) = wait_for_pending(client.as_ref(), &cfg).await;
-        log::info!(
-            target: "bot::processor",
-            "✅ initial tx pre-built, nonce={} (stopped — call bot_startTxs)",
-            pending.nonce
-        );
+        if let Some(pending) = state.pending() {
+            log::info!(
+                target: "bot::processor",
+                "✅ initial tx pre-built, nonce={} (stopped — call bot_startTxs)",
+                pending.nonce
+            );
+        }
 
         let mut last_tracked_at_number = None;
-        let mut last_sent_at_number = None;
 
         loop {
             let notification = match announce_rx.recv().await {
@@ -185,24 +182,24 @@ where
                 continue;
             }
 
-            if control.inject_mode() == InjectMode::PoolFront {
+            let mode = control.inject_mode();
+            if mode == InjectMode::PoolFront || mode == InjectMode::Hybrid {
                 continue;
             }
 
-            if last_sent_at_number == Some(notification.number) {
+            // Sync hook handles OnAnnounce primary path; processor is fallback.
+            if !state.try_claim_announce_block(notification.number) {
                 continue;
             }
-            last_sent_at_number = Some(notification.number);
 
             if control.take_resync() {
                 match resync_pending(client.as_ref(), &cfg) {
-                    Ok((p, n)) => {
-                        pending = p;
-                        next_nonce = n;
+                    Ok(p) => {
+                        state.resync_pending(p.clone());
                         log::info!(
                             target: "bot::processor",
                             "✅ tx re-synced on start_txs, nonce={}",
-                            pending.nonce
+                            p.nonce
                         );
                     }
                     Err(e) => {
@@ -210,15 +207,21 @@ where
                             target: "bot::processor",
                             "⚠️ nonce resync failed: {e}",
                         );
+                        state.clear_announce_claim(notification.number);
                         continue;
                     }
                 }
             }
 
+            let Some(pending) = state.pending() else {
+                state.clear_announce_claim(notification.number);
+                continue;
+            };
+
             let at_hash = client.info().best_hash;
             log::info!(
                 target: "bot::processor",
-                "🚀 sending tx on announce #{} (nonce={}, at={:?})",
+                "🚀 fallback announce inject #{} (nonce={}, at={:?})",
                 notification.number,
                 pending.nonce,
                 at_hash,
@@ -269,13 +272,17 @@ where
 
             if accepted {
                 control.on_sent();
-                (pending, next_nonce) = advance_pending(&cfg, next_nonce);
+                let next = pending.nonce.saturating_add(1u32.into());
+                let advanced = build_tx_at(&cfg, next);
+                state.set_pending(advanced.clone());
                 log::info!(
                     target: "bot::processor",
                     "✅ tx pre-built for next send, nonce={} (remaining={:?})",
-                    pending.nonce,
+                    advanced.nonce,
                     control.tx_remaining(),
                 );
+            } else {
+                state.clear_announce_claim(notification.number);
             }
         }
     }

@@ -1,0 +1,40 @@
+2026-05-27 02:47:34 Subtensor Node    
+2026-05-27 02:47:34 ✌️  version 4.0.0-dev-543dd77197e    
+2026-05-27 02:47:34 ❤️  by Substrate DevHub <https://github.com/substrate-developer-hub>, 2017-2026    
+2026-05-27 02:47:34 📋 Chain specification: Bittensor    
+2026-05-27 02:47:34 🏷  Node name: smiling-shelf-1736    
+2026-05-27 02:47:34 👤 Role: FULL    
+2026-05-27 02:47:34 💾 Database: RocksDb at /var/lib/subtensor/chains/bittensor/db/full    
+2026-05-27 02:47:34 🔨 Initializing Genesis block/state (state: 0x4015…9643, header-hash: 0x2f05…6c03)    
+2026-05-27 02:47:34 Grandpa block import patch enabled. Chain type = Live. Skip justifications for blocks = Some({0xb49f8cd2a49b51a493fc55a8c9524ba08c3aa6b702f20af02878c1ec68e3ff5f, 0x04c71efb77060bfacfb49cd61826d594148ccda2ee23d66c7db819b16b55911c})    
+2026-05-27 02:47:34 👴 Loading GRANDPA authority set from genesis on what appears to be first startup.    
+2026-05-27 02:47:34 Creating transaction pool txpool_type=ForkAware ready=Limit { count: 8192, total_bytes: 20971520 } future=Limit { count: 819, total_bytes: 2097152 }
+2026-05-27 02:47:34 👶 Creating empty BABE epoch changes on what appears to be first startup.    
+2026-05-27 02:47:34 Grandpa warp sync patch enabled. Chain type = Live. Set ID = 3    
+2026-05-27 02:47:34 Local node identity is: 12D3KooWLPhA1X9YikurqTYqRLDfAg6QAA9nfCBHK2yEKWDAXoFN    
+2026-05-27 02:47:34 Running litep2p network backend    
+2026-05-27 02:47:34 🔑 bot address = 0x1d320ddd54b379b06e515624b01a37c8b1c0de5a  chain_id = 964    
+2026-05-27 02:47:34 ✅ sync announce injector installed    
+2026-05-27 02:47:34 💻 Operating system: linux    
+2026-05-27 02:47:34 💻 CPU architecture: x86_64    
+2026-05-27 02:47:34 💻 Target environment: gnu    
+2026-05-27 02:47:34 💻 CPU: AMD Ryzen 9 9950X 16-Core Processor    
+2026-05-27 02:47:34 💻 CPU cores: 16    
+2026-05-27 02:47:34 💻 Memory: 190799MB    
+2026-05-27 02:47:34 💻 Kernel: 6.8.0-111-generic    
+2026-05-27 02:47:34 💻 Linux distribution: Ubuntu 22.04.5 LTS    
+2026-05-27 02:47:34 💻 Virtual machine: no    
+2026-05-27 02:47:34 📦 Highest known block at #0    
+2026-05-27 02:47:34 〽️ Prometheus exporter started at 127.0.0.1:9615    
+2026-05-27 02:47:34 Running JSON-RPC server: addr=0.0.0.0:9944,[::]:14981    
+2026-05-27 02:47:34 🔑 bot address = 0x1d320ddd54b379b06e515624b01a37c8b1c0de5a  chain_id = 964    
+2026-05-27 02:47:34 🔑 bot address = 0x1d320ddd54b379b06e515624b01a37c8b1c0de5a  chain_id = 964    
+2026-05-27 02:47:35 🔍 Discovered new external address for our node: /ip4/88.216.36.114/tcp/30333/ws/p2p/12D3KooWLPhA1X9YikurqTYqRLDfAg6QAA9nfCBHK2yEKWDAXoFN    
+2026-05-27 02:47:39 ⏩ Warping, Waiting for 3 peers to be connected, 0.00 Mib (0 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 0.2kiB/s ⬆ 0.2kiB/s    
+2026-05-27 02:47:41 Essential task `txpool-background` failed. Shutting down service.    
+error: invalid value ' ' for '--bootnodes <ADDR>...': invalid multiaddress
+
+For more information, try '--help'.
+error: invalid value ' ' for '--bootnodes <ADDR>...': invalid multiaddress
+
+For more information, try '--help'.

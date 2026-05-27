@@ -19,10 +19,51 @@
 //! Configuration of the transaction protocol
 
 use futures::prelude::*;
-use sc_network::MAX_RESPONSE_SIZE;
+use sc_network::{Multiaddr, MAX_RESPONSE_SIZE};
 use sc_network_common::ExHashT;
+use sc_network_types::PeerId;
 use sp_runtime::traits::Block as BlockT;
-use std::{collections::HashMap, future::Future, pin::Pin, sync::Arc, time};
+use std::{
+	collections::{HashMap, HashSet},
+	future::Future,
+	pin::Pin,
+	sync::Arc,
+	time,
+};
+
+/// Reorders connected peers so high-priority peers receive gossip first.
+pub trait PeerRanker: Send + Sync {
+	fn rank_peers(&self, peers: &[PeerId]) -> Vec<PeerId>;
+}
+
+/// Notified after a single-transaction propagation round completes.
+pub trait PropagationObserver<H: ExHashT>: Send + Sync {
+	fn on_propagated(&self, propagated: HashMap<H, Vec<String>>);
+}
+
+/// Controls outbound transaction gossip strategy.
+pub trait PropagationStrategy: Send + Sync {
+	/// When `true`, gossip bootnodes first, then remaining full-node peers.
+	fn bootnode_first(&self) -> bool;
+
+	/// Chain / CLI bootnode peer ids.
+	fn bootnode_peers(&self) -> HashSet<PeerId>;
+
+	/// Dialable multiaddrs for configured bootnodes (`/dns/.../p2p/<id>` form).
+	fn bootnode_multiaddrs(&self) -> Vec<Multiaddr> {
+		Vec::new()
+	}
+
+	/// Peers to target first in bootnode-first mode (`--reserved-nodes`, bootnodes, etc.).
+	fn candidate_peers(&self) -> Vec<PeerId> {
+		self.bootnode_peers().into_iter().collect()
+	}
+
+	/// Dialable multiaddrs for [`Self::candidate_peers`].
+	fn candidate_multiaddrs(&self) -> Vec<Multiaddr> {
+		self.bootnode_multiaddrs()
+	}
+}
 
 /// Interval at which we propagate transactions;
 pub(crate) const PROPAGATE_TIMEOUT: time::Duration = time::Duration::from_millis(2900);

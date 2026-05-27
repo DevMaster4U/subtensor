@@ -10,7 +10,7 @@ use k256::ecdsa::{RecoveryId, SigningKey};
 use node_subtensor_runtime::{TransactionConverter, opaque::Block};
 use pallet_ethereum::Transaction as EthTx;
 use sc_network_transactions::TransactionsHandlerController;
-use sc_transaction_pool_api::{TransactionPool, TransactionSource};
+use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool};
 use sp_core::{H160, U256, keccak_256};
 use sp_runtime::traits::Block as BlockT;
 use std::sync::Arc;
@@ -38,21 +38,21 @@ pub struct TxConfig {
     pub max_priority_fee_per_gas: u128,
 }
 
-impl TxConfig {
-    /// Load `.env` from the repo root (works regardless of cwd), then read vars.
-    fn load_env() {
-        let env_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../.env");
-        if dotenvy::from_path(&env_path).is_ok() {
-            log::debug!(target: "bot::transact", "loaded env from {:?}", env_path);
-            return;
-        }
-        if dotenvy::dotenv().is_ok() {
-            log::debug!(target: "bot::transact", "loaded env from cwd .env");
-        }
+/// Load `.env` from the repo root (works regardless of cwd), then read vars.
+pub fn load_dotenv() {
+    let env_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../.env");
+    if dotenvy::from_path(&env_path).is_ok() {
+        log::debug!(target: "bot::transact", "loaded env from {:?}", env_path);
+        return;
     }
+    if dotenvy::dotenv().is_ok() {
+        log::debug!(target: "bot::transact", "loaded env from cwd .env");
+    }
+}
 
+impl TxConfig {
     pub fn from_env() -> Self {
-        Self::load_env();
+        load_dotenv();
 
         let raw_key = std::env::var("BOT_PRIVATE_KEY")
             .expect("BOT_PRIVATE_KEY env var required (64-char hex, no 0x)");
@@ -200,8 +200,8 @@ where
 /// Cloneable handle to Substrate's transaction gossip handler.
 ///
 /// Pool submission alone eventually propagates via `on-transaction-imported`, but that task
-/// runs asynchronously. Calling [`Self::propagate`] right after a successful pool submit pushes
-/// the tx onto the `/transactions/1` notification protocol immediately.
+/// runs asynchronously. Calling [`Self::propagate`] right after a successful pool submit
+/// broadcasts the tx on `/transactions/1` immediately.
 #[derive(Clone)]
 pub struct TxPropagator {
     controller: TransactionsHandlerController<<Block as BlockT>::Hash>,
@@ -212,13 +212,11 @@ impl TxPropagator {
         Self { controller }
     }
 
-    /// Gossip a ready pool transaction to connected full-node peers.
-    ///
-    /// No-op while the node is in major sync (Substrate drops propagation in that state).
+    /// Broadcast a single transaction to connected full-node peers.
     pub fn propagate(&self, hash: <Block as BlockT>::Hash) {
         log::info!(
             target: "bot::transact",
-            "📡 immediate P2P propagate hash={:?}",
+            "📡 P2P propagate hash={:?}",
             hash,
         );
         self.controller.propagate_transaction(hash);
@@ -227,15 +225,58 @@ impl TxPropagator {
 
 // ── send ──────────────────────────────────────────────────────────────────────
 
+fn log_submit_result<P>(
+    tx_hash: <P as TransactionPool>::Hash,
+    propagator: Option<TxPropagator>,
+    result: &Result<<P as TransactionPool>::Hash, <P as TransactionPool>::Error>,
+) where
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>,
+{
+    match result {
+        Ok(hash) => {
+            log::info!(
+                target: "bot::transact",
+                "✅ tx submitted to pool, hash={:?}",
+                hash,
+            );
+            if let Some(prop) = propagator {
+                prop.propagate(*hash);
+            }
+        }
+        Err(e) => {
+            log::error!(
+                target: "bot::transact",
+                "❌ tx pool submission failed (hash={:?}): {e:?}",
+                tx_hash,
+            );
+        }
+    }
+}
+
 /// Submit the pre-signed tx to the local pool, then gossip it via P2P immediately.
+///
+/// Uses [`LocalTransactionPool::submit_local`] (blocking runtime validation on the current
+/// thread) instead of the async validation queue in [`TransactionPool::submit_one`].
 pub fn send<P>(
     pool: Arc<P>,
     tx: PrebuiltTx,
     best_hash: <Block as BlockT>::Hash,
     propagator: Option<TxPropagator>,
-) -> BoxFuture<'static, Result<<P as TransactionPool>::Hash, <P as TransactionPool>::Error>>
+) -> BoxFuture<
+    'static,
+    Result<
+        <P as TransactionPool>::Hash,
+        <P as TransactionPool>::Error,
+    >,
+>
 where
-    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash> + 'static,
+    P: TransactionPool<Block = Block, Hash = <Block as BlockT>::Hash>
+        + LocalTransactionPool<
+            Block = Block,
+            Hash = <Block as BlockT>::Hash,
+            Error = <P as TransactionPool>::Error,
+        >
+        + 'static,
 {
     let tx_hash = pool.hash_of(&tx.extrinsic);
     Box::pin(async move {
@@ -245,28 +286,8 @@ where
             tx_hash,
             best_hash,
         );
-        let result = pool
-            .submit_one(best_hash, TransactionSource::Local, tx.extrinsic)
-            .await;
-        match &result {
-            Ok(hash) => {
-                log::info!(
-                    target: "bot::transact",
-                    "✅ tx submitted to pool, hash={:?}",
-                    hash,
-                );
-                if let Some(prop) = propagator {
-                    prop.propagate(*hash);
-                }
-            }
-            Err(e) => {
-                log::error!(
-                    target: "bot::transact",
-                    "❌ tx pool submission failed (hash={:?}): {e:?}",
-                    tx_hash,
-                );
-            }
-        }
+        let result = pool.submit_local(best_hash, tx.extrinsic);
+        log_submit_result::<P>(tx_hash, propagator, &result);
         result
     })
 }
