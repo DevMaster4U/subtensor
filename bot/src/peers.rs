@@ -392,6 +392,8 @@ pub struct KeepTopPeersResult {
     pub connected_before: u32,
     pub kept_count: u32,
     pub dropped_count: u32,
+    /// Sync peers still connected after the prune (`SyncingEngine` / `system_peers`).
+    pub sync_peers_after: u32,
     pub kept: Vec<String>,
     pub dropped: Vec<String>,
 }
@@ -399,6 +401,9 @@ pub struct KeepTopPeersResult {
 /// Result of [`PeerPruner::set_reserved_from_file`].
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct SetReservedPeersResult {
+    /// Sync peers disconnected because `clear_all` was set.
+    pub disconnected_count: u32,
+    /// Reserved entries removed from the network reserved set before adding from the file.
     pub removed_count: u32,
     pub added_count: u32,
     /// Multiaddrs loaded from the file (deduplicated by peer id).
@@ -413,7 +418,10 @@ pub struct PeerPruner {
     network: Arc<dyn sc_network::NetworkPeers + Send + Sync>,
     network_status: Arc<dyn sc_network::NetworkStatusProvider + Send + Sync>,
     block_announces_protocol: sc_network::ProtocolName,
+    transactions_protocol: sc_network::ProtocolName,
     peer_tracker: Arc<PeerTracker>,
+    reserved_registry: Arc<crate::reserved::ReservedPeerRegistry>,
+    reserved_dialer: Arc<crate::reserved_dial::ReservedDialer>,
 }
 
 impl PeerPruner {
@@ -422,15 +430,53 @@ impl PeerPruner {
         network: Arc<dyn sc_network::NetworkPeers + Send + Sync>,
         network_status: Arc<dyn sc_network::NetworkStatusProvider + Send + Sync>,
         block_announces_protocol: sc_network::ProtocolName,
+        transactions_protocol: sc_network::ProtocolName,
         peer_tracker: Arc<PeerTracker>,
+        reserved_registry: Arc<crate::reserved::ReservedPeerRegistry>,
+        reserved_dialer: Arc<crate::reserved_dial::ReservedDialer>,
     ) -> Self {
         Self {
             sync,
             network,
             network_status,
             block_announces_protocol,
+            transactions_protocol,
             peer_tracker,
+            reserved_registry,
+            reserved_dialer,
         }
+    }
+
+    /// Disconnect protocols without banning (so reserved peers can be re-dialed after clear_all).
+    fn disconnect_peer_gentle(&self, peer_id: sc_network::PeerId) {
+        self.network
+            .disconnect_peer(peer_id, self.block_announces_protocol.clone());
+        self.network
+            .disconnect_peer(peer_id, self.transactions_protocol.clone());
+    }
+
+    async fn sync_reserved_registry_from_network(&self) -> Result<(), String> {
+        let peers = self
+            .network
+            .reserved_peers()
+            .await
+            .map_err(|_| "network worker unavailable".to_string())?;
+        self.reserved_registry.replace_peers(peers);
+        Ok(())
+    }
+
+    /// Ban a peer, close sync + tx substreams, and remove it from the reserved set (no redial).
+    fn sever_peer(&self, peer_id: sc_network::PeerId, reason: &'static str) {
+        use sc_network::ReputationChange;
+
+        self.network
+            .report_peer(peer_id, ReputationChange::new_fatal(reason));
+        self.network
+            .disconnect_peer(peer_id, self.block_announces_protocol.clone());
+        self.network
+            .disconnect_peer(peer_id, self.transactions_protocol.clone());
+        self.network.remove_reserved_peer(peer_id);
+        self.sync.remove_reserved_peer(peer_id.into());
     }
 
     /// Keep the top `keep_count` connected peers (by [`PeerTracker`] score) and disconnect the rest.
@@ -454,7 +500,7 @@ impl PeerPruner {
         trigger: &str,
         interval_secs: Option<u64>,
     ) -> Result<KeepTopPeersResult, String> {
-        use sc_network::{PeerId, ReputationChange};
+        use sc_network::PeerId;
         use sp_runtime::traits::SaturatedConversion;
 
         let keep_count_usize = keep_count.clamp(1, 500) as usize;
@@ -510,10 +556,17 @@ impl PeerPruner {
                 .iter()
                 .filter_map(|id| details_by_id.get(id).cloned())
                 .collect();
+            let sync_peers_after = self
+                .sync
+                .peers_info()
+                .await
+                .map(|p| p.len() as u32)
+                .unwrap_or(0);
             let result = KeepTopPeersResult {
                 connected_before,
                 kept_count: kept.len() as u32,
                 dropped_count: 0,
+                sync_peers_after,
                 kept: kept.clone(),
                 dropped: Vec::new(),
             };
@@ -556,16 +609,21 @@ impl PeerPruner {
                     target: "bot::peers",
                     "dropping peer {id} (outside top {keep_count_usize})",
                 );
-                self.network
-                    .report_peer(peer_id, ReputationChange::new_fatal("bot_keepTopPeers"));
-                self.network
-                    .disconnect_peer(peer_id, self.block_announces_protocol.clone());
+                self.sever_peer(peer_id, "bot_keepTopPeers");
             }
         }
 
+        let sync_peers_after = self
+            .sync
+            .peers_info()
+            .await
+            .map(|p| p.len() as u32)
+            .unwrap_or(0);
+
         log::info!(
             target: "bot::peers",
-            "keep_top_peers: kept {} dropped {} (connected was {connected_before})",
+            "keep_top_peers: kept {} dropped {} (sync before {connected_before}, sync after {sync_peers_after}); \
+             substrate Idle peer count may stay higher (all libp2p connections)",
             kept.len(),
             dropped.len(),
         );
@@ -583,6 +641,7 @@ impl PeerPruner {
             connected_before,
             kept_count: kept.len() as u32,
             dropped_count: dropped.len() as u32,
+            sync_peers_after,
             kept: kept.clone(),
             dropped: dropped.clone(),
         };
@@ -614,15 +673,63 @@ impl PeerPruner {
             .await
     }
 
-    /// Replace all sync reserved peers with the multiaddrs listed in `path`.
-    ///
-    /// The file is one multiaddr per line (blank lines and `#` comments are ignored).
-    /// Existing reserved peers are removed first, then each unique peer from the file
-    /// is added via [`sc_network::NetworkPeers::add_reserved_peer`].
-    pub async fn set_reserved_from_file(&self, path: &str) -> Result<SetReservedPeersResult, String> {
-        use std::collections::HashSet;
+    /// Reserved-only on every notification protocol; sever any connected non-reserved peer.
+    pub async fn enable_reserved_only(&self) -> Result<u32, String> {
+        self.sync_reserved_registry_from_network().await?;
+        self.reserved_registry.set_reserved_only(true);
+        self.network.deny_unreserved_peers();
 
-        let peers = parse_reserved_peers_file(path)?;
+        let reserved = self.reserved_registry.peer_ids();
+        let addrs = self.network_status.connected_peer_addresses().await;
+        let mut severed = 0u32;
+        for peer_id_str in addrs.keys() {
+            let Ok(peer_id) = peer_id_str.parse::<sc_network::PeerId>() else {
+                continue;
+            };
+            if !reserved.contains(&peer_id) {
+                self.sever_peer(peer_id, "bot_enableReservedOnly");
+                severed += 1;
+            }
+        }
+
+        log::info!(
+            target: "bot::peers",
+            "reserved-only enabled: {} reserved peer(s), severed {severed} non-reserved connection(s)",
+            reserved.len(),
+        );
+        Ok(severed)
+    }
+
+    /// Re-allow non-reserved peers on all notification protocols.
+    pub fn disable_reserved_only(&self) {
+        self.reserved_registry.set_reserved_only(false);
+        self.network.accept_unreserved_peers();
+        log::info!(
+            target: "bot::peers",
+            "reserved-only disabled (open peer discovery)",
+        );
+    }
+
+    /// Disconnect every libp2p-connected peer without banning (`clear_all=1` step 1).
+    async fn disconnect_all_peers(&self) -> Result<u32, String> {
+        let addrs = self.network_status.connected_peer_addresses().await;
+        let count = addrs.len() as u32;
+        for peer_id_str in addrs.keys() {
+            let Ok(peer_id) = peer_id_str.parse::<sc_network::PeerId>() else {
+                continue;
+            };
+            log::info!(
+                target: "bot::peers",
+                "clear_all: disconnecting peer {peer_id_str} (not banned, can redial)",
+            );
+            self.disconnect_peer_gentle(peer_id);
+        }
+        Ok(count)
+    }
+
+    /// Drop every entry from the sync + tx reserved sets (`clear_all=1` step 2).
+    async fn clear_all_reserved_peers(&self) -> Result<u32, String> {
+        use std::collections::HashSet;
 
         let current = self
             .network
@@ -630,33 +737,128 @@ impl PeerPruner {
             .await
             .map_err(|_| "network worker unavailable".to_string())?;
 
-        let removed_count = current.len() as u32;
+        let count = current.len() as u32;
         for peer_id in current {
+            let id = peer_id.to_base58();
+            log::info!(
+                target: "bot::peers",
+                "clear_all: removing reserved peer {id}",
+            );
             self.network.remove_reserved_peer(peer_id);
+            self.sync.remove_reserved_peer(peer_id);
+            self.reserved_registry.remove_peer(peer_id);
         }
 
+        if let Err(err) = self.network.set_reserved_peers(
+            self.transactions_protocol.clone(),
+            HashSet::new(),
+        ) {
+            log::warn!(
+                target: "bot::peers",
+                "clear_all: set_reserved_peers(tx, empty): {err}",
+            );
+        }
+
+        Ok(count)
+    }
+
+    /// Load reserved peers from `path`.
+    ///
+    /// **`clear_all = 0`:** Replace the reserved set to match the file (remove reserved peers
+    /// not in the file; add those listed). Existing non-reserved connections are left as-is.
+    ///
+    /// **`clear_all = 1`:** (1) sever all connected peers, (2) clear the entire reserved set,
+    /// (3) add only peers from the file.
+    pub async fn set_reserved_from_file(
+        &self,
+        path: &str,
+        clear_all: bool,
+    ) -> Result<SetReservedPeersResult, String> {
+        use std::collections::HashSet;
+
+        let peers = parse_reserved_peers_file(path)?;
+
+        let disconnected_count = if clear_all {
+            self.disconnect_all_peers().await?
+        } else {
+            0
+        };
+
         let mut seen = HashSet::new();
-        let mut added = Vec::new();
-        let mut peer_ids = Vec::new();
+        let mut file_peers = Vec::new();
+        let mut file_peer_ids = HashSet::new();
+        let mut tx_reserved_addrs = HashSet::new();
 
         for peer in peers {
             if !seen.insert(peer.peer_id) {
                 continue;
             }
+            file_peer_ids.insert(peer.peer_id);
+            tx_reserved_addrs.insert(peer.concat());
+            file_peers.push(peer);
+        }
+
+        let removed_count = if clear_all {
+            self.clear_all_reserved_peers().await?
+        } else {
+            let current = self
+                .network
+                .reserved_peers()
+                .await
+                .map_err(|_| "network worker unavailable".to_string())?;
+
+            let mut removed_count = 0u32;
+            for peer_id in current {
+                if file_peer_ids.contains(&peer_id) {
+                    continue;
+                }
+                log::info!(
+                    target: "bot::peers",
+                    "set_reserved_from_file: removing reserved peer {} (not in file)",
+                    peer_id.to_base58(),
+                );
+                self.sever_peer(peer_id, "bot_setReservedPeersFromFile");
+                removed_count += 1;
+            }
+            removed_count
+        };
+
+        let mut added = Vec::new();
+        let mut peer_ids = Vec::new();
+
+        let dial_targets = file_peers.clone();
+        for peer in file_peers {
             self.network
                 .add_reserved_peer(peer.clone())
                 .map_err(|e| format!("add_reserved_peer({peer}): {e}"))?;
+            self.sync.add_reserved_peer(peer.peer_id);
             peer_ids.push(peer.peer_id.to_base58());
             added.push(String::from(peer));
         }
 
+        if let Err(err) = self.network.set_reserved_peers(
+            self.transactions_protocol.clone(),
+            tx_reserved_addrs,
+        ) {
+            log::warn!(
+                target: "bot::peers",
+                "set_reserved_peers(tx): {err}",
+            );
+        }
+
+        self.sync_reserved_registry_from_network().await?;
+
+        self.reserved_dialer.set_targets(dial_targets);
+
         log::info!(
             target: "bot::peers",
-            "set_reserved_from_file({path}): removed {removed_count}, added {}",
+            "set_reserved_from_file({path}, clear_all={clear_all}): disconnected {disconnected_count}, \
+             removed_reserved {removed_count}, added {}",
             added.len(),
         );
 
         Ok(SetReservedPeersResult {
+            disconnected_count,
             removed_count,
             added_count: added.len() as u32,
             peers: added,

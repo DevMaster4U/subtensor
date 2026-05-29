@@ -420,17 +420,26 @@ impl NetworkPeers for Litep2pNetworkService {
 	}
 
 	fn accept_unreserved_peers(&self) {
-		let _ = self.cmd_tx.unbounded_send(NetworkServiceCommand::SetReservedOnly {
-			protocol: self.block_announce_protocol.clone(),
-			reserved_only: false,
-		});
+		for protocol in self.peerset_handles.keys() {
+			let _ = self.cmd_tx.unbounded_send(NetworkServiceCommand::SetReservedOnly {
+				protocol: protocol.clone(),
+				reserved_only: false,
+			});
+		}
 	}
 
 	fn deny_unreserved_peers(&self) {
-		let _ = self.cmd_tx.unbounded_send(NetworkServiceCommand::SetReservedOnly {
-			protocol: self.block_announce_protocol.clone(),
-			reserved_only: true,
-		});
+		for protocol in self.peerset_handles.keys() {
+			let _ = self.cmd_tx.unbounded_send(NetworkServiceCommand::SetReservedOnly {
+				protocol: protocol.clone(),
+				reserved_only: true,
+			});
+		}
+		log::info!(
+			target: LOG_TARGET,
+			"reserved-only enabled on {} notification protocol(s)",
+			self.peerset_handles.len(),
+		);
 	}
 
 	fn add_reserved_peer(&self, peer: MultiaddrWithPeerId) -> Result<(), String> {

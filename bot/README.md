@@ -313,13 +313,26 @@ curl -s -H "Content-Type: application/json" \
 
 ### `bot_setReservedPeersFromFile`
 
-Replace all reserved peers with multiaddrs from a file (one per line; `#` comments allowed).
+Load reserved peers from a file (one multiaddr per line; `#` comments allowed). Registers each peer on the sync peer set (with dial) and on the transactions protocol. Requires a node built with the patched `sc-network-sync` so runtime reserved peers bypass `--in-peers` / `--out-peers` slot limits.
 
-**Params:** `[path: string]`
+**Params:** `[path: string, clear_all: 0 | 1]`
+
+| `clear_all` | Behavior |
+|-------------|----------|
+| `0` | Reserved set = file contents. Remove reserved peers not in the file. Other connections stay. |
+| `1` | (1) Sever **all** connected peers. (2) Clear **all** reserved peers. (3) Add only peers from the file. |
+
+With `clear_all=1` and a one-line `reserved.txt`, you end up with one reserved peer and no other connections.
 
 ```bash
+# Reserved set tracks the file; non-reserved connections can stay up
 curl -s -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/root/subtensor/reserved_peers.txt"],"id":1}' \
+  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/root/subtensor/bot/reserved.txt",0],"id":1}' \
+  http://127.0.0.1:9944
+
+# Full reset: drop every peer + every reserved entry, then load the file
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/root/subtensor/bot/reserved.txt",1],"id":1}' \
   http://127.0.0.1:9944
 ```
 
@@ -375,6 +388,36 @@ curl -s -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"bot_setTxPropagationMaxPeers","params":[0],"id":1}' \
   http://127.0.0.1:9944
 ```
+
+### Propagate mode (`bot_setPropagateMode`)
+
+| Mode | Value | Behavior |
+|------|-------|----------|
+| Normal | `0` | Default ranking, allowlist, `bot_setTxPropagationMaxPeers` |
+| Announce | `1` | Gossip only to the peer that announced the latest block |
+| Parallel | `2` | Gossip to all connected ranked peers at once (no max cap) |
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_setPropagateMode","params":[1],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+### Targeted propagation (`bot_propagateToPeers`)
+
+Restrict **all** outbound tx gossip to a fixed peer list (inject, single-tx, and periodic pool gossip):
+
+```bash
+curl -s -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"bot_propagateToPeers","params":[["12D3KooW...","/ip4/1.2.3.4/tcp/30333/ws/p2p/12D3KooW..."]],"id":1}' \
+  http://127.0.0.1:9944
+```
+
+- `peer_ids`: base58 `PeerId` and/or full multiaddr with `/p2p/`.
+- Clears the allowlist and restores normal ranking: `params: [[]]`
+- Ignores `bot_setTxPropagationMaxPeers` and reserved-first ordering while active.
+- Re-gossips the ready pool immediately when a non-empty list is set.
+- Active list is visible in `bot_status` → `tx_propagation_peers`.
 
 ---
 
@@ -435,7 +478,7 @@ Save one multiaddr per line (from `reserved_peer_hint` or `addr`):
 
 ```bash
 curl -s -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/path/to/reserved.txt"],"id":1}' \
+  -d '{"jsonrpc":"2.0","method":"bot_setReservedPeersFromFile","params":["/path/to/reserved.txt",1],"id":1}' \
   http://127.0.0.1:9944
 ```
 
@@ -585,6 +628,10 @@ On **Finney/mainnet**, becoming a block author requires being in the active Subt
 | `bot_connectedAuthorityPeers` | Connected AUTHORITY-role peers |
 | `bot_exportAuthorityReserved` | Export learned peers to file |
 | `bot_applyAuthorityReserved` | Pin learned authority peers as reserved |
+| `bot_propagateToPeers` | Restrict all outbound tx gossip to listed peer ids |
+| `bot_setPropagateMode` | `0` normal, `1` announce peer only, `2` parallel |
+| `bot_propagateMode` | Read current propagate mode |
+| `bot_ownPropagationLatest` | Last bot propagation round (send order + addrs) |
 | `bot_startAutoFilter` | Periodic peer pruning |
 | `bot_stopAutoFilter` | Stop periodic pruning |
 

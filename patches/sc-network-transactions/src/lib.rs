@@ -38,7 +38,7 @@ use sc_network::{
 	error, multiaddr,
 	peer_store::PeerStoreProvider,
 	service::{
-		traits::{NotificationEvent, NotificationService, ValidationResult},
+		traits::{MessageSink, NotificationEvent, NotificationService, ValidationResult},
 		NotificationMetrics,
 	},
 	types::ProtocolName,
@@ -267,11 +267,19 @@ impl<H: ExHashT> TransactionsHandlerController<H> {
 			.unbounded_send(ToHandler::SetPropagationObserver(observer));
 	}
 
+	/// Propagate one transaction only to the given peers (must be on the tx protocol).
+	pub fn propagate_transaction_to_peers(&self, hash: H, peers: Vec<PeerId>) {
+		let _ = self
+			.to_handler
+			.unbounded_send(ToHandler::PropagateTransactionToPeers { hash, peers });
+	}
+
 }
 
 enum ToHandler<H: ExHashT> {
 	PropagateTransactions,
 	PropagateTransaction(H),
+	PropagateTransactionToPeers { hash: H, peers: Vec<PeerId> },
 	SetPeerRanker(Arc<dyn PeerRanker>),
 	SetPropagationObserver(Arc<dyn PropagationObserver<H>>),
 }
@@ -357,6 +365,8 @@ where
 					match message {
 						ToHandler::PropagateTransaction(hash) => self.propagate_transaction(&hash),
 						ToHandler::PropagateTransactions => self.propagate_transactions(),
+						ToHandler::PropagateTransactionToPeers { hash, peers } =>
+							self.propagate_transaction_to_peers(&hash, &peers),
 						ToHandler::SetPeerRanker(ranker) => self.peer_ranker = Some(ranker),
 						ToHandler::SetPropagationObserver(observer) =>
 							self.propagation_observer = Some(observer),
@@ -507,7 +517,7 @@ where
 		debug!(target: LOG_TARGET, "Propagating transaction [{:?}]", hash);
 		if let Some(transaction) = self.transaction_pool.transaction(hash) {
 			let report =
-				self.do_propagate_transactions(&[(hash.clone(), transaction)], true);
+				self.do_propagate_transactions(&[(hash.clone(), transaction)], None);
 			if let Some(observer) = &self.propagation_observer {
 				observer.on_propagated(report.clone());
 			}
@@ -517,10 +527,36 @@ where
 		}
 	}
 
+	/// Propagate one transaction only to `peers` (connected tx-protocol full nodes).
+	fn propagate_transaction_to_peers(&mut self, hash: &H, peers: &[PeerId]) {
+		if self.sync.is_major_syncing() {
+			return
+		}
+
+		debug!(
+			target: LOG_TARGET,
+			"Propagating transaction [{:?}] to {} targeted peer(s)",
+			hash,
+			peers.len(),
+		);
+		if let Some(transaction) = self.transaction_pool.transaction(hash) {
+			let report = self.do_propagate_transactions(
+				&[(hash.clone(), transaction)],
+				Some(peers),
+			);
+			if let Some(observer) = &self.propagation_observer {
+				observer.on_propagated(report.clone());
+			}
+			self.transaction_pool.on_broadcasted(report.propagated);
+		} else {
+			debug!(target: "sync", "Targeted propagation failure [{:?}]", hash);
+		}
+	}
+
 	fn do_propagate_transactions(
 		&mut self,
 		transactions: &[(H, Arc<B::Extrinsic>)],
-		log_dest_peers: bool,
+		only_peers: Option<&[PeerId]>,
 	) -> PropagationReport<H> {
 		let started = Instant::now();
 		let mut propagated_to = HashMap::<H, Vec<String>>::new();
@@ -528,37 +564,34 @@ where
 		let mut send_order = Vec::new();
 		let mut outbound: Vec<(PeerId, Vec<Vec<u8>>)> = Vec::new();
 
-		let mut peer_ids: Vec<PeerId> = self.peers.keys().copied().collect();
-		let (priority_multiaddrs, ranked_peer_ids, max_propagation_peers) =
-			if let Some(ranker) = self.peer_ranker.as_ref() {
-				(
-					ranker.priority_multiaddrs(),
-					Some(ranker.rank_peers(&peer_ids)),
-					ranker.max_propagation_peers(),
-				)
-			} else {
-				(Vec::new(), None, 0)
-			};
-		if !priority_multiaddrs.is_empty() {
-			self.ensure_priority_peers_for_propagation(priority_multiaddrs);
-		}
-		if let Some(ranked) = ranked_peer_ids {
-			if log_dest_peers && !ranked.is_empty() {
-				info!(
-					target: LOG_TARGET,
-					"tx propagate order (first 5): {:?}",
-					ranked
-						.iter()
-						.take(5)
-						.map(|id| id.to_base58())
-						.collect::<Vec<_>>(),
-				);
+		let peer_ids: Vec<PeerId> = if let Some(only) = only_peers {
+			only.iter()
+				.copied()
+				.filter(|peer| self.peers.contains_key(peer))
+				.collect()
+		} else {
+			let mut peer_ids: Vec<PeerId> = self.peers.keys().copied().collect();
+			let (priority_multiaddrs, ranked_peer_ids, max_propagation_peers) =
+				if let Some(ranker) = self.peer_ranker.as_ref() {
+					(
+						ranker.priority_multiaddrs(),
+						Some(ranker.rank_peers(&peer_ids)),
+						ranker.max_propagation_peers(),
+					)
+				} else {
+					(Vec::new(), None, 0)
+				};
+			if !priority_multiaddrs.is_empty() {
+				self.ensure_priority_peers_for_propagation(priority_multiaddrs);
 			}
-			peer_ids = ranked;
-		}
-		if max_propagation_peers > 0 {
-			peer_ids.truncate(max_propagation_peers as usize);
-		}
+			if let Some(ranked) = ranked_peer_ids {
+				peer_ids = ranked;
+			}
+			if max_propagation_peers > 0 {
+				peer_ids.truncate(max_propagation_peers as usize);
+			}
+			peer_ids
+		};
 
 		for who in peer_ids {
 			let Some(peer) = self.peers.get_mut(&who) else {
@@ -578,6 +611,7 @@ where
 			propagated_transactions += hashes.len();
 
 			if !to_send.is_empty() {
+				send_order.push(who.to_base58());
 				for hash in hashes {
 					propagated_to.entry(hash.clone()).or_default().push(who.to_base58());
 				}
@@ -589,29 +623,7 @@ where
 			}
 		}
 
-		// Send to all peers in parallel (one thread per peer).
-		use std::sync::Mutex;
-		let timed_order: Mutex<Vec<(String, u64)>> =
-			Mutex::new(Vec::with_capacity(outbound.len()));
-		std::thread::scope(|scope| {
-			for (who, payloads) in outbound {
-				let timed_order = &timed_order;
-				let ns = &self.notification_service;
-				scope.spawn(move || {
-					for payload in &payloads {
-						ns.send_sync_notification(&who, payload.clone());
-					}
-					let elapsed = started.elapsed().as_millis() as u64;
-					timed_order
-						.lock()
-						.expect("poisoned")
-						.push((who.to_base58(), elapsed));
-				});
-			}
-		});
-		let mut ordered = timed_order.into_inner().expect("poisoned");
-		ordered.sort_by(|a, b| a.1.cmp(&b.1).then_with(|| a.0.cmp(&b.0)));
-		send_order = ordered.into_iter().map(|(id, _)| id).collect();
+		self.dispatch_outbound_parallel(outbound);
 
 		if let Some(ref metrics) = self.metrics {
 			metrics.propagated_transactions.inc_by(propagated_transactions as _)
@@ -621,6 +633,56 @@ where
 			propagated: propagated_to,
 			send_order,
 			elapsed_ms: started.elapsed().as_millis() as u64,
+		}
+	}
+
+	/// Send prepared notifications to all peers concurrently (one thread per peer).
+	///
+	/// Uses [`MessageSink`] handles so each peer's payloads are dispatched in parallel.
+	/// Falls back to sequential [`NotificationService::send_sync_notification`] when no sink
+	/// is available for a peer.
+	fn dispatch_outbound_parallel(&mut self, outbound: Vec<(PeerId, Vec<Vec<u8>>)>) {
+		if outbound.is_empty() {
+			return
+		}
+
+		let mut parallel: Vec<(Box<dyn MessageSink>, Vec<Vec<u8>>)> = Vec::new();
+		let mut fallback: Vec<(PeerId, Vec<Vec<u8>>)> = Vec::new();
+
+		for (peer, payloads) in outbound {
+			if payloads.is_empty() {
+				continue
+			}
+			if let Some(sink) = self.notification_service.message_sink(&peer) {
+				parallel.push((sink, payloads));
+			} else {
+				fallback.push((peer, payloads));
+			}
+		}
+
+		let parallel_peers = parallel.len();
+		if parallel_peers > 1 {
+			debug!(
+				target: LOG_TARGET,
+				"dispatching tx notifications to {parallel_peers} peers in parallel",
+			);
+		}
+
+		std::thread::scope(|scope| {
+			for (sink, payloads) in parallel {
+				scope.spawn(move || {
+					for payload in payloads {
+						sink.send_sync_notification(payload);
+					}
+				});
+			}
+		});
+
+		for (peer, payloads) in fallback {
+			for payload in payloads {
+				self.notification_service
+					.send_sync_notification(&peer, payload);
+			}
 		}
 	}
 
@@ -693,7 +755,7 @@ where
 
 		debug!(target: LOG_TARGET, "Propagating transactions");
 
-		let report = self.do_propagate_transactions(&transactions, false);
+		let report = self.do_propagate_transactions(&transactions, None);
 		self.transaction_pool.on_broadcasted(report.propagated);
 	}
 }

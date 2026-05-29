@@ -10,8 +10,11 @@ use crate::authority_peers::{ApplyAuthorityReservedResult, AuthorityPeerMapping,
 use crate::auto_filter::AutoFilterControl;
 use crate::announce_timing::AnnounceTimingTracker;
 use crate::control::{BotControl, InjectMode};
+use crate::mempool::MempoolWatcherControl;
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
-use crate::tx_propagation::TxPropagationControl;
+use crate::transact::{TxPropagator, parse_propagation_peer_id};
+use crate::tx_gossip::{BotPeerRanker, RankedPeerRow};
+use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};
 use crate::peers::{
     KeepTopPeersResult, NetworkPeerRow, PeerRecommendation, PeerPruner, PeerStat, PeerTracker,
     SetReservedPeersResult, TxGossipCheck,
@@ -38,6 +41,11 @@ pub struct BotStatus {
     /// Outbound send limit: max ranked peers to gossip to per round. `0` = all ranked peers.
     /// Does not limit incoming gossip.
     pub tx_propagation_max_peers: u32,
+    /// When set, outbound gossip is restricted to these peer ids only.
+    pub tx_propagation_peers: Option<Vec<String>>,
+    /// `0` normal, `1` announce-first peer only, `2` parallel to all ranked peers.
+    pub propagate_mode: u8,
+    pub propagate_mode_label: String,
     /// Min announce offset (ms mod 12s) over the last 100 blocks, after `bot_start`.
     pub min_value: Option<u32>,
     /// Average announce offset (ms mod 12s) over the last 100 blocks.
@@ -98,6 +106,10 @@ pub trait BotApi {
     #[method(name = "bot_checkTxGossip")]
     fn check_tx_gossip(&self, top: Option<u32>) -> RpcResult<TxGossipCheck>;
 
+    /// Reserved peers ranked for tx gossip (when reserved-only is on, only reserved peers are listed).
+    #[method(name = "bot_rankedPeerList")]
+    fn ranked_peer_list(&self, limit: Option<u32>) -> RpcResult<Vec<RankedPeerRow>>;
+
     /// Top peers to investigate for `--reserved-peers`.
     #[method(name = "bot_peerRecommendations")]
     fn peer_recommendations(&self, limit: Option<u32>) -> RpcResult<Vec<PeerRecommendation>>;
@@ -106,9 +118,24 @@ pub trait BotApi {
     #[method(name = "bot_keepTopPeers")]
     fn keep_top_peers(&self, keep_count: u32) -> RpcResult<KeepTopPeersResult>;
 
-    /// Replace all reserved peers with multiaddrs from a text file (one per line).
+    /// Load reserved peers from a text file (one multiaddr per line).
+    ///
+    /// `clear_all` `0`: reserved set becomes exactly the file (drop reserved peers not listed).
+    /// `clear_all` `1`: sever all connected peers, clear all reserved peers, then add the file.
     #[method(name = "bot_setReservedPeersFromFile")]
-    fn set_reserved_peers_from_file(&self, path: String) -> RpcResult<SetReservedPeersResult>;
+    fn set_reserved_peers_from_file(
+        &self,
+        path: String,
+        clear_all: u8,
+    ) -> RpcResult<SetReservedPeersResult>;
+
+    /// Reserved-only on all protocols: reject/drop non-reserved dials and connections.
+    #[method(name = "bot_enableReservedOnly")]
+    fn enable_reserved_only(&self) -> RpcResult<bool>;
+
+    /// Re-allow non-reserved sync peers (undo [`Self::enable_reserved_only`]).
+    #[method(name = "bot_disableReservedOnly")]
+    fn disable_reserved_only(&self) -> RpcResult<bool>;
 
     /// Start periodic peer filtering: keep top `keep_count` every `interval_secs`.
     #[method(name = "bot_startAutoFilter")]
@@ -170,6 +197,21 @@ pub trait BotApi {
     /// Recent bot-initiated tx propagation records (newest first).
     #[method(name = "bot_ownPropagationHistory")]
     fn own_propagation_history(&self, limit: Option<u32>) -> RpcResult<Vec<OwnPropagationRecord>>;
+
+    /// Restrict all outbound tx gossip to `peer_ids` only (base58 or `/p2p/` multiaddr).
+    ///
+    /// Applies to immediate and periodic propagation until cleared with `[]`.
+    /// Re-gossips the ready pool immediately when enabled.
+    #[method(name = "bot_propagateToPeers")]
+    fn propagate_to_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetPropagationPeersResult>;
+
+    /// Set outbound gossip mode: `0` normal, `1` announce peer only, `2` parallel (all ranked).
+    #[method(name = "bot_setPropagateMode")]
+    fn set_propagate_mode(&self, mode: u8) -> RpcResult<u8>;
+
+    /// Current outbound gossip mode (`0` / `1` / `2`).
+    #[method(name = "bot_propagateMode")]
+    fn propagate_mode(&self) -> RpcResult<u8>;
 }
 
 pub struct BotRpc {
@@ -179,7 +221,9 @@ pub struct BotRpc {
     mempool_watcher: Arc<MempoolWatcherControl>,
     tx_propagation: Arc<TxPropagationControl>,
     peer_tracker: Arc<PeerTracker>,
+    tx_peer_ranker: Arc<BotPeerRanker>,
     propagation_tracker: Arc<PropagationTracker>,
+    tx_propagator: TxPropagator,
     peer_pruner: Arc<PeerPruner>,
     authority: Arc<dyn AuthorityRpcBackend>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
@@ -193,7 +237,9 @@ impl BotRpc {
         mempool_watcher: Arc<MempoolWatcherControl>,
         tx_propagation: Arc<TxPropagationControl>,
         peer_tracker: Arc<PeerTracker>,
+        tx_peer_ranker: Arc<BotPeerRanker>,
         propagation_tracker: Arc<PropagationTracker>,
+        tx_propagator: TxPropagator,
         peer_pruner: Arc<PeerPruner>,
         authority: Arc<dyn AuthorityRpcBackend>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
@@ -205,7 +251,9 @@ impl BotRpc {
             mempool_watcher,
             tx_propagation,
             peer_tracker,
+            tx_peer_ranker,
             propagation_tracker,
+            tx_propagator,
             peer_pruner,
             authority,
             network,
@@ -287,6 +335,12 @@ impl BotApiServer for BotRpc {
             mempool_watcher: self.mempool_watcher.is_running(),
             tx_propagation_first_reserved_node: self.tx_propagation.first_reserved_node(),
             tx_propagation_max_peers: self.tx_propagation.max_propagation_peers(),
+            tx_propagation_peers: self.tx_propagation.propagation_allowlist_base58(),
+            propagate_mode: {
+                let mode = self.tx_propagation.propagate_mode();
+                mode.as_u8()
+            },
+            propagate_mode_label: self.tx_propagation.propagate_mode().label().into(),
             min_value,
             average_value,
             schedule_delay_ms: self.control.schedule_delay_ms(),
@@ -313,6 +367,17 @@ impl BotApiServer for BotRpc {
         Ok(self.peer_tracker.tx_gossip_check(top, Some(&addrs)))
     }
 
+    fn ranked_peer_list(&self, limit: Option<u32>) -> RpcResult<Vec<RankedPeerRow>> {
+        let addrs = self.peer_addrs();
+        let connected: Vec<String> = addrs.keys().cloned().collect();
+        let mut rows = self.tx_peer_ranker.ranked_peer_list(&connected, &addrs);
+        if let Some(limit) = limit {
+            let limit = limit.clamp(1, 500) as usize;
+            rows.truncate(limit);
+        }
+        Ok(rows)
+    }
+
     fn peer_recommendations(&self, limit: Option<u32>) -> RpcResult<Vec<PeerRecommendation>> {
         let limit = limit.unwrap_or(10).clamp(1, 100) as usize;
         let addrs = self.peer_addrs();
@@ -333,14 +398,35 @@ impl BotApiServer for BotRpc {
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }
 
-    fn set_reserved_peers_from_file(&self, path: String) -> RpcResult<SetReservedPeersResult> {
+    fn set_reserved_peers_from_file(
+        &self,
+        path: String,
+        clear_all: u8,
+    ) -> RpcResult<SetReservedPeersResult> {
         let pruner = Arc::clone(&self.peer_pruner);
+        let clear_all = clear_all != 0;
         tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async move {
-                pruner.set_reserved_from_file(&path).await
+                pruner.set_reserved_from_file(&path, clear_all).await
             })
         })
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn enable_reserved_only(&self) -> RpcResult<bool> {
+        let pruner = Arc::clone(&self.peer_pruner);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move {
+                pruner.enable_reserved_only().await
+            })
+        })
+        .map(|_| true)
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn disable_reserved_only(&self) -> RpcResult<bool> {
+        self.peer_pruner.disable_reserved_only();
+        Ok(true)
     }
 
     fn start_auto_filter(&self, interval_secs: u64, keep_count: u32) -> RpcResult<bool> {
@@ -432,5 +518,43 @@ impl BotApiServer for BotRpc {
             .into_iter()
             .map(|r| PropagationTracker::enrich_record(r, &addrs))
             .collect())
+    }
+
+    fn propagate_to_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetPropagationPeersResult> {
+        let result = self.tx_propagation.set_propagation_allowlist(
+            peer_ids,
+            parse_propagation_peer_id,
+        );
+
+        if !result.enabled && !result.invalid_peer_ids.is_empty() && result.peers.is_empty() {
+            return Err(ErrorObjectOwned::owned(
+                -32602,
+                format!("no valid peer ids: {:?}", result.invalid_peer_ids),
+                Some(result),
+            ));
+        }
+
+        if result.enabled {
+            self.tx_propagator.propagate_all_ready();
+        }
+
+        Ok(result)
+    }
+
+    fn set_propagate_mode(&self, mode: u8) -> RpcResult<u8> {
+        let mode = PropagateMode::from_u8(mode).ok_or_else(|| {
+            ErrorObjectOwned::owned(
+                -32602,
+                "mode must be 0 (normal), 1 (announce), or 2 (parallel)",
+                None::<()>,
+            )
+        })?;
+        self.tx_propagation.set_propagate_mode(mode);
+        self.tx_propagator.propagate_all_ready();
+        Ok(mode.as_u8())
+    }
+
+    fn propagate_mode(&self) -> RpcResult<u8> {
+        Ok(self.tx_propagation.propagate_mode().as_u8())
     }
 }

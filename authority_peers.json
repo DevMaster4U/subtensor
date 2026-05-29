@@ -1,19 +1,11 @@
 {
   "mappings": [
     {
-      "account": "0xfaeb5cc5c5fe72ecaef8c56f8e4c4592395c5ae6dfb97d8ab96e59362713ea45",
-      "aura_index": 10,
-      "peer_id": "12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge",
-      "hits": 1,
-      "last_block": 8277801,
-      "roles": "FULL"
-    },
-    {
-      "account": "0xa42b5230b8be39dbea8e2e00fb411b0c391f01e185e0403a962f23c0d2725061",
-      "aura_index": 16,
-      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
-      "hits": 3,
-      "last_block": 8277847,
+      "account": "0xde0360e421ff0d0674998aff0becbd37ad9ad423998e32f5996ac19c0bbe9016",
+      "aura_index": 1,
+      "peer_id": "12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu",
+      "hits": 15,
+      "last_block": 8278912,
       "roles": "FULL"
     },
     {
@@ -25,99 +17,27 @@
       "roles": "FULL"
     },
     {
-      "account": "0x4602509f32e679557c2989497145b0f887d197c8ad6a4c9339318c220f1a0c63",
-      "aura_index": 13,
-      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
-      "hits": 1,
-      "last_block": 8277804,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x1a4bb0a5b64686dd2dfbac9d0f51c3124a1488e6154073051b06385f3f773c2d",
-      "aura_index": 2,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 10,
-      "last_block": 8278013,
+      "account": "0xdc92e3451961df4706dd7ad10693cfcc9a8f9d07047c3357af1ba93a615fc353",
+      "aura_index": 4,
+      "peer_id": "12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu",
+      "hits": 3,
+      "last_block": 8277835,
       "roles": "FULL"
     },
     {
       "account": "0x306b9e95a665294d1ba750d3397d8e7d15bc769ac42bd3c040a3db78bb667e33",
       "aura_index": 15,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 3,
-      "last_block": 8277846,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x82b287102fbe1b6f930e9f4e93bc832ae2fd3d978a6477051cb4c5d8ff48d472",
-      "aura_index": 11,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 14,
-      "last_block": 8278062,
+      "hits": 6,
+      "last_block": 8283246,
       "roles": "FULL"
     },
     {
       "account": "0xc65325bf1a4ff5f4980f51067a9d34c6d1d3ac4d53d2ca4c89d6921fceef0504",
       "aura_index": 18,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 3,
-      "last_block": 8277849,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x0e7bdc93d665619cef248e2aa2491654535fd60b69dad14212dbffd540e33170",
-      "aura_index": 5,
-      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
-      "hits": 1,
-      "last_block": 8277796,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x422ace3f96e59a08b931d5c751ffb130ff2c2b3d9eb8afb0f9a3da86cb9eec0e",
-      "aura_index": 6,
-      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
-      "hits": 2,
-      "last_block": 8277837,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x6a36b289c962efbff589864382294d11b6ada9cb7c75f37ea76426ce3221983b",
-      "aura_index": 7,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 14,
-      "last_block": 8278058,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x2e7f5ad6bef7a3f573caa7bfc2c5420579c1bc693c166161751090584c06f03b",
-      "aura_index": 19,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 3,
-      "last_block": 8277850,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x2445e06e88935dbcd6d4d0a1313c7bf978202ad5214f002cd60252b3259e1c19",
-      "aura_index": 12,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 3,
-      "last_block": 8277843,
-      "roles": "FULL"
-    },
-    {
-      "account": "0x62f94dcfc17bcf38cb561544a47915444a35553c2b25dd65a5827bcc0a540c5e",
-      "aura_index": 0,
-      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 8,
-      "last_block": 8277951,
-      "roles": "FULL"
-    },
-    {
-      "account": "0xde0360e421ff0d0674998aff0becbd37ad9ad423998e32f5996ac19c0bbe9016",
-      "aura_index": 1,
-      "peer_id": "12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu",
-      "hits": 10,
-      "last_block": 8278512,
+      "hits": 6,
+      "last_block": 8281369,
       "roles": "FULL"
     },
     {
@@ -129,6 +49,54 @@
       "roles": "FULL"
     },
     {
+      "account": "0x6a36b289c962efbff589864382294d11b6ada9cb7c75f37ea76426ce3221983b",
+      "aura_index": 7,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 18,
+      "last_block": 8282998,
+      "roles": "FULL"
+    },
+    {
+      "account": "0xfaeb5cc5c5fe72ecaef8c56f8e4c4592395c5ae6dfb97d8ab96e59362713ea45",
+      "aura_index": 10,
+      "peer_id": "12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge",
+      "hits": 1,
+      "last_block": 8277801,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x62f94dcfc17bcf38cb561544a47915444a35553c2b25dd65a5827bcc0a540c5e",
+      "aura_index": 0,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 10,
+      "last_block": 8286191,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x4602509f32e679557c2989497145b0f887d197c8ad6a4c9339318c220f1a0c63",
+      "aura_index": 13,
+      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
+      "hits": 1,
+      "last_block": 8277804,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x422ace3f96e59a08b931d5c751ffb130ff2c2b3d9eb8afb0f9a3da86cb9eec0e",
+      "aura_index": 6,
+      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
+      "hits": 5,
+      "last_block": 8283057,
+      "roles": "FULL"
+    },
+    {
+      "account": "0xcc854d6578398ca941688beab36987cacfc607f3af314e49bc2aff9616f63c08",
+      "aura_index": 9,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 5,
+      "last_block": 8281340,
+      "roles": "FULL"
+    },
+    {
       "account": "0xf2ed3fcee2e6ae0133a0327e58a12265333b3f50c7c2c1a3874f2e74f791ac06",
       "aura_index": 3,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
@@ -137,27 +105,59 @@
       "roles": "FULL"
     },
     {
-      "account": "0xdc92e3451961df4706dd7ad10693cfcc9a8f9d07047c3357af1ba93a615fc353",
-      "aura_index": 4,
-      "peer_id": "12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu",
-      "hits": 3,
-      "last_block": 8277835,
+      "account": "0x2445e06e88935dbcd6d4d0a1313c7bf978202ad5214f002cd60252b3259e1c19",
+      "aura_index": 12,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 5,
+      "last_block": 8281363,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x0e7bdc93d665619cef248e2aa2491654535fd60b69dad14212dbffd540e33170",
+      "aura_index": 5,
+      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
+      "hits": 1,
+      "last_block": 8277796,
+      "roles": "FULL"
+    },
+    {
+      "account": "0xa42b5230b8be39dbea8e2e00fb411b0c391f01e185e0403a962f23c0d2725061",
+      "aura_index": 16,
+      "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
+      "hits": 5,
+      "last_block": 8281347,
       "roles": "FULL"
     },
     {
       "account": "0x3e57b61775a3537b9ec9f9715ac729193770e10c175b68f98b32dae34fbe0f73",
       "aura_index": 8,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 4,
-      "last_block": 8277859,
+      "hits": 8,
+      "last_block": 8284019,
       "roles": "FULL"
     },
     {
-      "account": "0xcc854d6578398ca941688beab36987cacfc607f3af314e49bc2aff9616f63c08",
-      "aura_index": 9,
+      "account": "0x82b287102fbe1b6f930e9f4e93bc832ae2fd3d978a6477051cb4c5d8ff48d472",
+      "aura_index": 11,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 4,
-      "last_block": 8277860,
+      "hits": 213,
+      "last_block": 8286362,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x1a4bb0a5b64686dd2dfbac9d0f51c3124a1488e6154073051b06385f3f773c2d",
+      "aura_index": 2,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 79,
+      "last_block": 8286193,
+      "roles": "FULL"
+    },
+    {
+      "account": "0x2e7f5ad6bef7a3f573caa7bfc2c5420579c1bc693c166161751090584c06f03b",
+      "aura_index": 19,
+      "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
+      "hits": 5,
+      "last_block": 8281370,
       "roles": "FULL"
     }
   ]

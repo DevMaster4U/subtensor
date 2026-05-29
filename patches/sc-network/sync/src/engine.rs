@@ -717,6 +717,23 @@ where
 			},
 			ToServiceCommand::OnBlockFinalized(hash, header) =>
 				self.strategy.on_block_finalized(&hash, *header.number()),
+			ToServiceCommand::AddReservedPeer(peer_id) => {
+				log::debug!(
+					target: LOG_TARGET,
+					"registered runtime reserved sync peer {peer_id}",
+				);
+				self.important_peers.insert(peer_id);
+				self.default_peers_set_no_slot_peers.insert(peer_id);
+			},
+			ToServiceCommand::RemoveReservedPeer(peer_id) => {
+				log::debug!(
+					target: LOG_TARGET,
+					"removed runtime reserved sync peer {peer_id}",
+				);
+				self.important_peers.remove(&peer_id);
+				self.default_peers_set_no_slot_peers.remove(&peer_id);
+				self.default_peers_set_no_slot_connected_peers.remove(&peer_id);
+			},
 		}
 	}
 

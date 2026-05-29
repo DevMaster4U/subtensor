@@ -11,6 +11,8 @@ pub mod peers;
 pub mod pool_inject;
 pub mod processor;
 pub mod propagation_tracker;
+pub mod reserved;
+pub mod reserved_dial;
 pub mod rpc;
 pub mod sync_inject;
 pub mod time_inject;
@@ -34,7 +36,9 @@ pub use peers::{
     PeerPruner, SetReservedPeersResult, TxGossipCheck, TxGossipPeerRow,
 };
 pub use propagation_tracker::{OwnPropagationRecord, PropagationPeerInfo, PropagationTracker};
+pub use reserved::ReservedPeerRegistry;
+pub use reserved_dial::ReservedDialer;
 pub use sync_inject::SyncInjectHandle;
-pub use transact::TxPropagator;
-pub use tx_gossip::{BotPeerRanker, BotPropagationObserver};
-pub use tx_propagation::TxPropagationControl;
+pub use transact::{TxPropagator, parse_propagation_peer_id};
+pub use tx_gossip::{BotPeerRanker, BotPropagationObserver, RankedPeerRow};
+pub use tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};

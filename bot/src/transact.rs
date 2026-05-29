@@ -10,6 +10,7 @@ use k256::ecdsa::{RecoveryId, SigningKey};
 use node_subtensor_runtime::{TransactionConverter, opaque::Block};
 use pallet_ethereum::Transaction as EthTx;
 use crate::propagation_tracker::PropagationTracker;
+use sc_network::{PeerId, config::MultiaddrWithPeerId};
 use sc_network_transactions::TransactionsHandlerController;
 use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool};
 use sp_core::{H160, U256, keccak_256};
@@ -220,7 +221,7 @@ impl TxPropagator {
         }
     }
 
-    /// Broadcast a single transaction to connected full-node peers.
+    /// Broadcast a single transaction to connected full-node peers (respects propagation allowlist).
     pub fn propagate(&self, hash: <Block as BlockT>::Hash) {
         let hash_str = format!("{hash:?}");
         if let Some(tracker) = &self.propagation_tracker {
@@ -232,6 +233,24 @@ impl TxPropagator {
         );
         self.controller.propagate_transaction(hash);
     }
+
+    /// Re-gossip every ready-pool transaction using the current peer ranking / allowlist.
+    pub fn propagate_all_ready(&self) {
+        log::info!(
+            target: "bot::transact",
+            "📡 P2P propagate all ready pool txs",
+        );
+        self.controller.propagate_transactions();
+    }
+}
+
+/// Parse a base58 peer id or a multiaddr ending in `/p2p/<peer_id>`.
+pub fn parse_propagation_peer_id(raw: &str) -> Result<PeerId, String> {
+    if let Ok(peer) = raw.parse::<MultiaddrWithPeerId>() {
+        return Ok(peer.peer_id.into());
+    }
+    raw.parse::<PeerId>()
+        .map_err(|e| format!("invalid peer id: {e}"))
 }
 
 // ── send ──────────────────────────────────────────────────────────────────────

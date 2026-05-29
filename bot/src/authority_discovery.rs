@@ -117,7 +117,7 @@ where
         let path = tmp.to_string_lossy().to_string();
         std::fs::write(&path, addrs.join("\n")).map_err(|e| format!("write temp file: {e}"))?;
 
-        let result = self.peer_pruner.set_reserved_from_file(&path).await?;
+        let result = self.peer_pruner.set_reserved_from_file(&path, false).await?;
         let _ = std::fs::remove_file(&path);
 
         Ok(ApplyAuthorityReservedResult {

@@ -54,6 +54,10 @@ pub enum ToServiceCommand<B: BlockT> {
 	NumSyncRequests(oneshot::Sender<usize>),
 	PeersInfo(oneshot::Sender<Vec<(PeerId, ExtendedPeerInfo<B>)>>),
 	OnBlockFinalized(B::Hash, B::Header),
+	/// Register a runtime-added reserved peer so it bypasses `--in-peers` / `--out-peers` limits.
+	AddReservedPeer(PeerId),
+	/// Undo [`Self::AddReservedPeer`].
+	RemoveReservedPeer(PeerId),
 	// Status {
 	// 	pending_response: oneshot::Sender<SyncStatus<B>>,
 	// },
@@ -121,6 +125,16 @@ impl<B: BlockT> SyncingService<B> {
 	/// Notify the `SyncingEngine` that a block has been finalized.
 	pub fn on_block_finalized(&self, hash: B::Hash, header: B::Header) {
 		let _ = self.tx.unbounded_send(ToServiceCommand::OnBlockFinalized(hash, header));
+	}
+
+	/// Mark `peer_id` as a reserved (no-slot) sync peer, same as `--reserved-nodes` at startup.
+	pub fn add_reserved_peer(&self, peer_id: PeerId) {
+		let _ = self.tx.unbounded_send(ToServiceCommand::AddReservedPeer(peer_id));
+	}
+
+	/// Remove a runtime reserved peer from the sync engine's no-slot set.
+	pub fn remove_reserved_peer(&self, peer_id: PeerId) {
+		let _ = self.tx.unbounded_send(ToServiceCommand::RemoveReservedPeer(peer_id));
 	}
 
 	/// Get sync status

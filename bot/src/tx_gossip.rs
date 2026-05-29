@@ -3,7 +3,8 @@
 use crate::{
     peers::PeerTracker,
     propagation_tracker::PropagationTracker,
-    tx_propagation::TxPropagationControl,
+    reserved::ReservedPeerRegistry,
+    tx_propagation::{PropagateMode, TxPropagationControl},
 };
 use node_subtensor_runtime::opaque::Block;
 use sc_network::{config::MultiaddrWithPeerId, PeerId};
@@ -15,11 +16,26 @@ use std::{
     sync::Arc,
 };
 
+/// One row in the current tx-gossip peer ranking (same order as outbound propagation).
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct RankedPeerRow {
+    /// 1-based position in the ranked list.
+    pub rank: u32,
+    pub peer_id: String,
+    pub score: u64,
+    /// Connection multiaddr when known.
+    pub addr: Option<String>,
+    /// Present in `--reserved-nodes` (listed first when first-reserved mode is on).
+    pub reserved: bool,
+}
+
 /// Orders outbound tx gossip: `--reserved-nodes` first when enabled, else by score.
 pub struct BotPeerRanker {
     peer_tracker: Arc<PeerTracker>,
     control: Arc<TxPropagationControl>,
-    reserved_peers: Vec<PeerId>,
+    propagation_tracker: Arc<PropagationTracker>,
+    reserved_registry: Arc<ReservedPeerRegistry>,
+    /// Startup `--reserved-nodes` multiaddrs (used for priority dial hints).
     reserved_multiaddrs: Vec<sc_network::Multiaddr>,
 }
 
@@ -27,19 +43,21 @@ impl BotPeerRanker {
     pub fn new(
         peer_tracker: Arc<PeerTracker>,
         control: Arc<TxPropagationControl>,
+        propagation_tracker: Arc<PropagationTracker>,
+        reserved_registry: Arc<ReservedPeerRegistry>,
         reserved_nodes: impl IntoIterator<Item = MultiaddrWithPeerId>,
     ) -> Self {
-        let mut reserved_peers = Vec::new();
         let mut reserved_multiaddrs = Vec::new();
         let mut seen = HashSet::new();
         for node in reserved_nodes {
             let peer_id: PeerId = node.peer_id.into();
             if seen.insert(peer_id) {
-                reserved_peers.push(peer_id);
+                reserved_registry.add_peer(peer_id);
                 reserved_multiaddrs.push(node.concat());
             }
         }
 
+        let reserved_peers = reserved_registry.peer_ids();
         log::info!(
             target: "bot::transact",
             "tx propagation reserved peers: {:?}",
@@ -52,9 +70,22 @@ impl BotPeerRanker {
         Self {
             peer_tracker,
             control,
-            reserved_peers,
+            propagation_tracker,
+            reserved_registry,
             reserved_multiaddrs,
         }
+    }
+
+    fn rank_allowlist(&self, peers: &[PeerId], allowlist: Vec<PeerId>) -> Vec<PeerId> {
+        let connected: HashSet<PeerId> = peers.iter().copied().collect();
+        allowlist
+            .into_iter()
+            .filter(|peer| connected.contains(peer))
+            .collect()
+    }
+
+    fn reserved_peer_ids(&self) -> Vec<PeerId> {
+        self.reserved_registry.peer_ids().into_iter().collect()
     }
 
     fn rank_by_tracker(&self, peers: &[PeerId]) -> Vec<PeerId> {
@@ -79,6 +110,50 @@ impl BotPeerRanker {
         });
         sorted
     }
+
+    /// Rank connected peers (or all reserved peers when reserved-only mode is on).
+    pub fn ranked_peer_list(
+        &self,
+        connected_peer_ids: &[String],
+        addrs: &HashMap<String, String>,
+    ) -> Vec<RankedPeerRow> {
+        let reserved: HashSet<PeerId> = self.reserved_registry.peer_ids();
+
+        let peer_ids: Vec<PeerId> = if self.reserved_registry.is_reserved_only() {
+            reserved.iter().copied().collect()
+        } else {
+            connected_peer_ids
+                .iter()
+                .filter_map(|id| id.parse().ok())
+                .collect()
+        };
+
+        if peer_ids.is_empty() {
+            return Vec::new();
+        }
+
+        let ranked = self.rank_peers(&peer_ids);
+
+        ranked
+            .into_iter()
+            .enumerate()
+            .map(|(i, peer)| {
+                let peer_id = peer.to_base58();
+                let score = self
+                    .peer_tracker
+                    .lookup(&peer_id)
+                    .map(|(combined, _, _, _, _)| combined)
+                    .unwrap_or(0);
+                RankedPeerRow {
+                    rank: (i + 1) as u32,
+                    peer_id: peer_id.clone(),
+                    score,
+                    addr: addrs.get(&peer_id).cloned(),
+                    reserved: reserved.contains(&peer),
+                }
+            })
+            .collect()
+    }
 }
 
 impl PeerRanker for BotPeerRanker {
@@ -87,17 +162,52 @@ impl PeerRanker for BotPeerRanker {
             return Vec::new();
         }
 
-        if !self.control.first_reserved_node() {
-            return self.rank_by_tracker(peers);
-        }
+        match self.control.propagate_mode() {
+            PropagateMode::AnnounceFirst => {
+                let Some(announcer) = self.propagation_tracker.last_announcing_peer_id() else {
+                    return Vec::new();
+                };
+                let Ok(peer_id) = announcer.parse::<PeerId>() else {
+                    return Vec::new();
+                };
+                let connected: HashSet<PeerId> = peers.iter().copied().collect();
+                if connected.contains(&peer_id) {
+                    vec![peer_id]
+                } else {
+                    Vec::new()
+                }
+            }
+            PropagateMode::Parallel => {
+                if let Some(allowlist) = self.control.propagation_allowlist() {
+                    return self.rank_allowlist(peers, allowlist);
+                }
+                if self.reserved_registry.is_reserved_only() {
+                    let reserved: HashSet<PeerId> = self.reserved_registry.peer_ids();
+                    let subset: Vec<PeerId> = peers
+                        .iter()
+                        .copied()
+                        .filter(|p| reserved.contains(p))
+                        .collect();
+                    return self.rank_by_tracker(&subset);
+                }
+                self.rank_by_tracker(peers)
+            }
+            PropagateMode::Normal => {
+                if let Some(allowlist) = self.control.propagation_allowlist() {
+                    return self.rank_allowlist(peers, allowlist);
+                }
+
+                if !self.control.first_reserved_node() {
+                    return self.rank_by_tracker(peers);
+                }
 
         let connected: HashSet<PeerId> = peers.iter().copied().collect();
         let mut ranked = Vec::with_capacity(peers.len());
         let mut seen = HashSet::new();
 
-        for reserved in &self.reserved_peers {
-            if connected.contains(reserved) && seen.insert(*reserved) {
-                ranked.push(*reserved);
+        for reserved in self.reserved_peer_ids() {
+            if connected.contains(&reserved) && seen.insert(reserved) {
+                ranked.push(reserved);
             }
         }
 
@@ -108,6 +218,8 @@ impl PeerRanker for BotPeerRanker {
             .collect();
         ranked.extend(self.rank_by_tracker(&rest));
         ranked
+            }
+        }
     }
 
     fn priority_multiaddrs(&self) -> Vec<sc_network::Multiaddr> {
@@ -119,7 +231,17 @@ impl PeerRanker for BotPeerRanker {
     }
 
     fn max_propagation_peers(&self) -> u32 {
-        self.control.max_propagation_peers()
+        match self.control.propagate_mode() {
+            PropagateMode::AnnounceFirst => 1,
+            PropagateMode::Parallel => 0,
+            PropagateMode::Normal => {
+                if self.control.propagation_allowlist().is_some() {
+                    0
+                } else {
+                    self.control.max_propagation_peers()
+                }
+            }
+        }
     }
 }
 
@@ -155,25 +277,21 @@ impl BotPropagationObserver {
 
 impl PropagationObserver<<Block as BlockT>::Hash> for BotPropagationObserver {
     fn on_propagated(&self, report: PropagationReport<<Block as BlockT>::Hash>) {
-        let mut unique = HashSet::new();
-        for peers in report.propagated.values() {
-            for peer_id in peers {
-                unique.insert(peer_id.clone());
-            }
-        }
-        if !unique.is_empty() {
-            self.peer_tracker.record_tx_propagation(unique);
+        let Some(pending_hash) = self.propagation_tracker.pending_own_tx_hash() else {
+            return;
+        };
+
+        if !report.send_order.is_empty() {
+            self.peer_tracker
+                .record_tx_propagation(report.send_order.iter().cloned());
         }
 
         let addrs = self.peer_addrs();
-        for (hash, _) in &report.propagated {
-            let hash_str = format!("{hash:?}");
-            self.propagation_tracker.complete_own_propagation(
-                &hash_str,
-                report.elapsed_ms,
-                &report.send_order,
-                &addrs,
-            );
-        }
+        self.propagation_tracker.complete_own_propagation(
+            &pending_hash,
+            report.elapsed_ms,
+            &report.send_order,
+            &addrs,
+        );
     }
 }

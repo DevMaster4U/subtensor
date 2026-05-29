@@ -1041,11 +1041,20 @@ where
 	}
 
 	fn accept_unreserved_peers(&self) {
-		self.sync_protocol_handle.set_reserved_only(false);
+		for handle in &self.protocol_handles {
+			handle.set_reserved_only(false);
+		}
 	}
 
 	fn deny_unreserved_peers(&self) {
-		self.sync_protocol_handle.set_reserved_only(true);
+		for handle in &self.protocol_handles {
+			handle.set_reserved_only(true);
+		}
+		log::info!(
+			target: LOG_TARGET,
+			"reserved-only enabled on {} notification protocol(s)",
+			self.protocol_handles.len(),
+		);
 	}
 
 	fn add_reserved_peer(&self, peer: MultiaddrWithPeerId) -> Result<(), String> {

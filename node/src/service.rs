@@ -350,7 +350,7 @@ where
     let bot_control = Arc::new(subtensor_bot::control::BotControl::new());
     let auto_filter_control = Arc::new(subtensor_bot::AutoFilterControl::new());
     let mempool_watcher_control = Arc::new(subtensor_bot::MempoolWatcherControl::new());
-    let tx_propagation_control = Arc::new(subtensor_bot::TxPropagationControl::new());
+    let tx_propagation_control = subtensor_bot::TxPropagationControl::new();
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
     let propagation_tracker = subtensor_bot::PropagationTracker::new();
@@ -385,9 +385,12 @@ where
             metrics,
         })?;
 
+    let reserved_registry = Arc::new(subtensor_bot::ReservedPeerRegistry::new());
     let tx_peer_ranker = Arc::new(subtensor_bot::BotPeerRanker::new(
         peer_tracker.clone(),
         tx_propagation_control.clone(),
+        propagation_tracker.clone(),
+        reserved_registry.clone(),
         reserved_nodes.clone(),
     ));
     let tx_propagation_observer = Arc::new(subtensor_bot::BotPropagationObserver::new(
@@ -395,19 +398,21 @@ where
         propagation_tracker.clone(),
         network.clone(),
     ));
+    let tx_peer_ranker_for_rpc = Arc::clone(&tx_peer_ranker);
     tx_handler_controller.set_peer_ranker(tx_peer_ranker);
     tx_handler_controller.set_propagation_observer(tx_propagation_observer);
 
+    let transactions_protocol =
+        subtensor_bot::transactions_protocol_name(genesis_hash.as_ref());
+
     if !reserved_nodes.is_empty() {
         tx_propagation_control.enable_first_reserved_node();
-        let tx_protocol =
-            subtensor_bot::transactions_protocol_name(genesis_hash.as_ref());
         let tx_reserved_addrs: HashSet<sc_network::Multiaddr> = reserved_nodes
             .iter()
             .map(|node| node.concat())
             .collect();
         if let Err(err) = network.add_peers_to_reserved_set(
-            tx_protocol,
+            transactions_protocol.clone(),
             tx_reserved_addrs,
         ) {
             log::warn!(
@@ -422,34 +427,6 @@ where
             );
         }
 
-        let network_watch = network.clone();
-        let watch_peers: Vec<(String, String)> = reserved_nodes
-            .iter()
-            .map(|node| {
-                let peer_id: sc_network::PeerId = node.peer_id.into();
-                (peer_id.to_base58(), node.concat().to_string())
-            })
-            .collect();
-        task_manager.spawn_handle().spawn(
-            "bot-reserved-peer-watch",
-            None,
-            async move {
-                tokio::time::sleep(std::time::Duration::from_secs(15)).await;
-                loop {
-                    let connected = network_watch.connected_peer_addresses().await;
-                    for (peer_id, addr) in &watch_peers {
-                        log::info!(
-                            target: "bot::transact",
-                            "reserved peer monitor: id={} addr={} sync_connected={}",
-                            peer_id,
-                            addr,
-                            connected.contains_key(peer_id),
-                        );
-                    }
-                    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
-                }
-            },
-        );
     }
 
     let tx_propagator = subtensor_bot::TxPropagator::new(
@@ -468,12 +445,23 @@ where
         propagation_tracker.clone(),
     );
 
+    let reserved_dialer = Arc::new(subtensor_bot::ReservedDialer::new(
+        network.clone(),
+        network.clone(),
+        sync_service.clone(),
+        transactions_protocol.clone(),
+    ));
+    reserved_dialer.clone().start(task_manager.spawn_handle());
+
     let peer_pruner = Arc::new(subtensor_bot::PeerPruner::new(
         sync_service.clone(),
         network.clone(),
         network.clone(),
         block_announces_protocol.clone(),
+        transactions_protocol.clone(),
         peer_tracker.clone(),
+        reserved_registry,
+        reserved_dialer,
     ));
 
     let authority_discovery = subtensor_bot::AuthorityDiscovery::new(
@@ -612,6 +600,7 @@ where
         let propagation_tracker = propagation_tracker.clone();
         let peer_pruner = peer_pruner.clone();
         let authority_discovery = authority_discovery.clone();
+        let tx_propagator_rpc = tx_propagator.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -664,7 +653,9 @@ where
                         mempool_watcher_control.clone(),
                         tx_propagation_control.clone(),
                         peer_tracker.clone(),
+                        tx_peer_ranker_for_rpc.clone(),
                         propagation_tracker.clone(),
+                        tx_propagator_rpc.clone(),
                         peer_pruner.clone(),
                         authority_discovery.clone(),
                         network.clone(),
