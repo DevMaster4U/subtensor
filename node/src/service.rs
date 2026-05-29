@@ -11,7 +11,6 @@ use sc_consensus_slots::BackoffAuthoringOnFinalizedHeadLagging;
 use sc_consensus_slots::SlotProportion;
 use sc_keystore::LocalKeystore;
 use sc_network::config::SyncMode;
-use sc_network::NetworkStatusProvider;
 use sc_network_sync::strategy::warp::{WarpSyncConfig, WarpSyncProvider};
 use sc_service::{Configuration, PartialComponents, TaskManager, error::Error as ServiceError};
 use sc_telemetry::{Telemetry, TelemetryHandle, TelemetryWorker, log};
@@ -28,7 +27,7 @@ use std::str::FromStr;
 use std::sync::atomic::AtomicBool;
 use std::{cell::RefCell, path::Path};
 use std::{sync::Arc, time::Duration};
-use subtensor_bot::rpc::BotApiServer;
+use subtensor_node_shim::node_rpc::NodeControlApiServer;
 use stp_shield::ShieldKeystorePtr;
 use substrate_prometheus_endpoint::Registry;
 
@@ -298,6 +297,29 @@ where
         fee_history_cache_limit,
     } = new_frontier_partial(&eth_config)?;
 
+    // Raise sync peer slot limits so many custom reserved peers can connect during state sync.
+    const MIN_SYNC_IN_PEERS: u32 = 512;
+    const MIN_SYNC_OUT_PEERS: u32 = 512;
+    config.network.default_peers_set.in_peers = config
+        .network
+        .default_peers_set
+        .in_peers
+        .max(MIN_SYNC_IN_PEERS);
+    config.network.default_peers_set.out_peers = config
+        .network
+        .default_peers_set
+        .out_peers
+        .max(MIN_SYNC_OUT_PEERS);
+    config.network.default_peers_set_num_full = config.network.default_peers_set.in_peers
+        + config.network.default_peers_set.out_peers;
+    log::info!(
+        target: "bot::peers",
+        "sync peer slots: in={} out={} (total={})",
+        config.network.default_peers_set.in_peers,
+        config.network.default_peers_set.out_peers,
+        config.network.default_peers_set_num_full,
+    );
+
     let maybe_registry = config.prometheus_config.as_ref().map(|cfg| &cfg.registry);
     let mut net_config = sc_network::config::FullNetworkConfiguration::<_, _, NB>::new(
         &config.network,
@@ -344,26 +366,26 @@ where
         Some(WarpSyncConfig::WithProvider(warp_sync))
     };
 
-    let (announce_hub, _) = subtensor_bot::announce::BlockAnnounceHub::new();
-    let announce_hub_for_network = announce_hub.clone();
-    let announce_rx = announce_hub.subscribe();
-    let bot_control = Arc::new(subtensor_bot::control::BotControl::new());
-    let auto_filter_control = Arc::new(subtensor_bot::AutoFilterControl::new());
-    let mempool_watcher_control = Arc::new(subtensor_bot::MempoolWatcherControl::new());
-    let tx_propagation_control = subtensor_bot::TxPropagationControl::new();
+    let mempool_watcher_control = Arc::new(subtensor_node_shim::MempoolWatcherControl::new());
+    let tx_propagation_control = subtensor_node_shim::TxPropagationControl::new();
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
-    let peer_tracker = Arc::new(subtensor_bot::peers::PeerTracker::new());
-    let propagation_tracker = subtensor_bot::PropagationTracker::new();
-    let shared_inject_state = subtensor_bot::SharedInjectState::new();
-    let announce_timing = Arc::new(subtensor_bot::AnnounceTimingTracker::new());
-    let authority_registry = subtensor_bot::AuthorityPeerRegistry::new();
-    let sync_inject_handle = subtensor_bot::SyncInjectHandle::new();
-    let sync_inject_for_validator = sync_inject_handle.clone();
+    let peer_tracker = Arc::new(subtensor_node_shim::peers::PeerTracker::new());
+    let propagation_tracker = subtensor_node_shim::PropagationTracker::new();
+    let block_announce_ipc = Arc::new(subtensor_node_shim::BlockAnnounceIpcControl::new());
+    let mempool_ipc = Arc::new(subtensor_node_shim::MempoolIpcControl::new());
+    let ipc_manager = Arc::new(subtensor_node_shim::IpcManager::new(
+        block_announce_ipc.clone(),
+        mempool_ipc.clone(),
+    ));
+    let ipc_for_validator = ipc_manager.clone();
+    let propagation_tracker_for_validator = propagation_tracker.clone();
+    let peer_tracker_for_validator = peer_tracker.clone();
+    let ipc_config = subtensor_node_shim::IpcManagerConfig::default();
     let genesis_hash = client
         .block_hash(0u32)?
         .expect("Genesis block exists; qed");
     let block_announces_protocol =
-        subtensor_bot::block_announces_protocol_name(genesis_hash.as_ref());
+        subtensor_node_shim::block_announces_protocol_name(genesis_hash.as_ref());
 
     let (network, system_rpc_tx, tx_handler_controller, sync_service) =
         sc_service::build_network(sc_service::BuildNetworkParams {
@@ -376,8 +398,9 @@ where
             block_announce_validator_builder: Some(Box::new(move |client| {
                 Box::new(crate::bot_block_announce::NotifyingBlockAnnounceValidator::new(
                     client,
-                    announce_hub_for_network,
-                    sync_inject_for_validator,
+                    Some(ipc_for_validator),
+                    propagation_tracker_for_validator,
+                    peer_tracker_for_validator,
                 ))
             })),
             warp_sync_config,
@@ -385,25 +408,8 @@ where
             metrics,
         })?;
 
-    let reserved_registry = Arc::new(subtensor_bot::ReservedPeerRegistry::new());
-    let tx_peer_ranker = Arc::new(subtensor_bot::BotPeerRanker::new(
-        peer_tracker.clone(),
-        tx_propagation_control.clone(),
-        propagation_tracker.clone(),
-        reserved_registry.clone(),
-        reserved_nodes.clone(),
-    ));
-    let tx_propagation_observer = Arc::new(subtensor_bot::BotPropagationObserver::new(
-        peer_tracker.clone(),
-        propagation_tracker.clone(),
-        network.clone(),
-    ));
-    let tx_peer_ranker_for_rpc = Arc::clone(&tx_peer_ranker);
-    tx_handler_controller.set_peer_ranker(tx_peer_ranker);
-    tx_handler_controller.set_propagation_observer(tx_propagation_observer);
-
     let transactions_protocol =
-        subtensor_bot::transactions_protocol_name(genesis_hash.as_ref());
+        subtensor_node_shim::transactions_protocol_name(genesis_hash.as_ref());
 
     if !reserved_nodes.is_empty() {
         tx_propagation_control.enable_first_reserved_node();
@@ -426,58 +432,68 @@ where
                 reserved_nodes.len(),
             );
         }
-
     }
 
-    let tx_propagator = subtensor_bot::TxPropagator::new(
+    let tx_peer_ranker = Arc::new(subtensor_node_shim::BotPeerRanker::new(
+        peer_tracker.clone(),
+        tx_propagation_control.clone(),
+        propagation_tracker.clone(),
+        reserved_nodes.clone(),
+    ));
+    let tx_propagation_observer = Arc::new(subtensor_node_shim::BotPropagationObserver::new(
+        peer_tracker.clone(),
+        propagation_tracker.clone(),
+        network.clone(),
+        tx_propagation_control.clone(),
+    ));
+    tx_handler_controller.set_peer_ranker(tx_peer_ranker);
+    tx_handler_controller.set_propagation_observer(tx_propagation_observer);
+
+    let tx_propagator = subtensor_node_shim::TxPropagator::new(
         tx_handler_controller.clone(),
         Some(propagation_tracker.clone()),
     );
 
-    sync_inject_handle.install(
-        client.clone(),
-        transaction_pool.clone(),
-        bot_control.clone(),
-        shared_inject_state.clone(),
-        tx_propagator.clone(),
-        subtensor_bot::transact::TxConfig::from_env(),
-        announce_timing.clone(),
-        propagation_tracker.clone(),
-    );
-
-    let reserved_dialer = Arc::new(subtensor_bot::ReservedDialer::new(
-        network.clone(),
-        network.clone(),
+    let peer_manager = Arc::new(subtensor_node_shim::PeerManager::new(
         sync_service.clone(),
-        transactions_protocol.clone(),
-    ));
-    reserved_dialer.clone().start(task_manager.spawn_handle());
-
-    let peer_pruner = Arc::new(subtensor_bot::PeerPruner::new(
-        sync_service.clone(),
+        network.clone(),
         network.clone(),
         network.clone(),
         block_announces_protocol.clone(),
         transactions_protocol.clone(),
-        peer_tracker.clone(),
-        reserved_registry,
-        reserved_dialer,
     ));
+    peer_manager.clone().start(task_manager.spawn_handle());
+    peer_manager.set_ipc(ipc_manager.clone());
 
-    let authority_discovery = subtensor_bot::AuthorityDiscovery::new(
-        client.clone(),
-        authority_registry.clone(),
-        sync_service.clone(),
-        peer_tracker.clone(),
-        network.clone(),
-        peer_pruner.clone(),
-    );
+    let ipc_for_tx = ipc_manager.clone();
+    let peer_manager_for_ipc = peer_manager.clone();
+    let tx_propagation_for_ipc = tx_propagation_control.clone();
+    let tx_propagator_for_ipc = tx_propagator.clone();
+    let propagation_tracker_for_ipc = propagation_tracker.clone();
+    task_manager.spawn_handle().spawn("bot-ipc-tx-wire", None, async move {
+        ipc_for_tx
+            .set_peer_manager(peer_manager_for_ipc)
+            .await;
+        ipc_for_tx
+            .set_tx_controls(
+                tx_propagation_for_ipc,
+                tx_propagator_for_ipc,
+                propagation_tracker_for_ipc,
+            )
+            .await;
+    }.boxed());
 
-    subtensor_bot::auto_filter::start_auto_filter(
+    ipc_manager.clone().start(
         &task_manager,
-        peer_pruner.clone(),
-        auto_filter_control.clone(),
-        subtensor_bot::auto_filter::config_from_env(),
+        transaction_pool.clone(),
+        ipc_config.clone(),
+        Arc::new({
+            let client = client.clone();
+            move || {
+                use sp_blockchain::HeaderBackend;
+                client.info().best_hash
+            }
+        }),
     );
 
     consensus_mechanism.spawn_essential_handles(
@@ -591,16 +607,14 @@ where
             keystore_container.keystore(),
             select_chain.clone(),
         )?;
-        let bot_control = bot_control.clone();
-        let announce_timing = announce_timing.clone();
-        let auto_filter_control = auto_filter_control.clone();
-        let mempool_watcher_control = mempool_watcher_control.clone();
-        let tx_propagation_control = tx_propagation_control.clone();
-        let peer_tracker = peer_tracker.clone();
+        let peer_manager = peer_manager.clone();
         let propagation_tracker = propagation_tracker.clone();
-        let peer_pruner = peer_pruner.clone();
-        let authority_discovery = authority_discovery.clone();
-        let tx_propagator_rpc = tx_propagator.clone();
+        let mempool_watcher_control = mempool_watcher_control.clone();
+        let block_announce_ipc = block_announce_ipc.clone();
+        let mempool_ipc = mempool_ipc.clone();
+        let ipc_config = ipc_config.clone();
+        let tx_propagation_control_rpc = tx_propagation_control.clone();
+        let network = network.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -646,23 +660,21 @@ where
             .map_err(|e: Box<dyn std::error::Error + Send + Sync>| sc_service::Error::from(e))?;
             module
                 .merge(
-                    subtensor_bot::rpc::BotRpc::new(
-                        bot_control.clone(),
-                        announce_timing.clone(),
-                        auto_filter_control.clone(),
-                        mempool_watcher_control.clone(),
-                        tx_propagation_control.clone(),
-                        peer_tracker.clone(),
-                        tx_peer_ranker_for_rpc.clone(),
+                    subtensor_node_shim::NodeControlRpc::new(
+                        peer_manager.clone(),
                         propagation_tracker.clone(),
-                        tx_propagator_rpc.clone(),
-                        peer_pruner.clone(),
-                        authority_discovery.clone(),
+                        mempool_watcher_control.clone(),
+                        block_announce_ipc.clone(),
+                        mempool_ipc.clone(),
+                        ipc_config.clone(),
+                        tx_propagation_control_rpc.clone(),
                         network.clone(),
                     )
                     .into_rpc(),
                 )
-                .map_err(|e| sc_service::Error::Other(format!("failed to merge bot RPC: {e}")))?;
+                .map_err(|e| {
+                    sc_service::Error::Other(format!("failed to merge node control RPC: {e}"))
+                })?;
             Ok(module)
         })
     };
@@ -696,43 +708,12 @@ where
     )
     .await;
 
-    // -- Bot ------------------------------------------------------------------
-    subtensor_bot::processor::start_bot(
-        &task_manager,
-        client.clone(),
-        transaction_pool.clone(),
-        sync_service.clone(),
-        announce_rx,
-        bot_control.clone(),
-        shared_inject_state.clone(),
-        peer_tracker.clone(),
-        propagation_tracker.clone(),
-        authority_registry.clone(),
-        network.clone(),
-        tx_propagator.clone(),
-    );
-    subtensor_bot::pool_inject::start_pool_injector(
-        &task_manager,
-        client.clone(),
-        transaction_pool.clone(),
-        bot_control.clone(),
-        shared_inject_state.clone(),
-        tx_propagator.clone(),
-    );
-    subtensor_bot::time_inject::start_time_injector(
-        &task_manager,
-        client.clone(),
-        transaction_pool.clone(),
-        bot_control,
-        shared_inject_state,
-        tx_propagator,
-    );
-    subtensor_bot::mempool::start_mempool_watcher(
+    subtensor_node_shim::mempool::start_mempool_watcher(
         &task_manager,
         transaction_pool.clone(),
         mempool_watcher_control.clone(),
+        Some(ipc_manager.clone()),
     );
-    // -------------------------------------------------------------------------
 
     if role.is_authority() {
         let shield_keystore = Arc::new(MemoryShieldKeystore::new());

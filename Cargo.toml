@@ -25,7 +25,7 @@ rayon = "1.10"
 
 [workspace]
 members = [
-	"bot",
+	"node-shim",
 	"common",
 	"node",
 	"pallets/*",
@@ -56,7 +56,8 @@ useless_conversion = "allow"     # until polkadot is patched
 
 [workspace.dependencies]
 node-subtensor-runtime = { path = "runtime", default-features = false }
-subtensor-bot = { path = "bot" }
+subtensor-node-shim = { path = "node-shim" }
+subtensor-ipc = { path = "../subtensor-bot/ipc" }
 pallet-admin-utils = { path = "pallets/admin-utils", default-features = false }
 pallet-commitments = { path = "pallets/commitments", default-features = false }
 pallet-registry = { path = "pallets/registry", default-features = false }
@@ -192,7 +193,7 @@ sc-chain-spec = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = 
 sc-consensus-slots = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-executor = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-keystore = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
-sc-network = { path = "patches/sc-network", default-features = false }
+sc-network = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-offchain = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-rpc = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-rpc-api = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
@@ -202,7 +203,7 @@ sc-transaction-pool = { git = "https://github.com/opentensor/polkadot-sdk.git", 
 sc-transaction-pool-api = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-consensus-manual-seal = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sc-network-sync = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
-sc-network-transactions = { path = "patches/sc-network-transactions", default-features = false }
+sc-network-transactions = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 
 sp-api = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
 sp-authority-discovery = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = false }
@@ -323,7 +324,6 @@ pow-faucet = []
 w3f-bls = { git = "https://github.com/opentensor/bls", branch = "fix-no-std" }
 
 [patch."https://github.com/opentensor/polkadot-sdk.git"]
-sc-network = { path = "patches/sc-network" }
-sc-network-sync = { path = "patches/sc-network/sync" }
-sc-network-transactions = { path = "patches/sc-network-transactions" }
+sc-network-transactions = { path = "vendor/sc-network-transactions" }
+sc-network-sync = { path = "vendor/sc-network-sync" }
 

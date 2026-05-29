@@ -1,0 +1,21 @@
+[package]
+description = "Substrate transaction protocol (patched for bot peer ranking)"
+name = "sc-network-transactions"
+version = "0.50.0"
+license = "GPL-3.0-or-later WITH Classpath-exception-2.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+array-bytes = { version = "6.2", default-features = true }
+codec = { package = "parity-scale-codec", version = "3.6", features = ["derive"], default-features = true }
+futures = { version = "0.3" }
+log = { version = "0.4", default-features = true }
+prometheus-endpoint = { package = "substrate-prometheus-endpoint", git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-network = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-network-common = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-network-sync = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-network-types = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sc-utils = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sp-consensus = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }
+sp-runtime = { git = "https://github.com/opentensor/polkadot-sdk.git", rev = "7cc54bf2d50ae3921d718736dfeb0de9468539c7", default-features = true }

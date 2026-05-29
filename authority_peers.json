@@ -84,8 +84,8 @@
       "account": "0x422ace3f96e59a08b931d5c751ffb130ff2c2b3d9eb8afb0f9a3da86cb9eec0e",
       "aura_index": 6,
       "peer_id": "12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV",
-      "hits": 5,
-      "last_block": 8283057,
+      "hits": 6,
+      "last_block": 8286737,
       "roles": "FULL"
     },
     {
@@ -140,16 +140,16 @@
       "account": "0x82b287102fbe1b6f930e9f4e93bc832ae2fd3d978a6477051cb4c5d8ff48d472",
       "aura_index": 11,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 213,
-      "last_block": 8286362,
+      "hits": 230,
+      "last_block": 8286902,
       "roles": "FULL"
     },
     {
       "account": "0x1a4bb0a5b64686dd2dfbac9d0f51c3124a1488e6154073051b06385f3f773c2d",
       "aura_index": 2,
       "peer_id": "12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8",
-      "hits": 79,
-      "last_block": 8286193,
+      "hits": 84,
+      "last_block": 8286653,
       "roles": "FULL"
     },
     {

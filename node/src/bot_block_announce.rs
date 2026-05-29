@@ -1,50 +1,48 @@
-//! Earliest public hook for block announces on a non-validator node.
-//!
-//! `BlockAnnounceValidator::validate` is invoked as soon as the sync engine
-//! hands off a network block announcement. We notify the bot synchronously at
-//! that point - before async announce validation runs - so the processor can
-//! submit to the pool while validation and block download proceed in parallel.
-//!
-//! When a sync injector is installed, it also submits to the pool from this
-//! hook (zero broadcast latency).
-//!
-//! Deeper hooks (inside the network worker, before the validator queue) are
-//! not exposed by Substrate's public API. Validator proposer injection is
-//! faster still but requires an authority role.
+//! Block announce hook: IPC events + peer/propagation tracking for the node shim.
+
+use std::collections::HashMap;
+use std::pin::Pin;
+use std::sync::Arc;
 
 use futures::FutureExt;
 use node_subtensor_runtime::opaque::Block;
+use sc_network_sync::announce_peer;
 use sp_blockchain::HeaderBackend;
 use sp_consensus::block_validation::{
     BlockAnnounceValidator, DefaultBlockAnnounceValidator, Validation,
 };
 use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
-use std::pin::Pin;
-use std::sync::Arc;
-use sc_network_sync::announce_peer;
-use subtensor_bot::announce::{self, BlockAnnounceHub};
-use subtensor_bot::SyncInjectHandle;
+use subtensor_node_shim::announce::{self, current_delay_time_ms, slot_from_digest};
+use subtensor_node_shim::peers::PeerTracker;
+use subtensor_node_shim::{IpcManager, PropagationTracker};
+use subtensor_ipc::IpcMessage;
 
 use crate::client::FullClient;
 
 pub struct NotifyingBlockAnnounceValidator {
     inner: DefaultBlockAnnounceValidator,
     client: Arc<FullClient>,
-    hub: BlockAnnounceHub,
-    sync_inject: Arc<SyncInjectHandle>,
+    ipc: Option<Arc<IpcManager>>,
+    propagation_tracker: Arc<PropagationTracker>,
+    peer_tracker: Arc<PeerTracker>,
+    /// Per-block announce count for IPC delivery.
+    announce_counts: HashMap<u32, u32>,
 }
 
 impl NotifyingBlockAnnounceValidator {
     pub fn new(
         client: Arc<FullClient>,
-        hub: BlockAnnounceHub,
-        sync_inject: Arc<SyncInjectHandle>,
+        ipc: Option<Arc<IpcManager>>,
+        propagation_tracker: Arc<PropagationTracker>,
+        peer_tracker: Arc<PeerTracker>,
     ) -> Self {
         Self {
             inner: DefaultBlockAnnounceValidator,
             client,
-            hub,
-            sync_inject,
+            ipc,
+            propagation_tracker,
+            peer_tracker,
+            announce_counts: HashMap::new(),
         }
     }
 }
@@ -61,23 +59,64 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
         >,
     > {
         let best_number = self.client.info().best_number;
+        self.announce_counts.retain(|&n, _| n > best_number);
+
         if announce::is_immediate_next_block(header, best_number) {
             let block_number = *header.number();
-            let at_hash = *header.parent_hash();
+            let delay_time_ms = current_delay_time_ms();
             let announcing_peer = announce_peer::current().map(|p| p.to_base58());
-            self.sync_inject
-                .on_announce(block_number, at_hash, announcing_peer.as_deref());
-            self.hub
-                .notify(header, announcing_peer.as_deref());
-            log::debug!(
-                target: "bot::announce",
-                "pre-validation announce #{block_number} (local best #{best_number}) hash={:?} from={announcing_peer:?}",
-                header.hash(),
-            );
+            let announce_index = {
+                let count = self
+                    .announce_counts
+                    .entry(block_number)
+                    .and_modify(|c| *c = c.saturating_add(1))
+                    .or_insert(1);
+                *count
+            };
+
+            if announce_index == 1 {
+                log::info!(
+                    target: "bot::announce",
+                    "first announce detected: block #{block_number} hash={:?} parent={:?} (local best #{best_number})",
+                    header.hash(),
+                    header.parent_hash(),
+                );
+
+                self.propagation_tracker
+                    .record_announce(block_number, announcing_peer.clone());
+                self.peer_tracker.record_announce(
+                    block_number,
+                    std::iter::empty::<(String, u64, String)>(),
+                    announcing_peer.as_deref(),
+                );
+            } else {
+                log::trace!(
+                    target: "bot::announce",
+                    "announce #{block_number} index={announce_index} hash={:?} from={announcing_peer:?} (local best #{best_number})",
+                    header.hash(),
+                );
+            }
+
+            if let Some(ref peer) = announcing_peer {
+                self.peer_tracker
+                    .record_announce_peer(block_number, peer, delay_time_ms);
+            }
+
+            if let Some(ipc) = &self.ipc {
+                ipc.notify_header(IpcMessage::header(
+                    block_number,
+                    format!("{:?}", header.hash()),
+                    format!("{:?}", header.parent_hash()),
+                    slot_from_digest(header.digest()),
+                    announcing_peer,
+                    announce_index,
+                    delay_time_ms,
+                ));
+            }
         }
 
-        let validation = BlockAnnounceValidator::<Block>::validate(&mut self.inner, header, data);
-
+        let validation =
+            BlockAnnounceValidator::<Block>::validate(&mut self.inner, header, data);
         async move { validation.await }.boxed()
     }
 }

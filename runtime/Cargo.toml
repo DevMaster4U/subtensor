@@ -167,6 +167,7 @@ substrate-wasm-builder = { workspace = true, optional = true }
 
 [features]
 default = ["std"]
+skip-wasm-builder = []
 pow-faucet = ["pallet-subtensor/pow-faucet"]
 fast-runtime = [
 	"pallet-subtensor/fast-runtime",

@@ -5,7 +5,7 @@
 #![allow(clippy::arithmetic_side_effects)]
 
 // Make the WASM binary available.
-#[cfg(feature = "std")]
+#[cfg(all(feature = "std", not(feature = "skip-wasm-builder")))]
 include!(concat!(env!("OUT_DIR"), "/wasm_binary.rs"));
 
 use core::num::NonZeroU64;

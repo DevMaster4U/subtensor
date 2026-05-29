@@ -2757,7 +2757,7 @@ dependencies = [
  "parachains-common",
  "parity-scale-codec",
  "prost 0.12.6",
- "prost-build 0.13.5",
+ "prost-build",
  "sc-network",
  "sc-service",
  "sp-consensus-babe",
@@ -6822,7 +6822,6 @@ dependencies = [
  "once_cell",
  "serdect",
  "sha2 0.10.9",
- "signature",
 ]
 
 [[package]]
@@ -7575,7 +7574,7 @@ dependencies = [
  "parking_lot 0.12.5",
  "pin-project",
  "prost 0.13.5",
- "prost-build 0.13.5",
+ "prost-build",
  "rand 0.8.5",
  "serde",
  "sha2 0.10.9",
@@ -8364,10 +8363,11 @@ dependencies = [
  "substrate-build-script-utils",
  "substrate-frame-rpc-system",
  "substrate-prometheus-endpoint",
- "subtensor-bot",
  "subtensor-custom-rpc",
  "subtensor-custom-rpc-runtime-api",
+ "subtensor-ipc",
  "subtensor-macros",
+ "subtensor-node-shim",
  "subtensor-runtime-common",
  "tokio",
 ]
@@ -13467,27 +13467,6 @@ dependencies = [
 
 [[package]]
 name = "prost-build"
-version = "0.12.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22505a5c94da8e3b7c2996394d1c933236c4d743e81a410bcca4e6989fc066a4"
-dependencies = [
- "bytes",
- "heck 0.4.1",
- "itertools 0.10.5",
- "log",
- "multimap",
- "once_cell",
- "petgraph 0.6.5",
- "prettyplease",
- "prost 0.12.6",
- "prost-types 0.12.6",
- "regex",
- "syn 2.0.106",
- "tempfile",
-]
-
-[[package]]
-name = "prost-build"
 version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be769465445e8c1474e9c5dac2018218498557af32d9ed057325ec9a41ae81bf"
@@ -13500,7 +13479,7 @@ dependencies = [
  "petgraph 0.7.1",
  "prettyplease",
  "prost 0.13.5",
- "prost-types 0.13.5",
+ "prost-types",
  "regex",
  "syn 2.0.106",
  "tempfile",
@@ -13530,15 +13509,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.106",
-]
-
-[[package]]
-name = "prost-types"
-version = "0.12.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9091c90b0a32608e984ff2fa4091273cbdd755d54935c51d520887f4a1dbd5b0"
-dependencies = [
- "prost 0.12.6",
 ]
 
 [[package]]
@@ -14576,7 +14546,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "prost 0.12.6",
- "prost-build 0.13.5",
+ "prost-build",
  "rand 0.8.5",
  "sc-client-api",
  "sc-network",
@@ -15188,6 +15158,7 @@ dependencies = [
 [[package]]
 name = "sc-network"
 version = "0.51.1"
+source = "git+https://github.com/opentensor/polkadot-sdk.git?rev=7cc54bf2d50ae3921d718736dfeb0de9468539c7#7cc54bf2d50ae3921d718736dfeb0de9468539c7"
 dependencies = [
  "array-bytes 6.2.3",
  "async-channel 1.9.0",
@@ -15210,7 +15181,7 @@ dependencies = [
  "partial_sort",
  "pin-project",
  "prost 0.12.6",
- "prost-build 0.13.5",
+ "prost-build",
  "rand 0.8.5",
  "sc-client-api",
  "sc-network-common",
@@ -15274,7 +15245,7 @@ dependencies = [
  "log",
  "parity-scale-codec",
  "prost 0.12.6",
- "prost-build 0.13.5",
+ "prost-build",
  "sc-client-api",
  "sc-network",
  "sc-network-types",
@@ -15317,7 +15288,7 @@ dependencies = [
  "mockall",
  "parity-scale-codec",
  "prost 0.12.6",
- "prost-build 0.12.6",
+ "prost-build",
  "sc-client-api",
  "sc-consensus",
  "sc-network",
@@ -18178,38 +18149,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "subtensor-bot"
-version = "0.1.0"
-dependencies = [
- "dotenvy",
- "ethereum",
- "ethereum-types",
- "fp-rpc",
- "futures",
- "hex",
- "jsonrpsee",
- "k256",
- "log",
- "node-subtensor-runtime",
- "pallet-ethereum",
- "parity-scale-codec",
- "sc-client-api",
- "sc-network",
- "sc-network-sync",
- "sc-network-transactions",
- "sc-service",
- "sc-transaction-pool-api",
- "serde",
- "serde_json",
- "sp-api",
- "sp-blockchain",
- "sp-consensus-aura",
- "sp-core",
- "sp-runtime",
- "tokio",
-]
-
-[[package]]
 name = "subtensor-chain-extensions"
 version = "0.1.0"
 dependencies = [
@@ -18264,6 +18203,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "subtensor-ipc"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "parity-scale-codec",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "subtensor-linting"
 version = "0.1.0"
 dependencies = [
@@ -18281,6 +18230,31 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.106",
+]
+
+[[package]]
+name = "subtensor-node-shim"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "hex",
+ "jsonrpsee",
+ "log",
+ "node-subtensor-runtime",
+ "parity-scale-codec",
+ "sc-network",
+ "sc-network-sync",
+ "sc-network-transactions",
+ "sc-service",
+ "sc-transaction-pool-api",
+ "serde",
+ "serde_json",
+ "sp-blockchain",
+ "sp-consensus-aura",
+ "sp-core",
+ "sp-runtime",
+ "subtensor-ipc",
+ "tokio",
 ]
 
 [[package]]

@@ -1,5 +1,9 @@
 fn main() {
-    #[cfg(all(feature = "std", not(feature = "metadata-hash")))]
+    #[cfg(all(
+        feature = "std",
+        not(feature = "skip-wasm-builder"),
+        not(feature = "metadata-hash")
+    ))]
     {
         substrate_wasm_builder::WasmBuilder::new()
             .with_current_project()
@@ -7,7 +11,11 @@ fn main() {
             .import_memory()
             .build();
     }
-    #[cfg(all(feature = "std", feature = "metadata-hash"))]
+    #[cfg(all(
+        feature = "std",
+        not(feature = "skip-wasm-builder"),
+        feature = "metadata-hash"
+    ))]
     {
         substrate_wasm_builder::WasmBuilder::new()
             .with_current_project()
