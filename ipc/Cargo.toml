@@ -1,0 +1,13 @@
+[package]
+name = "subtensor-ipc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "IPC protocol between subtensor node and bot"
+publish = false
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true, features = ["std"] }
+codec = { workspace = true, features = ["std"] }
+hex = { workspace = true }
