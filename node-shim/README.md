@@ -6,7 +6,7 @@ Node-side control layer for the Subtensor bot stack:
 - **`node_*` JSON-RPC** — operators enable IPC forwarding, manage peers, and tune global tx gossip
 - **Per-client IPC settings** — each bot connection configures its own announce filter, mempool opt-in, and per-submit propagation
 
-Used by the [subtensor](https://github.com/opentensor/subtensor) node binary. Bots use [`subtensor-bot`](https://github.com/DevMaster4U/subtensor-bot) and the shared [`subtensor-ipc`](../../subtensor-bot/ipc) protocol crate.
+Used by the [subtensor](https://github.com/opentensor/subtensor) node binary. Bots use [`subtensor-bot`](https://github.com/DevMaster4U/subtensor-bot) and the shared [`subtensor-ipc`](../ipc) protocol crate.
 
 ## Architecture
 
@@ -388,13 +388,11 @@ node_setTxPropagationMaxPeers 5
 
 ## Dependency
 
-`subtensor-ipc` is pulled from the sibling `subtensor-bot` repo:
+`subtensor-ipc` lives in this repo at `ipc/` and is a workspace dependency:
 
 ```toml
-subtensor-ipc = { path = "../subtensor-bot/ipc" }
+subtensor-ipc = { workspace = true }
 ```
-
-Clone both repos side by side, or point `subtensor-ipc` at your published git URL.
 
 Tx gossip ranking uses a vendored patch:
 

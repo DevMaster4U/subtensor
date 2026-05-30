@@ -1,8 +1,8 @@
 [package]
 name = "subtensor-ipc"
-version.workspace = true
+version = "0.1.0"
 edition.workspace = true
-license.workspace = true
+license = "Unlicense"
 description = "IPC protocol between subtensor node and bot"
 publish = false
 

@@ -25,6 +25,7 @@ rayon = "1.10"
 
 [workspace]
 members = [
+	"ipc",
 	"node-shim",
 	"common",
 	"node",

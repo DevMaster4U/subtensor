@@ -808,3 +808,310 @@ It isn't safe to expose RPC publicly without a proxy server that filters availab
 2026-05-30 13:16:49.500  INFO tokio-runtime-worker substrate: ⏩ Block history, #564480 (142 peers), best: #8297387 (0xe752…db30), finalized #8297385 (0x0903…6711), ⬇ 16.1MiB/s ⬆ 129.4kiB/s    
 2026-05-30 13:16:49.536  INFO tokio-runtime-worker substrate: 🏆 Imported #8297388 (0xe752…db30 → 0x0470…77a0)    
 2026-05-30 13:16:54.500  INFO tokio-runtime-worker substrate: ⏩ Block history, #569984 (142 peers), best: #8297388 (0x0470…77a0), finalized #8297386 (0x15e6…ec7d), ⬇ 18.2MiB/s ⬆ 191.7kiB/s    
+2026-05-30 13:16:59.500  INFO tokio-runtime-worker substrate: ⏩ Block history, #572672 (142 peers), best: #8297388 (0x0470…77a0), finalized #8297386 (0x15e6…ec7d), ⬇ 9.7MiB/s ⬆ 224.5kiB/s    
+2026-05-30 13:17:01.342  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297389 hash=0xe81eab12e1c71c7192846b460942e482d92e528bb450fbd3f55c90501a7e7086 parent=0x04702b0478836402450fd2bd4af0c9ba36ebff85808aaf3cc7ffa8740d1a77a0 (local best #8297388)    
+2026-05-30 13:17:01.342  INFO tokio-runtime-worker bot::peers: block #8297389 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:17:01.947  INFO tokio-runtime-worker substrate: 🏆 Imported #8297389 (0x0470…77a0 → 0xe81e…7086)    
+2026-05-30 13:17:04.500  INFO tokio-runtime-worker substrate: ⏩ Block history, #576000 (142 peers), best: #8297389 (0xe81e…7086), finalized #8297387 (0xe752…db30), ⬇ 9.5MiB/s ⬆ 138.0kiB/s    
+2026-05-30 13:17:09.500  INFO tokio-runtime-worker substrate: ⏩ Block history, #578688 (142 peers), best: #8297389 (0xe81e…7086), finalized #8297387 (0xe752…db30), ⬇ 8.5MiB/s ⬆ 142.6kiB/s    
+2026-05-30 13:17:12.986  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297390 hash=0x5595b9e6eb60ba9c4ffab275e8afdb1f423e36009b8d6d05dcf488671a70d424 parent=0xe81eab12e1c71c7192846b460942e482d92e528bb450fbd3f55c90501a7e7086 (local best #8297389)    
+2026-05-30 13:17:12.986  INFO tokio-runtime-worker bot::peers: block #8297390 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:17:12.989  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKuTVBWapeb4vVH5ceZ996ZWyzEwd6M7mbm3QVsTa71nD    
+2026-05-30 13:17:13.459  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNJZsBAYRvRma3TcVpHy4Cpk4kZfWbCzVWATrhyh4VQVM    
+2026-05-30 13:17:13.491  INFO tokio-runtime-worker substrate: 🏆 Imported #8297390 (0xe81e…7086 → 0x5595…d424)    
+2026-05-30 13:17:14.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #583808 (144 peers), best: #8297390 (0x5595…d424), finalized #8297387 (0xe752…db30), ⬇ 14.0MiB/s ⬆ 205.4kiB/s    
+2026-05-30 13:17:19.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #590784 (144 peers), best: #8297390 (0x5595…d424), finalized #8297388 (0x0470…77a0), ⬇ 13.1MiB/s ⬆ 185.9kiB/s    
+2026-05-30 13:17:24.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #598784 (144 peers), best: #8297390 (0x5595…d424), finalized #8297388 (0x0470…77a0), ⬇ 14.0MiB/s ⬆ 123.6kiB/s    
+2026-05-30 13:17:24.930  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297391 hash=0xe2fa2f2116991996cb1c116fd28c1e0a753b4f9cd427e5e23edefb1a1f1d942f parent=0x5595b9e6eb60ba9c4ffab275e8afdb1f423e36009b8d6d05dcf488671a70d424 (local best #8297390)    
+2026-05-30 13:17:24.930  INFO tokio-runtime-worker bot::peers: block #8297391 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:17:25.374  INFO tokio-runtime-worker substrate: 🏆 Imported #8297391 (0x5595…d424 → 0xe2fa…942f)    
+2026-05-30 13:17:29.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #604160 (144 peers), best: #8297391 (0xe2fa…942f), finalized #8297389 (0xe81e…7086), ⬇ 9.4MiB/s ⬆ 278.7kiB/s    
+2026-05-30 13:17:34.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #614272 (144 peers), best: #8297391 (0xe2fa…942f), finalized #8297389 (0xe81e…7086), ⬇ 15.5MiB/s ⬆ 152.3kiB/s    
+2026-05-30 13:17:36.816  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297392 hash=0x7943f44e84381c06dd1078931a7758b2c19756497102fa798a03846acf27e378 parent=0xe2fa2f2116991996cb1c116fd28c1e0a753b4f9cd427e5e23edefb1a1f1d942f (local best #8297391)    
+2026-05-30 13:17:36.816  INFO tokio-runtime-worker bot::peers: block #8297392 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:17:37.230  INFO tokio-runtime-worker substrate: 🏆 Imported #8297392 (0xe2fa…942f → 0x7943…e378)    
+2026-05-30 13:17:38.856  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDjbRbStMqCjfbccX8CLLF8SHGrwZNDCDpgMqCX83RfUR /ip4/152.233.30.5/tcp/2324/ws/p2p/12D3KooWDjbRbStMqCjfbccX8CLLF8SHGrwZNDCDpgMqCX83RfUR    
+2026-05-30 13:17:38.856  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDjbRbStMqCjfbccX8CLLF8SHGrwZNDCDpgMqCX83RfUR multiaddr=/ip4/152.233.30.5/tcp/2324/ws/p2p/12D3KooWDjbRbStMqCjfbccX8CLLF8SHGrwZNDCDpgMqCX83RfUR    
+2026-05-30 13:17:39.051  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh /ip4/185.8.107.85/tcp/30333/ws/p2p/12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh    
+2026-05-30 13:17:39.051  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh multiaddr=/ip4/185.8.107.85/tcp/30333/ws/p2p/12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh    
+2026-05-30 13:17:39.131  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDjbRbStMqCjfbccX8CLLF8SHGrwZNDCDpgMqCX83RfUR    
+2026-05-30 13:17:39.255  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDvf5ekHASQA3bRTkKYB6VUzxQ9rXPvxeojsMz12XEWrh    
+2026-05-30 13:17:39.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #627712 (146 peers), best: #8297392 (0x7943…e378), finalized #8297390 (0x5595…d424), ⬇ 21.7MiB/s ⬆ 299.6kiB/s    
+2026-05-30 13:17:44.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #636416 (146 peers), best: #8297392 (0x7943…e378), finalized #8297390 (0x5595…d424), ⬇ 14.0MiB/s ⬆ 127.9kiB/s    
+2026-05-30 13:17:48.737  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297393 hash=0xdc78dfb7b8af68c4d8a2513ebe9de23b64cf6691832b67a925b0b449dd732f5a parent=0x7943f44e84381c06dd1078931a7758b2c19756497102fa798a03846acf27e378 (local best #8297392)    
+2026-05-30 13:17:48.737  INFO tokio-runtime-worker bot::peers: block #8297393 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:17:49.123  INFO tokio-runtime-worker substrate: 🏆 Imported #8297393 (0x7943…e378 → 0xdc78…2f5a)    
+2026-05-30 13:17:49.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #646528 (146 peers), best: #8297393 (0xdc78…2f5a), finalized #8297390 (0x5595…d424), ⬇ 14.8MiB/s ⬆ 289.7kiB/s    
+2026-05-30 13:17:54.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #652480 (146 peers), best: #8297393 (0xdc78…2f5a), finalized #8297391 (0xe2fa…942f), ⬇ 9.8MiB/s ⬆ 210.2kiB/s    
+2026-05-30 13:17:59.501  INFO tokio-runtime-worker substrate: ⏩ Block history, #662464 (146 peers), best: #8297393 (0xdc78…2f5a), finalized #8297391 (0xe2fa…942f), ⬇ 12.0MiB/s ⬆ 73.7kiB/s    
+2026-05-30 13:18:00.781  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297394 hash=0xd7498ce081a89da71872d5ed7a0c1035e19dc5ca2f0384fc0839c23ae9eb6512 parent=0xdc78dfb7b8af68c4d8a2513ebe9de23b64cf6691832b67a925b0b449dd732f5a (local best #8297393)    
+2026-05-30 13:18:00.781  INFO tokio-runtime-worker bot::peers: block #8297394 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:18:01.292  INFO tokio-runtime-worker substrate: 🏆 Imported #8297394 (0xdc78…2f5a → 0xd749…6512)    
+2026-05-30 13:18:04.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #670592 (146 peers), best: #8297394 (0xd749…6512), finalized #8297392 (0x7943…e378), ⬇ 14.5MiB/s ⬆ 187.5kiB/s    
+2026-05-30 13:18:09.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #678080 (146 peers), best: #8297394 (0xd749…6512), finalized #8297392 (0x7943…e378), ⬇ 10.3MiB/s ⬆ 123.1kiB/s    
+2026-05-30 13:18:12.473  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297395 hash=0xe713bfb96f8014f5c6d8267f5ccfb7a00593fdf0c2999ee05697c6d24f338f5b parent=0xd7498ce081a89da71872d5ed7a0c1035e19dc5ca2f0384fc0839c23ae9eb6512 (local best #8297394)    
+2026-05-30 13:18:12.473  INFO tokio-runtime-worker bot::peers: block #8297395 first announce from 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (exact peer id)    
+2026-05-30 13:18:12.767  INFO tokio-runtime-worker substrate: 🏆 Imported #8297395 (0xd749…6512 → 0xe713…8f5b)    
+2026-05-30 13:18:14.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #684864 (146 peers), best: #8297395 (0xe713…8f5b), finalized #8297393 (0xdc78…2f5a), ⬇ 10.6MiB/s ⬆ 319.9kiB/s    
+2026-05-30 13:18:19.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #688960 (146 peers), best: #8297395 (0xe713…8f5b), finalized #8297393 (0xdc78…2f5a), ⬇ 6.7MiB/s ⬆ 202.9kiB/s    
+2026-05-30 13:18:20.982  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJURkm1a9QAAtykdCy6vMLUirmHhGLq1eMk3f6BF2MEEZ /ip4/44.202.108.212/tcp/1913/ws/p2p/12D3KooWJURkm1a9QAAtykdCy6vMLUirmHhGLq1eMk3f6BF2MEEZ    
+2026-05-30 13:18:20.982  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJURkm1a9QAAtykdCy6vMLUirmHhGLq1eMk3f6BF2MEEZ multiaddr=/ip4/44.202.108.212/tcp/1913/ws/p2p/12D3KooWJURkm1a9QAAtykdCy6vMLUirmHhGLq1eMk3f6BF2MEEZ    
+2026-05-30 13:18:21.157  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJURkm1a9QAAtykdCy6vMLUirmHhGLq1eMk3f6BF2MEEZ    
+2026-05-30 13:18:24.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #696256 (147 peers), best: #8297395 (0xe713…8f5b), finalized #8297393 (0xdc78…2f5a), ⬇ 9.7MiB/s ⬆ 130.0kiB/s    
+2026-05-30 13:18:24.732  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297396 hash=0x3b63e3ffc2411c8e2904019b11deac21e9cbac4cbfbe59a95aac9e87c063e0c4 parent=0xe713bfb96f8014f5c6d8267f5ccfb7a00593fdf0c2999ee05697c6d24f338f5b (local best #8297395)    
+2026-05-30 13:18:24.732  INFO tokio-runtime-worker bot::peers: block #8297396 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:18:25.165  INFO tokio-runtime-worker substrate: 🏆 Imported #8297396 (0xe713…8f5b → 0x3b63…e0c4)    
+2026-05-30 13:18:25.574  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWLph9KJfvNn93LGSD6EPfMu8g5KEQcDRNzoYyFQemGTSF /ip4/3.140.248.178/tcp/28979/ws/p2p/12D3KooWLph9KJfvNn93LGSD6EPfMu8g5KEQcDRNzoYyFQemGTSF    
+2026-05-30 13:18:25.574  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWLph9KJfvNn93LGSD6EPfMu8g5KEQcDRNzoYyFQemGTSF multiaddr=/ip4/3.140.248.178/tcp/28979/ws/p2p/12D3KooWLph9KJfvNn93LGSD6EPfMu8g5KEQcDRNzoYyFQemGTSF    
+2026-05-30 13:18:25.755  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWLph9KJfvNn93LGSD6EPfMu8g5KEQcDRNzoYyFQemGTSF    
+2026-05-30 13:18:26.099  WARN tokio-runtime-worker sub-libp2p::peerstore: Report 12D3KooWLp77NCzvGsQTnUGALFs2t9zJeAGw4e37KutKdXDxkwFF: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-30 13:18:29.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #703552 (148 peers), best: #8297396 (0x3b63…e0c4), finalized #8297394 (0xd749…6512), ⬇ 11.5MiB/s ⬆ 298.7kiB/s    
+2026-05-30 13:18:34.026  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-05-30 13:18:34.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #711616 (149 peers), best: #8297396 (0x3b63…e0c4), finalized #8297394 (0xd749…6512), ⬇ 11.7MiB/s ⬆ 206.8kiB/s    
+2026-05-30 13:18:37.026  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297397 hash=0xae4c97a57c182eed248327cb0e98771f1c56a7c6e8ac91b4ae4e6a38c0761f4c parent=0x3b63e3ffc2411c8e2904019b11deac21e9cbac4cbfbe59a95aac9e87c063e0c4 (local best #8297396)    
+2026-05-30 13:18:37.026  INFO tokio-runtime-worker bot::peers: block #8297397 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:18:37.518  INFO tokio-runtime-worker substrate: 🏆 Imported #8297397 (0x3b63…e0c4 → 0xae4c…1f4c)    
+2026-05-30 13:18:39.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #719424 (149 peers), best: #8297397 (0xae4c…1f4c), finalized #8297395 (0xe713…8f5b), ⬇ 11.4MiB/s ⬆ 264.0kiB/s    
+2026-05-30 13:18:41.015  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWLogTa7aEzJvJ1nsAXreQg2CqnhinyUCizS4Bz52b1i34    
+2026-05-30 13:18:41.560  WARN tokio-runtime-worker sub-libp2p::peerstore: Report 12D3KooWAnjzBNgpHQsFLUG7pPCMPUoyWWW9mZHAsGeXUYcs2717: -2147483648 to -2147483648. Reason: Peer disconnected with inflight after backoffs. Banned, disconnecting.    
+2026-05-30 13:18:41.729  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWLoNpjbhb9f6EyMTCQGDYtFw1NLDZjhb5dsQQcftNZSZZ    
+2026-05-30 13:18:44.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #730560 (150 peers), best: #8297397 (0xae4c…1f4c), finalized #8297395 (0xe713…8f5b), ⬇ 16.2MiB/s ⬆ 173.7kiB/s    
+2026-05-30 13:18:48.484  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297398 hash=0x3820dcec41f98ccfe381a1fd8eb1e9d2ea69e28380429f919a330b12ec0bbcec parent=0xae4c97a57c182eed248327cb0e98771f1c56a7c6e8ac91b4ae4e6a38c0761f4c (local best #8297397)    
+2026-05-30 13:18:48.484  INFO tokio-runtime-worker bot::peers: block #8297398 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:18:48.830  INFO tokio-runtime-worker substrate: 🏆 Imported #8297398 (0xae4c…1f4c → 0x3820…bcec)    
+2026-05-30 13:18:49.502  INFO tokio-runtime-worker substrate: ⏩ Block history, #742720 (150 peers), best: #8297398 (0x3820…bcec), finalized #8297395 (0xe713…8f5b), ⬇ 16.8MiB/s ⬆ 188.8kiB/s    
+2026-05-30 13:18:51.710  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq /ip4/3.140.248.178/tcp/11404/ws/p2p/12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-05-30 13:18:51.710  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq multiaddr=/ip4/3.140.248.178/tcp/11404/ws/p2p/12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-05-30 13:18:52.244  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-05-30 13:18:54.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #755584 (151 peers), best: #8297398 (0x3820…bcec), finalized #8297396 (0x3b63…e0c4), ⬇ 17.9MiB/s ⬆ 167.1kiB/s    
+2026-05-30 13:18:59.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #771264 (151 peers), best: #8297398 (0x3820…bcec), finalized #8297396 (0x3b63…e0c4), ⬇ 19.1MiB/s ⬆ 113.0kiB/s    
+2026-05-30 13:19:00.775  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297399 hash=0xcdd38199f4fc9ccd7ae37d0dcc298b606eda13400878d39b36b03b42525ff92f parent=0x3820dcec41f98ccfe381a1fd8eb1e9d2ea69e28380429f919a330b12ec0bbcec (local best #8297398)    
+2026-05-30 13:19:00.775  INFO tokio-runtime-worker bot::peers: block #8297399 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:19:01.183  INFO tokio-runtime-worker substrate: 🏆 Imported #8297399 (0x3820…bcec → 0xcdd3…f92f)    
+2026-05-30 13:19:04.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #783552 (151 peers), best: #8297399 (0xcdd3…f92f), finalized #8297397 (0xae4c…1f4c), ⬇ 11.0MiB/s ⬆ 246.2kiB/s    
+2026-05-30 13:19:09.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #793984 (151 peers), best: #8297399 (0xcdd3…f92f), finalized #8297397 (0xae4c…1f4c), ⬇ 8.3MiB/s ⬆ 78.4kiB/s    
+2026-05-30 13:19:12.609  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297400 hash=0x8fa154f3ae4559d021b756c963684113a3b018dffdf6348e24ec71de1d803a2d parent=0xcdd38199f4fc9ccd7ae37d0dcc298b606eda13400878d39b36b03b42525ff92f (local best #8297399)    
+2026-05-30 13:19:12.609  INFO tokio-runtime-worker bot::peers: block #8297400 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:19:13.003  INFO tokio-runtime-worker substrate: 🏆 Imported #8297400 (0xcdd3…f92f → 0x8fa1…3a2d)    
+2026-05-30 13:19:14.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #809152 (151 peers), best: #8297400 (0x8fa1…3a2d), finalized #8297398 (0x3820…bcec), ⬇ 11.0MiB/s ⬆ 156.7kiB/s    
+2026-05-30 13:19:19.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #819904 (151 peers), best: #8297400 (0x8fa1…3a2d), finalized #8297398 (0x3820…bcec), ⬇ 10.1MiB/s ⬆ 243.2kiB/s    
+2026-05-30 13:19:24.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #833408 (151 peers), best: #8297400 (0x8fa1…3a2d), finalized #8297398 (0x3820…bcec), ⬇ 11.0MiB/s ⬆ 184.1kiB/s    
+2026-05-30 13:19:25.069  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297401 hash=0x8b52b7ff8386304a45538d8d6cb05df8bfb67487ca401dc36f3ef6199835e219 parent=0x8fa154f3ae4559d021b756c963684113a3b018dffdf6348e24ec71de1d803a2d (local best #8297400)    
+2026-05-30 13:19:25.069  INFO tokio-runtime-worker bot::peers: block #8297401 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:19:25.445  INFO tokio-runtime-worker substrate: 🏆 Imported #8297401 (0x8fa1…3a2d → 0x8b52…e219)    
+2026-05-30 13:19:29.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #846784 (151 peers), best: #8297401 (0x8b52…e219), finalized #8297399 (0xcdd3…f92f), ⬇ 12.6MiB/s ⬆ 227.7kiB/s    
+2026-05-30 13:19:34.503  INFO tokio-runtime-worker substrate: ⏩ Block history, #857664 (151 peers), best: #8297401 (0x8b52…e219), finalized #8297399 (0xcdd3…f92f), ⬇ 11.3MiB/s ⬆ 143.1kiB/s    
+2026-05-30 13:19:37.323  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297402 hash=0x7c69b3cb8c0a8135b81c8704e79c18b9a8f7366ef438709c9f324504596991d1 parent=0x8b52b7ff8386304a45538d8d6cb05df8bfb67487ca401dc36f3ef6199835e219 (local best #8297401)    
+2026-05-30 13:19:37.323  INFO tokio-runtime-worker bot::peers: block #8297402 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:19:37.920  INFO tokio-runtime-worker substrate: 🏆 Imported #8297402 (0x8b52…e219 → 0x7c69…91d1)    
+2026-05-30 13:19:39.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #870336 (151 peers), best: #8297402 (0x7c69…91d1), finalized #8297399 (0xcdd3…f92f), ⬇ 13.5MiB/s ⬆ 154.4kiB/s    
+2026-05-30 13:19:44.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #880192 (151 peers), best: #8297402 (0x7c69…91d1), finalized #8297400 (0x8fa1…3a2d), ⬇ 8.9MiB/s ⬆ 106.5kiB/s    
+2026-05-30 13:19:48.659  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297403 hash=0x43af2ac837763ed8d766f67a5843c9f76622b073423b4356eb2992e7c2c1e896 parent=0x7c69b3cb8c0a8135b81c8704e79c18b9a8f7366ef438709c9f324504596991d1 (local best #8297402)    
+2026-05-30 13:19:48.659  INFO tokio-runtime-worker bot::peers: block #8297403 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:19:49.034  INFO tokio-runtime-worker substrate: 🏆 Imported #8297403 (0x7c69…91d1 → 0x43af…e896)    
+2026-05-30 13:19:49.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #885888 (151 peers), best: #8297403 (0x43af…e896), finalized #8297400 (0x8fa1…3a2d), ⬇ 7.7MiB/s ⬆ 115.7kiB/s    
+2026-05-30 13:19:54.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #891776 (151 peers), best: #8297403 (0x43af…e896), finalized #8297401 (0x8b52…e219), ⬇ 6.4MiB/s ⬆ 152.6kiB/s    
+2026-05-30 13:19:59.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #897088 (151 peers), best: #8297403 (0x43af…e896), finalized #8297401 (0x8b52…e219), ⬇ 5.4MiB/s ⬆ 198.8kiB/s    
+2026-05-30 13:20:00.582  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297404 hash=0x305649b2dc05749a02e163b82cacd95eb473620f14ccb65a4ef75c3aea52eda5 parent=0x43af2ac837763ed8d766f67a5843c9f76622b073423b4356eb2992e7c2c1e896 (local best #8297403)    
+2026-05-30 13:20:00.582  INFO tokio-runtime-worker bot::peers: block #8297404 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:20:00.922  INFO tokio-runtime-worker substrate: 🏆 Imported #8297404 (0x43af…e896 → 0x3056…eda5)    
+2026-05-30 13:20:04.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #899904 (151 peers), best: #8297404 (0x3056…eda5), finalized #8297402 (0x7c69…91d1), ⬇ 3.1MiB/s ⬆ 276.6kiB/s    
+2026-05-30 13:20:09.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #899904 (151 peers), best: #8297404 (0x3056…eda5), finalized #8297402 (0x7c69…91d1), ⬇ 161.9kiB/s ⬆ 164.9kiB/s    
+2026-05-30 13:20:13.061  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297405 hash=0x5d4a170fd0ec430814ce90fe4026dff51b84ec079ee51bb53028d631b443ec85 parent=0x305649b2dc05749a02e163b82cacd95eb473620f14ccb65a4ef75c3aea52eda5 (local best #8297404)    
+2026-05-30 13:20:13.061  INFO tokio-runtime-worker bot::peers: block #8297405 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:20:13.576  INFO tokio-runtime-worker substrate: 🏆 Imported #8297405 (0x3056…eda5 → 0x5d4a…ec85)    
+2026-05-30 13:20:14.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #904704 (151 peers), best: #8297405 (0x5d4a…ec85), finalized #8297402 (0x7c69…91d1), ⬇ 3.4MiB/s ⬆ 132.8kiB/s    
+2026-05-30 13:20:19.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #907904 (151 peers), best: #8297405 (0x5d4a…ec85), finalized #8297403 (0x43af…e896), ⬇ 4.7MiB/s ⬆ 145.7kiB/s    
+2026-05-30 13:20:22.863  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRLkLfF4qUDYVc83pYSrmiSQG8zn2KzGyhyDQ8Va2z4np    
+2026-05-30 13:20:24.504  INFO tokio-runtime-worker substrate: ⏩ Block history, #908352 (152 peers), best: #8297405 (0x5d4a…ec85), finalized #8297403 (0x43af…e896), ⬇ 717.7kiB/s ⬆ 147.2kiB/s    
+2026-05-30 13:20:24.729  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297406 hash=0x0a254c39beb6b193e68ac494cd9c49bed2e2925f6dbff115ba6c4c2ec60a98a2 parent=0x5d4a170fd0ec430814ce90fe4026dff51b84ec079ee51bb53028d631b443ec85 (local best #8297405)    
+2026-05-30 13:20:24.729  INFO tokio-runtime-worker bot::peers: block #8297406 first announce from 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (exact peer id)    
+2026-05-30 13:20:25.116  INFO tokio-runtime-worker substrate: 🏆 Imported #8297406 (0x5d4a…ec85 → 0x0a25…98a2)    
+2026-05-30 13:20:29.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #915776 (152 peers), best: #8297406 (0x0a25…98a2), finalized #8297404 (0x3056…eda5), ⬇ 7.7MiB/s ⬆ 173.3kiB/s    
+2026-05-30 13:20:34.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #922880 (152 peers), best: #8297406 (0x0a25…98a2), finalized #8297404 (0x3056…eda5), ⬇ 6.9MiB/s ⬆ 141.4kiB/s    
+2026-05-30 13:20:36.968  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297407 hash=0xfff824888d918e32cf4d19011e733aa45b3023bb4e0ef43742fe5f8b6c25651e parent=0x0a254c39beb6b193e68ac494cd9c49bed2e2925f6dbff115ba6c4c2ec60a98a2 (local best #8297406)    
+2026-05-30 13:20:36.968  INFO tokio-runtime-worker bot::peers: block #8297407 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:20:37.462  INFO tokio-runtime-worker substrate: 🏆 Imported #8297407 (0x0a25…98a2 → 0xfff8…651e)    
+2026-05-30 13:20:39.201  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e    
+2026-05-30 13:20:39.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #926208 (153 peers), best: #8297407 (0xfff8…651e), finalized #8297405 (0x5d4a…ec85), ⬇ 3.9MiB/s ⬆ 260.0kiB/s    
+2026-05-30 13:20:44.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #932864 (153 peers), best: #8297407 (0xfff8…651e), finalized #8297405 (0x5d4a…ec85), ⬇ 6.5MiB/s ⬆ 176.2kiB/s    
+2026-05-30 13:20:48.676  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297408 hash=0xe1c9f1dfdbe1aca9bc98f029b5a4ffa7c7a5657395bb9a17c32f8071efff345f parent=0xfff824888d918e32cf4d19011e733aa45b3023bb4e0ef43742fe5f8b6c25651e (local best #8297407)    
+2026-05-30 13:20:48.676  INFO tokio-runtime-worker bot::peers: block #8297408 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:20:49.055  INFO tokio-runtime-worker substrate: 🏆 Imported #8297408 (0xfff8…651e → 0xe1c9…345f)    
+2026-05-30 13:20:49.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #940800 (153 peers), best: #8297408 (0xe1c9…345f), finalized #8297405 (0x5d4a…ec85), ⬇ 8.4MiB/s ⬆ 208.9kiB/s    
+2026-05-30 13:20:54.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #945600 (153 peers), best: #8297408 (0xe1c9…345f), finalized #8297406 (0x0a25…98a2), ⬇ 5.2MiB/s ⬆ 169.8kiB/s    
+2026-05-30 13:20:59.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #951104 (153 peers), best: #8297408 (0xe1c9…345f), finalized #8297406 (0x0a25…98a2), ⬇ 5.4MiB/s ⬆ 197.1kiB/s    
+2026-05-30 13:21:01.000  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297409 hash=0xce3c2f537d07778b9f3130a276ffb272f0611b0312f644bd9ecebab883d0fb2c parent=0xe1c9f1dfdbe1aca9bc98f029b5a4ffa7c7a5657395bb9a17c32f8071efff345f (local best #8297408)    
+2026-05-30 13:21:01.000  INFO tokio-runtime-worker bot::peers: block #8297409 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:21:01.510  INFO tokio-runtime-worker substrate: 🏆 Imported #8297409 (0xe1c9…345f → 0xce3c…fb2c)    
+2026-05-30 13:21:04.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #956864 (153 peers), best: #8297409 (0xce3c…fb2c), finalized #8297407 (0xfff8…651e), ⬇ 5.4MiB/s ⬆ 190.8kiB/s    
+2026-05-30 13:21:09.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #963584 (153 peers), best: #8297409 (0xce3c…fb2c), finalized #8297407 (0xfff8…651e), ⬇ 7.3MiB/s ⬆ 108.4kiB/s    
+2026-05-30 13:21:12.596  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297410 hash=0x41cf97fd44ead5e91991f674413791028074b83b9bf1dcde77d7a493b55cc53c parent=0xce3c2f537d07778b9f3130a276ffb272f0611b0312f644bd9ecebab883d0fb2c (local best #8297409)    
+2026-05-30 13:21:12.596  INFO tokio-runtime-worker bot::peers: block #8297410 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:21:12.937  INFO tokio-runtime-worker substrate: 🏆 Imported #8297410 (0xce3c…fb2c → 0x41cf…c53c)    
+2026-05-30 13:21:14.505  INFO tokio-runtime-worker substrate: ⏩ Block history, #972224 (153 peers), best: #8297410 (0x41cf…c53c), finalized #8297408 (0xe1c9…345f), ⬇ 9.0MiB/s ⬆ 141.4kiB/s    
+2026-05-30 13:21:19.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #979072 (153 peers), best: #8297410 (0x41cf…c53c), finalized #8297408 (0xe1c9…345f), ⬇ 6.1MiB/s ⬆ 160.0kiB/s    
+2026-05-30 13:21:24.461  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297411 hash=0xf3ac6acc0fb3522a9aaa7092da25a334840c706738250e9ffc8a3ceae490d0a7 parent=0x41cf97fd44ead5e91991f674413791028074b83b9bf1dcde77d7a493b55cc53c (local best #8297410)    
+2026-05-30 13:21:24.461  INFO tokio-runtime-worker bot::peers: block #8297411 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:21:24.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #986368 (153 peers), best: #8297410 (0x41cf…c53c), finalized #8297408 (0xe1c9…345f), ⬇ 8.6MiB/s ⬆ 111.8kiB/s    
+2026-05-30 13:21:24.735  INFO tokio-runtime-worker substrate: 🏆 Imported #8297411 (0x41cf…c53c → 0xf3ac…d0a7)    
+2026-05-30 13:21:29.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #989248 (153 peers), best: #8297411 (0xf3ac…d0a7), finalized #8297409 (0xce3c…fb2c), ⬇ 3.2MiB/s ⬆ 275.9kiB/s    
+2026-05-30 13:21:34.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #996992 (153 peers), best: #8297411 (0xf3ac…d0a7), finalized #8297409 (0xce3c…fb2c), ⬇ 7.8MiB/s ⬆ 118.7kiB/s    
+2026-05-30 13:21:36.515  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297412 hash=0x58c80ca65cb7f91be4736c8d927574f36f7a0be14abd1dd4fe7c30013b93ba8c parent=0xf3ac6acc0fb3522a9aaa7092da25a334840c706738250e9ffc8a3ceae490d0a7 (local best #8297411)    
+2026-05-30 13:21:36.515  INFO tokio-runtime-worker bot::peers: block #8297412 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:21:36.843  INFO tokio-runtime-worker substrate: 🏆 Imported #8297412 (0xf3ac…d0a7 → 0x58c8…ba8c)    
+2026-05-30 13:21:39.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1005952 (153 peers), best: #8297412 (0x58c8…ba8c), finalized #8297410 (0x41cf…c53c), ⬇ 9.0MiB/s ⬆ 137.4kiB/s    
+2026-05-30 13:21:40.694  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBCNzjrJfzwrDGnGhZZAmyqqvmUkuwNp6dRwi1wcP91GK /ip4/52.43.133.81/tcp/47863/ws/p2p/12D3KooWBCNzjrJfzwrDGnGhZZAmyqqvmUkuwNp6dRwi1wcP91GK    
+2026-05-30 13:21:40.694  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBCNzjrJfzwrDGnGhZZAmyqqvmUkuwNp6dRwi1wcP91GK multiaddr=/ip4/52.43.133.81/tcp/47863/ws/p2p/12D3KooWBCNzjrJfzwrDGnGhZZAmyqqvmUkuwNp6dRwi1wcP91GK    
+2026-05-30 13:21:40.960  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBCNzjrJfzwrDGnGhZZAmyqqvmUkuwNp6dRwi1wcP91GK    
+2026-05-30 13:21:44.168  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDMAXKJZ3BfEbrPeZRS6e9hd3ARZZBrDPxU5Le41DAsWg /ip4/152.233.30.5/tcp/30333/ws/p2p/12D3KooWDMAXKJZ3BfEbrPeZRS6e9hd3ARZZBrDPxU5Le41DAsWg    
+2026-05-30 13:21:44.168  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDMAXKJZ3BfEbrPeZRS6e9hd3ARZZBrDPxU5Le41DAsWg multiaddr=/ip4/152.233.30.5/tcp/30333/ws/p2p/12D3KooWDMAXKJZ3BfEbrPeZRS6e9hd3ARZZBrDPxU5Le41DAsWg    
+2026-05-30 13:21:44.350  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDMAXKJZ3BfEbrPeZRS6e9hd3ARZZBrDPxU5Le41DAsWg    
+2026-05-30 13:21:44.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1015744 (155 peers), best: #8297412 (0x58c8…ba8c), finalized #8297410 (0x41cf…c53c), ⬇ 10.8MiB/s ⬆ 179.0kiB/s    
+2026-05-30 13:21:48.757  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297413 hash=0xd6ad14ac6f0e72f59a1dca82cd01ae3c2b23f333531252b57fb9dbcced8590a7 parent=0x58c80ca65cb7f91be4736c8d927574f36f7a0be14abd1dd4fe7c30013b93ba8c (local best #8297412)    
+2026-05-30 13:21:48.757  INFO tokio-runtime-worker bot::peers: block #8297413 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:21:49.162  INFO tokio-runtime-worker substrate: 🏆 Imported #8297413 (0x58c8…ba8c → 0xd6ad…90a7)    
+2026-05-30 13:21:49.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1026752 (155 peers), best: #8297413 (0xd6ad…90a7), finalized #8297410 (0x41cf…c53c), ⬇ 12.3MiB/s ⬆ 203.9kiB/s    
+2026-05-30 13:21:54.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1032960 (155 peers), best: #8297413 (0xd6ad…90a7), finalized #8297411 (0xf3ac…d0a7), ⬇ 7.0MiB/s ⬆ 188.5kiB/s    
+2026-05-30 13:21:59.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1040704 (155 peers), best: #8297413 (0xd6ad…90a7), finalized #8297411 (0xf3ac…d0a7), ⬇ 7.7MiB/s ⬆ 131.6kiB/s    
+2026-05-30 13:21:59.666  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRagse62CW54Exkg8TZqd6rXfSx3SYMrTgwkMbC21g56q    
+2026-05-30 13:22:00.662  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297414 hash=0xe0d399ffa5254c5363d708c9e48938c3b825553895b12d4a0dcdf4875ce976a6 parent=0xd6ad14ac6f0e72f59a1dca82cd01ae3c2b23f333531252b57fb9dbcced8590a7 (local best #8297413)    
+2026-05-30 13:22:00.662  INFO tokio-runtime-worker bot::peers: block #8297414 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:22:01.033  INFO tokio-runtime-worker substrate: 🏆 Imported #8297414 (0xd6ad…90a7 → 0xe0d3…76a6)    
+2026-05-30 13:22:04.506  INFO tokio-runtime-worker substrate: ⏩ Block history, #1044160 (156 peers), best: #8297414 (0xe0d3…76a6), finalized #8297412 (0x58c8…ba8c), ⬇ 5.1MiB/s ⬆ 192.6kiB/s    
+2026-05-30 13:22:07.173  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWSYkJjtG9ky9Kx2iirt92msk7L78e9pnvUKtFchnUfebc /ip4/3.140.248.178/tcp/13319/ws/p2p/12D3KooWSYkJjtG9ky9Kx2iirt92msk7L78e9pnvUKtFchnUfebc    
+2026-05-30 13:22:07.173  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWSYkJjtG9ky9Kx2iirt92msk7L78e9pnvUKtFchnUfebc multiaddr=/ip4/3.140.248.178/tcp/13319/ws/p2p/12D3KooWSYkJjtG9ky9Kx2iirt92msk7L78e9pnvUKtFchnUfebc    
+2026-05-30 13:22:07.360  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWSYkJjtG9ky9Kx2iirt92msk7L78e9pnvUKtFchnUfebc    
+2026-05-30 13:22:09.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1049728 (157 peers), best: #8297414 (0xe0d3…76a6), finalized #8297412 (0x58c8…ba8c), ⬇ 6.2MiB/s ⬆ 212.1kiB/s    
+2026-05-30 13:22:10.140  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-05-30 13:22:13.026  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297415 hash=0x33fe9263998cbaf21b4916bd340e3e06c5953a4078292607cdcab5f255d80068 parent=0xe0d399ffa5254c5363d708c9e48938c3b825553895b12d4a0dcdf4875ce976a6 (local best #8297414)    
+2026-05-30 13:22:13.026  INFO tokio-runtime-worker bot::peers: block #8297415 first announce from 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (exact peer id)    
+2026-05-30 13:22:13.469  INFO tokio-runtime-worker substrate: 🏆 Imported #8297415 (0xe0d3…76a6 → 0x33fe…0068)    
+2026-05-30 13:22:14.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1055104 (157 peers), best: #8297415 (0x33fe…0068), finalized #8297412 (0x58c8…ba8c), ⬇ 6.2MiB/s ⬆ 255.4kiB/s    
+2026-05-30 13:22:19.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1056384 (157 peers), best: #8297415 (0x33fe…0068), finalized #8297413 (0xd6ad…90a7), ⬇ 1.8MiB/s ⬆ 204.9kiB/s    
+2026-05-30 13:22:24.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1056384 (157 peers), best: #8297415 (0x33fe…0068), finalized #8297413 (0xd6ad…90a7), ⬇ 115.2kiB/s ⬆ 98.9kiB/s    
+2026-05-30 13:22:24.603  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297416 hash=0xb4ad43ed35787930a6f0df3a209a79cbdee121fb220cd6301dff8b463c74bdb3 parent=0x33fe9263998cbaf21b4916bd340e3e06c5953a4078292607cdcab5f255d80068 (local best #8297415)    
+2026-05-30 13:22:24.603  INFO tokio-runtime-worker bot::peers: block #8297416 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:22:25.057  INFO tokio-runtime-worker substrate: 🏆 Imported #8297416 (0x33fe…0068 → 0xb4ad…bdb3)    
+2026-05-30 13:22:29.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1059072 (157 peers), best: #8297416 (0xb4ad…bdb3), finalized #8297414 (0xe0d3…76a6), ⬇ 3.2MiB/s ⬆ 178.2kiB/s    
+2026-05-30 13:22:34.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1064896 (157 peers), best: #8297416 (0xb4ad…bdb3), finalized #8297414 (0xe0d3…76a6), ⬇ 6.7MiB/s ⬆ 164.4kiB/s    
+2026-05-30 13:22:36.760  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297417 hash=0x35a55749d21525b93c97dd9541d5774fbfdf38d31a3f8253313ca5ddf6f5a0d8 parent=0xb4ad43ed35787930a6f0df3a209a79cbdee121fb220cd6301dff8b463c74bdb3 (local best #8297416)    
+2026-05-30 13:22:36.760  INFO tokio-runtime-worker bot::peers: block #8297417 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:22:37.125  INFO tokio-runtime-worker substrate: 🏆 Imported #8297417 (0xb4ad…bdb3 → 0x35a5…a0d8)    
+2026-05-30 13:22:39.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1072064 (157 peers), best: #8297417 (0x35a5…a0d8), finalized #8297415 (0x33fe…0068), ⬇ 8.6MiB/s ⬆ 231.2kiB/s    
+2026-05-30 13:22:44.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1078016 (157 peers), best: #8297417 (0x35a5…a0d8), finalized #8297415 (0x33fe…0068), ⬇ 7.3MiB/s ⬆ 129.4kiB/s    
+2026-05-30 13:22:48.449  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297418 hash=0xda06c6d6511b04fa0725090aa0f1daf9bf7764b7c09cd11c4dbe5fd0c1925059 parent=0x35a55749d21525b93c97dd9541d5774fbfdf38d31a3f8253313ca5ddf6f5a0d8 (local best #8297417)    
+2026-05-30 13:22:48.449  INFO tokio-runtime-worker bot::peers: block #8297418 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:22:48.692  INFO tokio-runtime-worker substrate: 🏆 Imported #8297418 (0x35a5…a0d8 → 0xda06…5059)    
+2026-05-30 13:22:49.507  INFO tokio-runtime-worker substrate: ⏩ Block history, #1088384 (157 peers), best: #8297418 (0xda06…5059), finalized #8297415 (0x33fe…0068), ⬇ 10.1MiB/s ⬆ 196.0kiB/s    
+2026-05-30 13:22:54.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1099584 (157 peers), best: #8297418 (0xda06…5059), finalized #8297416 (0xb4ad…bdb3), ⬇ 15.1MiB/s ⬆ 205.3kiB/s    
+2026-05-30 13:22:59.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1105408 (157 peers), best: #8297418 (0xda06…5059), finalized #8297416 (0xb4ad…bdb3), ⬇ 7.9MiB/s ⬆ 181.3kiB/s    
+2026-05-30 13:23:00.606  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297419 hash=0xb27fec826df32b381f9fff3ba55b4590c901679ac3ff07d0e17f04d8a7af0666 parent=0xda06c6d6511b04fa0725090aa0f1daf9bf7764b7c09cd11c4dbe5fd0c1925059 (local best #8297418)    
+2026-05-30 13:23:00.606  INFO tokio-runtime-worker bot::peers: block #8297419 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:23:01.106  INFO tokio-runtime-worker substrate: 🏆 Imported #8297419 (0xda06…5059 → 0xb27f…0666)    
+2026-05-30 13:23:04.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1116224 (157 peers), best: #8297419 (0xb27f…0666), finalized #8297417 (0x35a5…a0d8), ⬇ 15.5MiB/s ⬆ 233.8kiB/s    
+2026-05-30 13:23:09.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1119552 (157 peers), best: #8297419 (0xb27f…0666), finalized #8297417 (0x35a5…a0d8), ⬇ 5.4MiB/s ⬆ 229.4kiB/s    
+2026-05-30 13:23:12.934  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297420 hash=0xd5223dfe6f5e8865cf665688f96e64394055249be65d969a9d208b419e545c9f parent=0xb27fec826df32b381f9fff3ba55b4590c901679ac3ff07d0e17f04d8a7af0666 (local best #8297419)    
+2026-05-30 13:23:12.934  INFO tokio-runtime-worker bot::peers: block #8297420 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:23:13.413  INFO tokio-runtime-worker substrate: 🏆 Imported #8297420 (0xb27f…0666 → 0xd522…5c9f)    
+2026-05-30 13:23:14.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1128320 (157 peers), best: #8297420 (0xd522…5c9f), finalized #8297417 (0x35a5…a0d8), ⬇ 11.5MiB/s ⬆ 98.5kiB/s    
+2026-05-30 13:23:17.969  INFO ThreadId(37) parity-db: Started reindex for i03-16    
+2026-05-30 13:23:19.474  INFO ThreadId(37) parity-db: Completed reindex i03-16 into i03-17    
+2026-05-30 13:23:19.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1133888 (157 peers), best: #8297420 (0xd522…5c9f), finalized #8297418 (0xda06…5059), ⬇ 7.1MiB/s ⬆ 130.8kiB/s    
+2026-05-30 13:23:24.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1139264 (157 peers), best: #8297420 (0xd522…5c9f), finalized #8297418 (0xda06…5059), ⬇ 7.0MiB/s ⬆ 147.0kiB/s    
+2026-05-30 13:23:24.881  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297421 hash=0xa2c2e0eac131fabc9f4d2c12c4d126f23ea2b026ac7eba8589173f320f862859 parent=0xd5223dfe6f5e8865cf665688f96e64394055249be65d969a9d208b419e545c9f (local best #8297420)    
+2026-05-30 13:23:24.881  INFO tokio-runtime-worker bot::peers: block #8297421 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:23:25.346  INFO tokio-runtime-worker substrate: 🏆 Imported #8297421 (0xd522…5c9f → 0xa2c2…2859)    
+2026-05-30 13:23:29.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1145344 (157 peers), best: #8297421 (0xa2c2…2859), finalized #8297419 (0xb27f…0666), ⬇ 8.1MiB/s ⬆ 204.0kiB/s    
+2026-05-30 13:23:34.508  INFO tokio-runtime-worker substrate: ⏩ Block history, #1152128 (157 peers), best: #8297421 (0xa2c2…2859), finalized #8297419 (0xb27f…0666), ⬇ 9.1MiB/s ⬆ 131.2kiB/s    
+2026-05-30 13:23:36.789  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297422 hash=0x51a08994ba04f2dd8b7c998a979a5510ccdaba1d279f5b11e705a23ae7dc7f69 parent=0xa2c2e0eac131fabc9f4d2c12c4d126f23ea2b026ac7eba8589173f320f862859 (local best #8297421)    
+2026-05-30 13:23:36.789  INFO tokio-runtime-worker bot::peers: block #8297422 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:23:37.214  INFO tokio-runtime-worker substrate: 🏆 Imported #8297422 (0xa2c2…2859 → 0x51a0…7f69)    
+2026-05-30 13:23:39.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1162496 (157 peers), best: #8297422 (0x51a0…7f69), finalized #8297420 (0xd522…5c9f), ⬇ 12.8MiB/s ⬆ 227.6kiB/s    
+2026-05-30 13:23:40.219  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCmkUVDRLHqPZt1zmJ7A9ALXBQWEr7YWt4vBK1jNXHoQA    
+2026-05-30 13:23:44.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1172160 (158 peers), best: #8297422 (0x51a0…7f69), finalized #8297420 (0xd522…5c9f), ⬇ 11.5MiB/s ⬆ 99.9kiB/s    
+2026-05-30 13:23:46.048  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFKzqFTnN5kPpxutxcHd6bnXPirGpvPEwoE3jU1hzU382    
+2026-05-30 13:23:48.758  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297423 hash=0xf02bb95ff51609bc8adf27e12a6f75f032e36daffc6f0ba6ec1b429095cce00a parent=0x51a08994ba04f2dd8b7c998a979a5510ccdaba1d279f5b11e705a23ae7dc7f69 (local best #8297422)    
+2026-05-30 13:23:48.758  INFO tokio-runtime-worker bot::peers: block #8297423 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:23:49.158  INFO tokio-runtime-worker substrate: 🏆 Imported #8297423 (0x51a0…7f69 → 0xf02b…e00a)    
+2026-05-30 13:23:49.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1183104 (159 peers), best: #8297423 (0xf02b…e00a), finalized #8297420 (0xd522…5c9f), ⬇ 13.1MiB/s ⬆ 211.0kiB/s    
+2026-05-30 13:23:54.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1192384 (159 peers), best: #8297423 (0xf02b…e00a), finalized #8297421 (0xa2c2…2859), ⬇ 12.1MiB/s ⬆ 258.3kiB/s    
+2026-05-30 13:23:59.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1205696 (159 peers), best: #8297423 (0xf02b…e00a), finalized #8297421 (0xa2c2…2859), ⬇ 14.4MiB/s ⬆ 90.2kiB/s    
+2026-05-30 13:24:01.374  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297424 hash=0x5cfa00d132b9652ea80284994741c423f6eda3a5cdbda4cad0f6dbb59756e345 parent=0xf02bb95ff51609bc8adf27e12a6f75f032e36daffc6f0ba6ec1b429095cce00a (local best #8297423)    
+2026-05-30 13:24:01.374  INFO tokio-runtime-worker bot::peers: block #8297424 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:24:01.969  INFO tokio-runtime-worker substrate: 🏆 Imported #8297424 (0xf02b…e00a → 0x5cfa…e345)    
+2026-05-30 13:24:04.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1211776 (159 peers), best: #8297424 (0x5cfa…e345), finalized #8297422 (0x51a0…7f69), ⬇ 7.6MiB/s ⬆ 189.4kiB/s    
+2026-05-30 13:24:06.046  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc    
+2026-05-30 13:24:09.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1219968 (160 peers), best: #8297424 (0x5cfa…e345), finalized #8297422 (0x51a0…7f69), ⬇ 8.9MiB/s ⬆ 131.5kiB/s    
+2026-05-30 13:24:12.801  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297425 hash=0x8c1f5cd48a5209fe7dc8a6579a6e0ab7922ba755fd0cd63e3d8aed76858c24fd parent=0x5cfa00d132b9652ea80284994741c423f6eda3a5cdbda4cad0f6dbb59756e345 (local best #8297424)    
+2026-05-30 13:24:12.801  INFO tokio-runtime-worker bot::peers: block #8297425 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:24:13.261  INFO tokio-runtime-worker substrate: 🏆 Imported #8297425 (0x5cfa…e345 → 0x8c1f…24fd)    
+2026-05-30 13:24:14.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1226112 (160 peers), best: #8297425 (0x8c1f…24fd), finalized #8297422 (0x51a0…7f69), ⬇ 5.5MiB/s ⬆ 129.1kiB/s    
+2026-05-30 13:24:19.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1232576 (160 peers), best: #8297425 (0x8c1f…24fd), finalized #8297423 (0xf02b…e00a), ⬇ 6.8MiB/s ⬆ 129.6kiB/s    
+2026-05-30 13:24:24.509  INFO tokio-runtime-worker substrate: ⏩ Block history, #1242176 (160 peers), best: #8297425 (0x8c1f…24fd), finalized #8297423 (0xf02b…e00a), ⬇ 11.7MiB/s ⬆ 103.8kiB/s    
+2026-05-30 13:24:25.354  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297426 hash=0x6103634918dce408c17ac01170f8b623d7b4c805fc520567bc86c99698ee96b5 parent=0x8c1f5cd48a5209fe7dc8a6579a6e0ab7922ba755fd0cd63e3d8aed76858c24fd (local best #8297425)    
+2026-05-30 13:24:25.354  INFO tokio-runtime-worker bot::peers: block #8297426 first announce from 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV (exact peer id)    
+2026-05-30 13:24:26.060  INFO tokio-runtime-worker substrate: 🏆 Imported #8297426 (0x8c1f…24fd → 0x6103…96b5)    
+2026-05-30 13:24:29.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1247680 (160 peers), best: #8297426 (0x6103…96b5), finalized #8297424 (0x5cfa…e345), ⬇ 7.2MiB/s ⬆ 260.2kiB/s    
+2026-05-30 13:24:34.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1250624 (160 peers), best: #8297426 (0x6103…96b5), finalized #8297424 (0x5cfa…e345), ⬇ 3.9MiB/s ⬆ 227.6kiB/s    
+2026-05-30 13:24:36.708  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297427 hash=0x0b770aad5b629e7449556b46e5cec664e6605d5145e4e8855c17fa864d9a32d9 parent=0x6103634918dce408c17ac01170f8b623d7b4c805fc520567bc86c99698ee96b5 (local best #8297426)    
+2026-05-30 13:24:36.708  INFO tokio-runtime-worker bot::peers: block #8297427 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:24:37.059  INFO tokio-runtime-worker substrate: 🏆 Imported #8297427 (0x6103…96b5 → 0x0b77…32d9)    
+2026-05-30 13:24:39.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1253504 (160 peers), best: #8297427 (0x0b77…32d9), finalized #8297425 (0x8c1f…24fd), ⬇ 3.5MiB/s ⬆ 218.0kiB/s    
+2026-05-30 13:24:44.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1258816 (160 peers), best: #8297427 (0x0b77…32d9), finalized #8297425 (0x8c1f…24fd), ⬇ 5.7MiB/s ⬆ 169.4kiB/s    
+2026-05-30 13:24:48.950  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297428 hash=0x4fd2b76aef45356d88b9b2b31a585c903274ca259e3662208f163fe4dc6937f1 parent=0x0b770aad5b629e7449556b46e5cec664e6605d5145e4e8855c17fa864d9a32d9 (local best #8297427)    
+2026-05-30 13:24:48.950  INFO tokio-runtime-worker bot::peers: block #8297428 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:24:49.412  INFO tokio-runtime-worker substrate: 🏆 Imported #8297428 (0x0b77…32d9 → 0x4fd2…37f1)    
+2026-05-30 13:24:49.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1264256 (160 peers), best: #8297428 (0x4fd2…37f1), finalized #8297425 (0x8c1f…24fd), ⬇ 5.9MiB/s ⬆ 53.5kiB/s    
+2026-05-30 13:24:53.366  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWR1qXMGtw7yozWTL8bM3DUYXy2gwXwSD4G6vUVmuHSeK7    
+2026-05-30 13:24:54.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1271808 (161 peers), best: #8297428 (0x4fd2…37f1), finalized #8297426 (0x6103…96b5), ⬇ 9.4MiB/s ⬆ 121.3kiB/s    
+2026-05-30 13:24:59.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1274688 (161 peers), best: #8297428 (0x4fd2…37f1), finalized #8297426 (0x6103…96b5), ⬇ 3.4MiB/s ⬆ 173.4kiB/s    
+2026-05-30 13:25:00.425  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297429 hash=0xd7a51f07646fcf0a69b37c6352995165178ae8bb9971a5587f7902591a5bdc09 parent=0x4fd2b76aef45356d88b9b2b31a585c903274ca259e3662208f163fe4dc6937f1 (local best #8297428)    
+2026-05-30 13:25:00.425  INFO tokio-runtime-worker bot::peers: block #8297429 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:25:00.719  INFO tokio-runtime-worker substrate: 🏆 Imported #8297429 (0x4fd2…37f1 → 0xd7a5…dc09)    
+2026-05-30 13:25:04.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1277568 (161 peers), best: #8297429 (0xd7a5…dc09), finalized #8297427 (0x0b77…32d9), ⬇ 3.7MiB/s ⬆ 137.9kiB/s    
+2026-05-30 13:25:09.510  INFO tokio-runtime-worker substrate: ⏩ Block history, #1280448 (161 peers), best: #8297429 (0xd7a5…dc09), finalized #8297427 (0x0b77…32d9), ⬇ 3.5MiB/s ⬆ 75.1kiB/s    
+2026-05-30 13:25:12.478  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297430 hash=0x7f559bad806936c318e80d889c03b9333307d44488c78dde77180ec4d57e7c7a parent=0xd7a51f07646fcf0a69b37c6352995165178ae8bb9971a5587f7902591a5bdc09 (local best #8297429)    
+2026-05-30 13:25:12.478  INFO tokio-runtime-worker bot::peers: block #8297430 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:25:12.747  INFO tokio-runtime-worker substrate: 🏆 Imported #8297430 (0xd7a5…dc09 → 0x7f55…7c7a)    
+2026-05-30 13:25:14.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1280448 (161 peers), best: #8297430 (0x7f55…7c7a), finalized #8297428 (0x4fd2…37f1), ⬇ 216.2kiB/s ⬆ 159.1kiB/s    
+2026-05-30 13:25:19.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1285760 (161 peers), best: #8297430 (0x7f55…7c7a), finalized #8297428 (0x4fd2…37f1), ⬇ 6.0MiB/s ⬆ 78.3kiB/s    
+2026-05-30 13:25:24.389  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297431 hash=0xb065dffd002f8c77bf6cef9d6fa634b22f38ab9c7038fde9be082c394afafff3 parent=0x7f559bad806936c318e80d889c03b9333307d44488c78dde77180ec4d57e7c7a (local best #8297430)    
+2026-05-30 13:25:24.389  INFO tokio-runtime-worker bot::peers: block #8297431 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:25:24.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1286208 (161 peers), best: #8297430 (0x7f55…7c7a), finalized #8297428 (0x4fd2…37f1), ⬇ 1.2MiB/s ⬆ 122.1kiB/s    
+2026-05-30 13:25:24.634  INFO tokio-runtime-worker substrate: 🏆 Imported #8297431 (0x7f55…7c7a → 0xb065…fff3)    
+2026-05-30 13:25:29.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1286208 (161 peers), best: #8297431 (0xb065…fff3), finalized #8297429 (0xd7a5…dc09), ⬇ 243.9kiB/s ⬆ 296.4kiB/s    
+2026-05-30 13:25:34.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1289088 (161 peers), best: #8297431 (0xb065…fff3), finalized #8297429 (0xd7a5…dc09), ⬇ 3.3MiB/s ⬆ 67.8kiB/s    
+2026-05-30 13:25:36.418  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA3Xa7UN9N4kcB5KSyQptbbgdCa1xXT4dsdJuJgNjhsrh    
+2026-05-30 13:25:36.621  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297432 hash=0xacf437ba97e7c047e2259a3663bb91f12b10b6477d3e39b921ce99de5e42c0d6 parent=0xb065dffd002f8c77bf6cef9d6fa634b22f38ab9c7038fde9be082c394afafff3 (local best #8297431)    
+2026-05-30 13:25:36.621  INFO tokio-runtime-worker bot::peers: block #8297432 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:25:36.967  INFO tokio-runtime-worker substrate: 🏆 Imported #8297432 (0xb065…fff3 → 0xacf4…c0d6)    
+2026-05-30 13:25:39.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1294592 (162 peers), best: #8297432 (0xacf4…c0d6), finalized #8297430 (0x7f55…7c7a), ⬇ 6.3MiB/s ⬆ 218.9kiB/s    
+2026-05-30 13:25:44.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1300160 (162 peers), best: #8297432 (0xacf4…c0d6), finalized #8297430 (0x7f55…7c7a), ⬇ 6.5MiB/s ⬆ 97.2kiB/s    
+2026-05-30 13:25:48.285  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297433 hash=0xa7b71abdf56ce7357cd90d0204533a2073709bdfa0c6ddfa89ca09fd3e3c6f51 parent=0xacf437ba97e7c047e2259a3663bb91f12b10b6477d3e39b921ce99de5e42c0d6 (local best #8297432)    
+2026-05-30 13:25:48.285  INFO tokio-runtime-worker bot::peers: block #8297433 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:25:48.545  INFO tokio-runtime-worker substrate: 🏆 Imported #8297433 (0xacf4…c0d6 → 0xa7b7…6f51)    
+2026-05-30 13:25:49.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1310016 (162 peers), best: #8297433 (0xa7b7…6f51), finalized #8297430 (0x7f55…7c7a), ⬇ 11.2MiB/s ⬆ 118.2kiB/s    
+2026-05-30 13:25:52.289  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-05-30 13:25:53.717  WARN tokio-runtime-worker sub-libp2p::peerstore: Report 12D3KooWDRDv6ztaK6XJMKumQDC22L5zXVdfytnzt39aKYL8fGVr: -2147483648 to -2147483648. Reason: Genesis mismatch. Banned, disconnecting.    
+2026-05-30 13:25:54.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1315904 (163 peers), best: #8297433 (0xa7b7…6f51), finalized #8297431 (0xb065…fff3), ⬇ 6.7MiB/s ⬆ 154.7kiB/s    
+2026-05-30 13:25:59.511  INFO tokio-runtime-worker substrate: ⏩ Block history, #1327488 (163 peers), best: #8297433 (0xa7b7…6f51), finalized #8297431 (0xb065…fff3), ⬇ 13.2MiB/s ⬆ 105.5kiB/s    
+2026-05-30 13:26:00.761  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297434 hash=0x9832ee8a6ce6096f8b0ac684d5b2b45148007ae61896aa12d1f5aec47ff1185a parent=0xa7b71abdf56ce7357cd90d0204533a2073709bdfa0c6ddfa89ca09fd3e3c6f51 (local best #8297433)    
+2026-05-30 13:26:00.761  INFO tokio-runtime-worker bot::peers: block #8297434 first announce from 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP (exact peer id)    
+2026-05-30 13:26:01.161  INFO tokio-runtime-worker substrate: 🏆 Imported #8297434 (0xa7b7…6f51 → 0x9832…185a)    
+2026-05-30 13:26:04.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1334400 (162 peers), best: #8297434 (0x9832…185a), finalized #8297432 (0xacf4…c0d6), ⬇ 7.5MiB/s ⬆ 267.5kiB/s    
+2026-05-30 13:26:07.115  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-05-30 13:26:09.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1339840 (163 peers), best: #8297434 (0x9832…185a), finalized #8297432 (0xacf4…c0d6), ⬇ 6.8MiB/s ⬆ 119.7kiB/s    
+2026-05-30 13:26:11.178  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJeVh9GMDCjD2oaNrcTm7R15WmLhE8N9H3xdiLMN94hs6    
+2026-05-30 13:26:12.685  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297435 hash=0x299165e69726d5c06bab59ef68ce4157837ae75304dd6253e0c6e56722ede7a3 parent=0x9832ee8a6ce6096f8b0ac684d5b2b45148007ae61896aa12d1f5aec47ff1185a (local best #8297434)    
+2026-05-30 13:26:12.685  INFO tokio-runtime-worker bot::peers: block #8297435 first announce from 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 (exact peer id)    
+2026-05-30 13:26:13.023  INFO tokio-runtime-worker substrate: 🏆 Imported #8297435 (0x9832…185a → 0x2991…e7a3)    
+2026-05-30 13:26:14.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1348096 (164 peers), best: #8297435 (0x2991…e7a3), finalized #8297432 (0xacf4…c0d6), ⬇ 8.4MiB/s ⬆ 341.1kiB/s    
+2026-05-30 13:26:18.246  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWAH4pMu5rEZuVkP9hD9jnLgo4kdD69p8wZem9f9VWweo8    
+2026-05-30 13:26:19.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1353856 (165 peers), best: #8297435 (0x2991…e7a3), finalized #8297433 (0xa7b7…6f51), ⬇ 6.3MiB/s ⬆ 140.3kiB/s    
+2026-05-30 13:26:24.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1364992 (165 peers), best: #8297435 (0x2991…e7a3), finalized #8297433 (0xa7b7…6f51), ⬇ 11.5MiB/s ⬆ 68.3kiB/s    
+2026-05-30 13:26:24.547  INFO tokio-runtime-worker bot::announce: first announce detected: block #8297436 hash=0xd2443abd5b7be990c1467c9a79c5a4d1403d89f00c70a80f4063a442c91b6aa8 parent=0x299165e69726d5c06bab59ef68ce4157837ae75304dd6253e0c6e56722ede7a3 (local best #8297435)    
+2026-05-30 13:26:24.547  INFO tokio-runtime-worker bot::peers: block #8297436 first announce from 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g (exact peer id)    
+2026-05-30 13:26:24.903  INFO tokio-runtime-worker substrate: 🏆 Imported #8297436 (0x2991…e7a3 → 0xd244…6aa8)    
+2026-05-30 13:26:29.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1373568 (165 peers), best: #8297436 (0xd244…6aa8), finalized #8297434 (0x9832…185a), ⬇ 10.7MiB/s ⬆ 149.6kiB/s    
+2026-05-30 13:26:34.512  INFO tokio-runtime-worker substrate: ⏩ Block history, #1381632 (165 peers), best: #8297436 (0xd244…6aa8), finalized #8297434 (0x9832…185a), ⬇ 9.2MiB/s ⬆ 116.7kiB/s    
