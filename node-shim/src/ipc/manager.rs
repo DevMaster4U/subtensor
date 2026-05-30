@@ -261,15 +261,6 @@ impl IpcManager {
     }
 
     pub fn notify_find_peer(&self, peer_id: String, multiaddr: String) {
-        let peer_log_on = self
-            .peer_manager
-            .try_lock()
-            .ok()
-            .and_then(|guard| guard.as_ref().map(|pm| pm.peer_log_enabled()))
-            .unwrap_or(false);
-        if !peer_log_on {
-            return;
-        }
         log::info!(
             target: "bot::ipc",
             "notify bot: find_peer peer_id={peer_id} multiaddr={multiaddr}",

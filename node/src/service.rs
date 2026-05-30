@@ -459,9 +459,19 @@ where
         network.clone(),
         network.clone(),
         network.clone(),
+        network.clone(),
         block_announces_protocol.clone(),
         transactions_protocol.clone(),
     ));
+    peer_manager.preload_peer_addresses(reserved_nodes.iter().cloned());
+    if let Ok(n) = peer_manager.preload_peer_addresses_from_file("reserved.txt") {
+        if n > 0 {
+            log::info!(
+                target: "bot::peer_manage",
+                "preloaded {n} dialable peer address(es) from reserved.txt",
+            );
+        }
+    }
     peer_manager.clone().start(task_manager.spawn_handle());
     peer_manager.set_ipc(ipc_manager.clone());
 

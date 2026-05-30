@@ -10,13 +10,19 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use futures::StreamExt;
 use node_subtensor_runtime::opaque::Block;
 use sc_network::config::MultiaddrWithPeerId;
-use sc_network::{Event, NetworkEventStream, NetworkPeers, NetworkStatusProvider, PeerId, ProtocolName};
-use sc_network_sync::SyncingService;
+use sc_network::{
+    event::{DhtEvent, Event},
+    service::traits::NetworkDHTProvider,
+    NetworkEventStream, NetworkPeers, NetworkStatusProvider, PeerId, ProtocolName,
+};
+use sc_network_sync::{SyncEvent, SyncEventStream, SyncingService};
 use sc_service::SpawnTaskHandle;
 use subtensor_ipc::PeerManageMode;
 
 use crate::ipc::IpcManager;
-use crate::peers::{parse_reserved_peers_file, connected_peer_addresses, ConnectedSnapshot, peer_is_connected};
+use crate::peers::{
+    connected_peer_addresses, parse_reserved_peers_file, ConnectedSnapshot, peer_is_connected,
+};
 
 /// Status snapshot for RPC.
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -91,7 +97,10 @@ pub struct PeerManager {
     peer_log_enabled: AtomicBool,
     peer_log_path: RwLock<Option<String>>,
     logged_peers: RwLock<HashSet<PeerId>>,
+    /// Dialable multiaddrs indexed by peer id (custom/system peers, DHT, libp2p network_state).
+    peer_addresses: RwLock<HashMap<PeerId, String>>,
     network_events: Arc<dyn NetworkEventStream + Send + Sync>,
+    dht: Arc<dyn NetworkDHTProvider + Send + Sync>,
     ipc: RwLock<Option<Arc<IpcManager>>>,
 }
 
@@ -101,6 +110,7 @@ impl PeerManager {
         network: Arc<dyn NetworkPeers + Send + Sync>,
         network_status: Arc<dyn NetworkStatusProvider + Send + Sync>,
         network_events: Arc<dyn NetworkEventStream + Send + Sync>,
+        dht: Arc<dyn NetworkDHTProvider + Send + Sync>,
         block_announces_protocol: ProtocolName,
         transactions_protocol: ProtocolName,
     ) -> Self {
@@ -109,6 +119,7 @@ impl PeerManager {
             network,
             network_status,
             network_events,
+            dht,
             block_announces_protocol,
             transactions_protocol,
             custom_peers: Arc::new(RwLock::new(Vec::new())),
@@ -125,8 +136,19 @@ impl PeerManager {
             peer_log_enabled: AtomicBool::new(false),
             peer_log_path: RwLock::new(None),
             logged_peers: RwLock::new(HashSet::new()),
+            peer_addresses: RwLock::new(HashMap::new()),
             ipc: RwLock::new(None),
         }
+    }
+
+    fn record_peer_address(&self, peer_id: PeerId, multiaddr: String) {
+        if !crate::peers::is_dialable_multiaddr(&multiaddr) {
+            return;
+        }
+        self.peer_addresses
+            .write()
+            .expect("poisoned")
+            .insert(peer_id, multiaddr);
     }
 
     pub fn set_ipc(&self, ipc: Arc<IpcManager>) {
@@ -146,7 +168,132 @@ impl PeerManager {
         let path = path.unwrap_or_else(|| "peer_log.txt".into());
         *self.peer_log_path.write().expect("poisoned") = Some(path.clone());
         self.peer_log_enabled.store(true, Ordering::SeqCst);
+        for candidate in ["reserved.txt", "bot/reserved.txt"] {
+            match self.preload_peer_addresses_from_file(candidate) {
+                Ok(n) if n > 0 => {
+                    log::info!(
+                        target: "bot::peer_manage",
+                        "peer log enabled: {path} (preloaded {n} address(es) from {candidate})",
+                    );
+                    return;
+                }
+                Ok(_) => {}
+                Err(e) => log::debug!(
+                    target: "bot::peer_manage",
+                    "peer log preload {candidate}: {e}",
+                ),
+            }
+        }
         log::info!(target: "bot::peer_manage", "peer log enabled: {path}");
+    }
+
+    /// Index dialable multiaddrs from a reserved-peer file (no connections opened).
+    pub fn preload_peer_addresses_from_file(&self, path: &str) -> Result<u32, String> {
+        let peers = parse_reserved_peers_file(path)?;
+        Ok(self.preload_peer_addresses(peers))
+    }
+
+    /// Index dialable multiaddrs for later peer-log / find_peer resolution.
+    pub fn preload_peer_addresses(&self, peers: impl IntoIterator<Item = MultiaddrWithPeerId>) -> u32 {
+        let mut count = 0u32;
+        for peer in peers {
+            let peer_id: PeerId = peer.peer_id.into();
+            let addr = String::from(peer.clone());
+            if crate::peers::is_dialable_multiaddr(&addr) {
+                self.record_peer_address(peer_id, addr);
+                count += 1;
+            }
+        }
+        count
+    }
+
+    fn lookup_registered_multiaddr(&self, peer_id: &PeerId) -> Option<String> {
+        if let Some(addr) = self.peer_addresses.read().expect("poisoned").get(peer_id) {
+            if crate::peers::is_dialable_multiaddr(addr) {
+                return Some(addr.clone());
+            }
+        }
+        for peer in self
+            .custom_peers
+            .read()
+            .expect("poisoned")
+            .iter()
+            .chain(self.system_targets.read().expect("poisoned").iter())
+        {
+            if PeerId::from(peer.peer_id) == *peer_id {
+                let addr = String::from(peer.clone());
+                if crate::peers::is_dialable_multiaddr(&addr) {
+                    self.record_peer_address(*peer_id, addr.clone());
+                    return Some(addr);
+                }
+            }
+        }
+        None
+    }
+
+    async fn resolve_peer_multiaddr(&self, peer_id: &PeerId) -> Option<String> {
+        if let Some(addr) = self.lookup_registered_multiaddr(peer_id) {
+            return Some(addr);
+        }
+        self.dht.find_closest_peers(*peer_id);
+        let started = Instant::now();
+        while started.elapsed() < Duration::from_secs(15) {
+            if let Some(addr) = self.lookup_registered_multiaddr(peer_id) {
+                return Some(addr);
+            }
+            let id = peer_id.to_base58();
+            if let Some(addr) = connected_peer_addresses(self.network_status.as_ref())
+                .await
+                .get(&id)
+            {
+                if crate::peers::is_dialable_multiaddr(addr) {
+                    self.record_peer_address(*peer_id, addr.clone());
+                    return Some(addr.clone());
+                }
+            }
+            tokio::time::sleep(Duration::from_millis(500)).await;
+        }
+        None
+    }
+
+    async fn log_peer_when_resolved(self: Arc<Self>, remote: PeerId, kind: String, path: String) {
+        let peer_id = remote.to_base58();
+        let Some(multiaddr) = self.resolve_peer_multiaddr(&remote).await else {
+            log::debug!(
+                target: "bot::peer_manage",
+                "peer log skipped (no dialable multiaddr): {peer_id}",
+            );
+            return;
+        };
+        {
+            let mut seen = self.logged_peers.write().expect("poisoned");
+            if !seen.insert(remote) {
+                return;
+            }
+        }
+        let line = format!(
+            "{} {kind} {peer_id} {multiaddr}\n",
+            peer_log_timestamp(),
+        );
+        match OpenOptions::new().create(true).append(true).open(&path) {
+            Ok(mut file) => {
+                if file.write_all(line.as_bytes()).is_err() {
+                    log::warn!(target: "bot::peer_manage", "failed to write peer log {path}");
+                    return;
+                }
+            }
+            Err(e) => {
+                log::warn!(target: "bot::peer_manage", "failed to open peer log {path}: {e}");
+                return;
+            }
+        }
+        log::info!(
+            target: "bot::peer_manage",
+            "logged new peer ({kind}): {peer_id} {multiaddr}",
+        );
+        if let Some(ipc) = self.ipc.read().expect("poisoned").clone() {
+            ipc.notify_find_peer(peer_id, multiaddr);
+        }
     }
 
     pub fn disable_log_peer(&self) {
@@ -228,6 +375,9 @@ impl PeerManager {
     pub fn set_system_targets(&self, peers: Vec<MultiaddrWithPeerId>) {
         let count = peers.len();
         let peer_ids: HashSet<PeerId> = peers.iter().map(|p| p.peer_id.into()).collect();
+        for peer in &peers {
+            self.record_peer_address(peer.peer_id.into(), String::from(peer.clone()));
+        }
         *self.system_targets.write().expect("poisoned") = peers;
         let mut network_reserved = peer_ids.clone();
         network_reserved.extend(self.custom_peer_ids.read().expect("poisoned").iter().copied());
@@ -291,6 +441,7 @@ impl PeerManager {
             }
         }
         self.custom_peer_ids.write().expect("poisoned").insert(peer_id);
+        self.record_peer_address(peer_id, String::from(peer.clone()));
         self.generation.fetch_add(1, Ordering::SeqCst);
         self.skip_until.write().expect("poisoned").remove(&peer_id);
 
@@ -439,10 +590,37 @@ impl PeerManager {
         spawn_handle.spawn("bot-peer-log", None, async move {
             log.run_peer_log().await;
         });
+        let cache = Arc::clone(&self);
+        spawn_handle.spawn("bot-peer-address-cache", None, async move {
+            cache.run_peer_address_cache().await;
+        });
+    }
+
+    async fn run_peer_address_cache(self: Arc<Self>) {
+        let mut events = self.network_events.event_stream("bot-peer-address-cache");
+        loop {
+            let Some(event) = events.next().await else {
+                break;
+            };
+            let Event::Dht(DhtEvent::ClosestPeersFound(_, peers)) = event else {
+                continue;
+            };
+            let mut cache = self.peer_addresses.write().expect("poisoned");
+            for (peer_id, addrs) in peers {
+                if let Some(addr) = addrs.first() {
+                    let addr = addr.to_string();
+                    if crate::peers::is_dialable_multiaddr(&addr) {
+                        cache.insert(peer_id, addr);
+                    }
+                }
+            }
+        }
     }
 
     async fn run_peer_log(self: Arc<Self>) {
-        let mut events = self.network_events.event_stream("bot-peer-log");
+        // Sync peer-connected events work with both libp2p and litep2p backends.
+        // `NetworkEventStream::NotificationStreamOpened` is not emitted on litep2p.
+        let mut events = self.sync.event_stream("bot-peer-log");
         loop {
             let Some(event) = events.next().await else {
                 break;
@@ -450,17 +628,12 @@ impl PeerManager {
             if !self.peer_log_enabled.load(Ordering::SeqCst) {
                 continue;
             }
-            let Event::NotificationStreamOpened { remote, protocol, .. } = event else {
+            let SyncEvent::PeerConnected(remote) = event else {
                 continue;
             };
-            if protocol != self.block_announces_protocol
-                && protocol != self.transactions_protocol
             {
-                continue;
-            }
-            {
-                let mut seen = self.logged_peers.write().expect("poisoned");
-                if !seen.insert(remote) {
+                let seen = self.logged_peers.read().expect("poisoned");
+                if seen.contains(&remote) {
                     continue;
                 }
             }
@@ -469,40 +642,11 @@ impl PeerManager {
                 None => continue,
             };
             let custom = self.custom_peer_ids.read().expect("poisoned").contains(&remote);
-            let kind = if custom { "custom" } else { "normal" };
-            let line = format!(
-                "{} {kind} {}\n",
-                peer_log_timestamp(),
-                remote.to_base58(),
-            );
-            match OpenOptions::new().create(true).append(true).open(&path) {
-                Ok(mut file) => {
-                    if file.write_all(line.as_bytes()).is_err() {
-                        log::warn!(target: "bot::peer_manage", "failed to write peer log {path}");
-                    }
-                }
-                Err(e) => {
-                    log::warn!(target: "bot::peer_manage", "failed to open peer log {path}: {e}");
-                }
-            }
-            log::info!(
-                target: "bot::peer_manage",
-                "logged new peer ({kind}): {}",
-                remote.to_base58(),
-            );
-
-            if let Some(ipc) = self.ipc.read().expect("poisoned").clone() {
-                let network_status = Arc::clone(&self.network_status);
-                let peer_id = remote.to_base58();
-                tokio::spawn(async move {
-                    let multiaddr = connected_peer_addresses(network_status.as_ref())
-                        .await
-                        .get(&peer_id)
-                        .cloned()
-                        .unwrap_or_else(|| format!("/p2p/{peer_id}"));
-                    ipc.notify_find_peer(peer_id, multiaddr);
-                });
-            }
+            let kind = if custom { "custom" } else { "normal" }.to_string();
+            let slf = Arc::clone(&self);
+            tokio::spawn(async move {
+                slf.log_peer_when_resolved(remote, kind, path).await;
+            });
         }
     }
 
@@ -560,6 +704,7 @@ impl PeerManager {
         let mut all_ok = before.custom_not_connected == 0;
         for peer in targets {
             let peer_id: PeerId = peer.peer_id.into();
+            self.record_peer_address(peer_id, String::from(peer.clone()));
             let connected = peer_is_connected(&snapshot, &peer_id);
             let sync = snapshot.sync_peers.contains(&peer_id);
             let tx_registered = self
@@ -654,6 +799,7 @@ impl PeerManager {
         }
         match self.network.add_reserved_peer(peer.clone()) {
             Ok(()) => {
+                self.record_peer_address(peer_id, String::from(peer.clone()));
                 self.network_reserved
                     .write()
                     .expect("poisoned")

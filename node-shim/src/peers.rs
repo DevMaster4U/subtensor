@@ -323,6 +323,14 @@ pub async fn connected_peer_addresses(
         .collect()
 }
 
+pub(crate) fn is_dialable_multiaddr(multiaddr: &str) -> bool {
+    multiaddr.contains("/ip4/")
+        || multiaddr.contains("/ip6/")
+        || multiaddr.contains("/dns/")
+        || multiaddr.contains("/dns4/")
+        || multiaddr.contains("/dns6/")
+}
+
 pub fn parse_reserved_peers_file(path: &str) -> Result<Vec<sc_network::config::MultiaddrWithPeerId>, String> {
     use sc_network::config::MultiaddrWithPeerId;
 
