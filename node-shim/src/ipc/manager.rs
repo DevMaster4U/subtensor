@@ -3,8 +3,9 @@
 
 use std::collections::HashMap;
 use std::path::Path;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
+use std::time::Duration;
 
 use codec::Decode;
 use futures::FutureExt;
@@ -13,7 +14,7 @@ use sc_service::TaskManager;
 use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool};
 use sp_core::H256;
 use sp_runtime::OpaqueExtrinsic;
-use subtensor_ipc::{decode_frame, encode_frame, DEFAULT_SOCKET_PATH, IpcMessage};
+use subtensor_ipc::{decode_frame, encode_frame, IpcMessage};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixListener, UnixStream};
 use tokio::sync::{mpsc, watch, Mutex};
@@ -94,10 +95,13 @@ impl MempoolIpcControl {
 
 struct IpcManagerConfigInner {
     socket_path: RwLock<String>,
-    path_notify: watch::Sender<()>,
+    /// Incremented on each `start_ipc`; the server rebinds when this changes.
+    generation: AtomicU64,
+    generation_notify: watch::Sender<u64>,
+    bound: AtomicBool,
 }
 
-/// Shared IPC socket path; initial value from `SUBTENSOR_IPC_PATH` or default.
+/// Shared IPC socket path; bind is deferred until [`Self::start_ipc`] is called.
 #[derive(Clone)]
 pub struct IpcManagerConfig {
     inner: Arc<IpcManagerConfigInner>,
@@ -105,13 +109,13 @@ pub struct IpcManagerConfig {
 
 impl Default for IpcManagerConfig {
     fn default() -> Self {
-        let path = std::env::var("SUBTENSOR_IPC_PATH")
-            .unwrap_or_else(|_| DEFAULT_SOCKET_PATH.into());
-        let (path_notify, _) = watch::channel(());
+        let (generation_notify, _) = watch::channel(0u64);
         Self {
             inner: Arc::new(IpcManagerConfigInner {
-                socket_path: RwLock::new(path),
-                path_notify,
+                socket_path: RwLock::new(String::new()),
+                generation: AtomicU64::new(0),
+                generation_notify,
+                bound: AtomicBool::new(false),
             }),
         }
     }
@@ -126,30 +130,65 @@ impl IpcManagerConfig {
             .clone()
     }
 
-    /// Update the IPC socket path and signal the listener to rebind.
-    pub fn set_socket_path(&self, path: String) -> Result<String, String> {
+    pub fn is_listening(&self) -> bool {
+        self.inner.bound.load(Ordering::SeqCst)
+    }
+
+    pub fn is_started(&self) -> bool {
+        self.inner.generation.load(Ordering::SeqCst) > 0
+    }
+
+    /// Start or restart the IPC listener on `path` (creates parent dirs if needed).
+    pub fn start_ipc(&self, path: String) -> Result<String, String> {
         let path = path.trim().to_string();
         if path.is_empty() {
             return Err("ipc path must not be empty".into());
         }
+        ensure_socket_parent(&path)?;
         {
             let mut guard = self
                 .inner
                 .socket_path
                 .write()
                 .expect("ipc socket_path lock poisoned");
-            if *guard == path {
-                return Ok(path);
-            }
             *guard = path.clone();
         }
-        let _ = self.inner.path_notify.send(());
+        let generation = self.inner.generation.fetch_add(1, Ordering::SeqCst) + 1;
+        self.inner.bound.store(false, Ordering::SeqCst);
+        let _ = self.inner.generation_notify.send(generation);
         Ok(path)
     }
 
-    fn path_notify(&self) -> watch::Receiver<()> {
-        self.inner.path_notify.subscribe()
+    fn set_bound(&self, bound: bool) {
+        self.inner.bound.store(bound, Ordering::SeqCst);
     }
+
+    fn generation(&self) -> u64 {
+        self.inner.generation.load(Ordering::SeqCst)
+    }
+
+    fn generation_notify(&self) -> watch::Receiver<u64> {
+        self.inner.generation_notify.subscribe()
+    }
+}
+
+fn ensure_socket_parent(path: &str) -> Result<(), String> {
+    if let Some(parent) = Path::new(path).parent() {
+        if !parent.as_os_str().is_empty() {
+            std::fs::create_dir_all(parent).map_err(|e| {
+                format!("create socket directory {}: {e}", parent.display())
+            })?;
+        }
+    }
+    Ok(())
+}
+
+fn prepare_and_bind(path: &str) -> Result<UnixListener, String> {
+    ensure_socket_parent(path)?;
+    if Path::new(path).exists() {
+        std::fs::remove_file(path).map_err(|e| format!("remove old socket {path}: {e}"))?;
+    }
+    UnixListener::bind(path).map_err(|e| format!("bind unix socket {path}: {e}"))
 }
 
 struct ClientSession {
@@ -339,9 +378,7 @@ impl IpcManager {
     {
         task_manager.spawn_handle().spawn("bot-ipc-manager", None, {
             async move {
-                if let Err(e) = run_ipc_server(self, pool, config, best_hash).await {
-                    log::error!(target: "bot::ipc", "IPC server error: {e}");
-                }
+                run_ipc_server(self, pool, config, best_hash).await;
             }
             .boxed()
         });
@@ -353,8 +390,7 @@ async fn run_ipc_server<P>(
     pool: Arc<P>,
     config: IpcManagerConfig,
     best_hash: Arc<dyn Fn() -> H256 + Send + Sync>,
-) -> Result<(), String>
-where
+) where
     P: TransactionPool<Block = Block, Hash = H256>
         + LocalTransactionPool<Block = Block, Hash = H256>
         + 'static,
@@ -362,27 +398,65 @@ where
     let (incoming_tx, mut incoming_rx) =
         mpsc::unbounded_channel::<(u64, IpcMessage, mpsc::UnboundedSender<Result<(), String>>)>();
     let mut next_id = 0u64;
-    let mut path_rx = config.path_notify();
+    let mut gen_rx = config.generation_notify();
+    let mut active_generation = 0u64;
 
-    loop {
-        let path = config.socket_path();
-        if Path::new(&path).exists() {
-            std::fs::remove_file(&path).map_err(|e| format!("remove old socket {path}: {e}"))?;
+    'rebind: loop {
+        while active_generation == 0 {
+            if gen_rx.changed().await.is_err() {
+                return;
+            }
+            active_generation = *gen_rx.borrow();
         }
 
-        let listener = UnixListener::bind(&path)
-            .map_err(|e| format!("bind unix socket {path}: {e}"))?;
+        let path = config.socket_path();
+        config.set_bound(false);
+
+        let listener = loop {
+            match prepare_and_bind(&path) {
+                Ok(listener) => break listener,
+                Err(e) => {
+                    log::error!(
+                        target: "bot::ipc",
+                        "{e}; retrying in 3s",
+                    );
+                    tokio::time::sleep(Duration::from_secs(3)).await;
+                    if config.generation() != active_generation {
+                        continue 'rebind;
+                    }
+                }
+            }
+        };
+        if config.generation() != active_generation {
+            continue 'rebind;
+        }
+
+        config.set_bound(true);
         log::info!(target: "bot::ipc", "IPC listening on {path}");
+        let bound_generation = active_generation;
 
         loop {
             tokio::select! {
-                changed = path_rx.changed() => {
-                    changed.map_err(|e| format!("ipc path watch: {e}"))?;
-                    log::info!(target: "bot::ipc", "IPC path change requested, rebinding");
-                    break;
+                changed = gen_rx.changed() => {
+                    if changed.is_err() {
+                        config.set_bound(false);
+                        return;
+                    }
+                    if *gen_rx.borrow() != bound_generation {
+                        log::info!(target: "bot::ipc", "IPC restart requested, rebinding");
+                        config.set_bound(false);
+                        active_generation = *gen_rx.borrow();
+                        break;
+                    }
                 }
                 accept = listener.accept() => {
-                    let (stream, _) = accept.map_err(|e| format!("accept: {e}"))?;
+                    let (stream, _) = match accept {
+                        Ok(v) => v,
+                        Err(e) => {
+                            log::error!(target: "bot::ipc", "accept error: {e}");
+                            continue;
+                        }
+                    };
                     next_id += 1;
                     let id = next_id;
                     let (client_tx, client_rx) = mpsc::unbounded_channel();

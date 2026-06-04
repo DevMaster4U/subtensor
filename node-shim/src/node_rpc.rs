@@ -23,6 +23,7 @@ use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagat
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeStatus {
     pub socket_path: String,
+    pub ipc_listening: bool,
     pub block_announce_ipc: bool,
     pub mempool_ipc: bool,
     pub mempool_watcher: bool,
@@ -162,9 +163,9 @@ pub trait NodeControlApi {
     #[method(name = "node_ipcStatus")]
     fn ipc_status(&self) -> RpcResult<NodeStatus>;
 
-    /// Update the Unix socket path for bot IPC (`SUBTENSOR_IPC_PATH`); rebinds the listener.
-    #[method(name = "node_setIpcPath")]
-    fn set_ipc_path(&self, path: String) -> RpcResult<String>;
+    /// Start or restart the Unix socket IPC listener on `path`.
+    #[method(name = "node_startIpc")]
+    fn start_ipc(&self, path: String) -> RpcResult<String>;
 }
 
 pub struct NodeControlRpc {
@@ -224,6 +225,7 @@ impl NodeControlRpc {
         let (announce_filter_type, announce_filter_value) = self.announce_filter.describe();
         NodeStatus {
             socket_path: self.ipc_config.socket_path(),
+            ipc_listening: self.ipc_config.is_listening(),
             block_announce_ipc: self.block_announce_ipc.is_enabled(),
             mempool_ipc: self.mempool_ipc.is_enabled(),
             mempool_watcher: self.mempool_watcher.is_running(),
@@ -250,9 +252,9 @@ impl NodeControlApiServer for NodeControlRpc {
         self.status()
     }
 
-    fn set_ipc_path(&self, path: String) -> RpcResult<String> {
+    fn start_ipc(&self, path: String) -> RpcResult<String> {
         self.ipc_config
-            .set_socket_path(path)
+            .start_ipc(path)
             .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
     }
 
