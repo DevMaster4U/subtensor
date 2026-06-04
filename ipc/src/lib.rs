@@ -8,7 +8,7 @@
 //! | `mempool` | node → bot | Pool import notification (`info` = JSON object string) |
 //! | `find_peer` | node → bot | Discovered peer (`peer_id` + `multiaddr`) |
 //! | `transaction` | bot → node | Submit tx (`extrinsic` = client-validated inner hex, or legacy `hash` wire hex) |
-//! | `set_announce` | bot → node | Per-client announce filter (`announce_type`, `value`) |
+//! | `set_announce` | bot → node | **Deprecated** — use `node_setAnnounceFilter` RPC |
 //! | `set_require_mempool` | bot → node | Opt in to mempool notifications |
 //! | `set_require_peer_find` | bot → node | Opt in to peer-find notifications (when node peer log is on) |
 

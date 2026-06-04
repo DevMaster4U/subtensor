@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, RwLock};
 
 use codec::Decode;
 use futures::FutureExt;
@@ -16,9 +16,11 @@ use sp_runtime::OpaqueExtrinsic;
 use subtensor_ipc::{decode_frame, encode_frame, DEFAULT_SOCKET_PATH, IpcMessage};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixListener, UnixStream};
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{mpsc, watch, Mutex};
 
 use super::client_config::ClientConfig;
+use crate::announce_filter::AnnounceFilterControl;
+use crate::metrics_log::TxInclusionTracker;
 use crate::peer_manage::PeerManager;
 use crate::propagation_tracker::PropagationTracker;
 use crate::transact::TxPropagator;
@@ -90,24 +92,63 @@ impl MempoolIpcControl {
     }
 }
 
-pub struct IpcManagerConfig {
-    pub socket_path: String,
+struct IpcManagerConfigInner {
+    socket_path: RwLock<String>,
+    path_notify: watch::Sender<()>,
 }
 
-impl Clone for IpcManagerConfig {
-    fn clone(&self) -> Self {
-        Self {
-            socket_path: self.socket_path.clone(),
-        }
-    }
+/// Shared IPC socket path; initial value from `SUBTENSOR_IPC_PATH` or default.
+#[derive(Clone)]
+pub struct IpcManagerConfig {
+    inner: Arc<IpcManagerConfigInner>,
 }
 
 impl Default for IpcManagerConfig {
     fn default() -> Self {
+        let path = std::env::var("SUBTENSOR_IPC_PATH")
+            .unwrap_or_else(|_| DEFAULT_SOCKET_PATH.into());
+        let (path_notify, _) = watch::channel(());
         Self {
-            socket_path: std::env::var("SUBTENSOR_IPC_PATH")
-                .unwrap_or_else(|_| DEFAULT_SOCKET_PATH.into()),
+            inner: Arc::new(IpcManagerConfigInner {
+                socket_path: RwLock::new(path),
+                path_notify,
+            }),
         }
+    }
+}
+
+impl IpcManagerConfig {
+    pub fn socket_path(&self) -> String {
+        self.inner
+            .socket_path
+            .read()
+            .expect("ipc socket_path lock poisoned")
+            .clone()
+    }
+
+    /// Update the IPC socket path and signal the listener to rebind.
+    pub fn set_socket_path(&self, path: String) -> Result<String, String> {
+        let path = path.trim().to_string();
+        if path.is_empty() {
+            return Err("ipc path must not be empty".into());
+        }
+        {
+            let mut guard = self
+                .inner
+                .socket_path
+                .write()
+                .expect("ipc socket_path lock poisoned");
+            if *guard == path {
+                return Ok(path);
+            }
+            *guard = path.clone();
+        }
+        let _ = self.inner.path_notify.send(());
+        Ok(path)
+    }
+
+    fn path_notify(&self) -> watch::Receiver<()> {
+        self.inner.path_notify.subscribe()
     }
 }
 
@@ -120,32 +161,41 @@ struct ClientSession {
 #[derive(Clone)]
 pub struct IpcManager {
     block_announce: Arc<BlockAnnounceIpcControl>,
+    announce_filter: Arc<AnnounceFilterControl>,
     mempool: Arc<MempoolIpcControl>,
     clients: Arc<Mutex<HashMap<u64, ClientSession>>>,
     peer_manager: Arc<Mutex<Option<Arc<PeerManager>>>>,
     tx_propagation: Arc<Mutex<Option<Arc<TxPropagationControl>>>>,
     tx_propagator: Arc<Mutex<Option<TxPropagator>>>,
     propagation_tracker: Arc<Mutex<Option<Arc<PropagationTracker>>>>,
+    tx_inclusion_tracker: Arc<Mutex<Option<Arc<TxInclusionTracker>>>>,
 }
 
 impl IpcManager {
     pub fn new(
         block_announce: Arc<BlockAnnounceIpcControl>,
+        announce_filter: Arc<AnnounceFilterControl>,
         mempool: Arc<MempoolIpcControl>,
     ) -> Self {
         Self {
             block_announce,
+            announce_filter,
             mempool,
             clients: Arc::new(Mutex::new(HashMap::new())),
             peer_manager: Arc::new(Mutex::new(None)),
             tx_propagation: Arc::new(Mutex::new(None)),
             tx_propagator: Arc::new(Mutex::new(None)),
             propagation_tracker: Arc::new(Mutex::new(None)),
+            tx_inclusion_tracker: Arc::new(Mutex::new(None)),
         }
     }
 
     pub fn block_announce_control(&self) -> Arc<BlockAnnounceIpcControl> {
         self.block_announce.clone()
+    }
+
+    pub fn announce_filter_control(&self) -> Arc<AnnounceFilterControl> {
+        self.announce_filter.clone()
     }
 
     pub fn mempool_control(&self) -> Arc<MempoolIpcControl> {
@@ -161,10 +211,12 @@ impl IpcManager {
         tx_propagation: Arc<TxPropagationControl>,
         tx_propagator: TxPropagator,
         propagation_tracker: Arc<PropagationTracker>,
+        tx_inclusion_tracker: Arc<TxInclusionTracker>,
     ) {
         *self.tx_propagation.lock().await = Some(tx_propagation);
         *self.tx_propagator.lock().await = Some(tx_propagator);
         *self.propagation_tracker.lock().await = Some(propagation_tracker);
+        *self.tx_inclusion_tracker.lock().await = Some(tx_inclusion_tracker);
     }
 
     async fn broadcast_filtered<F>(&self, message: &IpcMessage, filter: F)
@@ -220,8 +272,9 @@ impl IpcManager {
             delay_time_ms,
         };
         let ipc = self.clone();
+        let filter = self.announce_filter.clone();
         tokio::spawn(async move {
-            ipc.broadcast_filtered(&message, |config, msg| {
+            ipc.broadcast_filtered(&message, |_config, msg| {
                 let IpcMessage::Header {
                     announce_index,
                     delay_time_ms,
@@ -230,9 +283,7 @@ impl IpcManager {
                 else {
                     return false;
                 };
-                config
-                    .announce_filter
-                    .matches(*announce_index, *delay_time_ms)
+                filter.matches(*announce_index, *delay_time_ms)
             })
             .await;
         });
@@ -308,42 +359,50 @@ where
         + LocalTransactionPool<Block = Block, Hash = H256>
         + 'static,
 {
-    let path = config.socket_path;
-    if Path::new(&path).exists() {
-        std::fs::remove_file(&path).map_err(|e| format!("remove old socket {path}: {e}"))?;
-    }
-
-    let listener = UnixListener::bind(&path)
-        .map_err(|e| format!("bind unix socket {path}: {e}"))?;
-    log::info!(target: "bot::ipc", "IPC listening on {path}");
-
     let (incoming_tx, mut incoming_rx) =
         mpsc::unbounded_channel::<(u64, IpcMessage, mpsc::UnboundedSender<Result<(), String>>)>();
     let mut next_id = 0u64;
+    let mut path_rx = config.path_notify();
 
     loop {
-        tokio::select! {
-            accept = listener.accept() => {
-                let (stream, _) = accept.map_err(|e| format!("accept: {e}"))?;
-                next_id += 1;
-                let id = next_id;
-                let (client_tx, client_rx) = mpsc::unbounded_channel();
-                {
-                    let mut clients = ipc.clients.lock().await;
-                    clients.insert(id, ClientSession {
-                        outbound: client_tx,
-                        config: ClientConfig::default(),
-                    });
+        let path = config.socket_path();
+        if Path::new(&path).exists() {
+            std::fs::remove_file(&path).map_err(|e| format!("remove old socket {path}: {e}"))?;
+        }
+
+        let listener = UnixListener::bind(&path)
+            .map_err(|e| format!("bind unix socket {path}: {e}"))?;
+        log::info!(target: "bot::ipc", "IPC listening on {path}");
+
+        loop {
+            tokio::select! {
+                changed = path_rx.changed() => {
+                    changed.map_err(|e| format!("ipc path watch: {e}"))?;
+                    log::info!(target: "bot::ipc", "IPC path change requested, rebinding");
+                    break;
                 }
-                let incoming_tx_c = incoming_tx.clone();
-                let ipc_c = ipc.clone();
-                tokio::spawn(handle_client(id, stream, client_rx, incoming_tx_c, ipc_c));
-                log::info!(target: "bot::ipc", "client {id} connected");
-            }
-            msg = incoming_rx.recv() => {
-                if let Some((client_id, message, reply)) = msg {
-                    let result = handle_incoming(client_id, message, &ipc, &pool, &best_hash).await;
-                    let _ = reply.send(result);
+                accept = listener.accept() => {
+                    let (stream, _) = accept.map_err(|e| format!("accept: {e}"))?;
+                    next_id += 1;
+                    let id = next_id;
+                    let (client_tx, client_rx) = mpsc::unbounded_channel();
+                    {
+                        let mut clients = ipc.clients.lock().await;
+                        clients.insert(id, ClientSession {
+                            outbound: client_tx,
+                            config: ClientConfig::default(),
+                        });
+                    }
+                    let incoming_tx_c = incoming_tx.clone();
+                    let ipc_c = ipc.clone();
+                    tokio::spawn(handle_client(id, stream, client_rx, incoming_tx_c, ipc_c));
+                    log::info!(target: "bot::ipc", "client {id} connected");
+                }
+                msg = incoming_rx.recv() => {
+                    if let Some((client_id, message, reply)) = msg {
+                        let result = handle_incoming(client_id, message, &ipc, &pool, &best_hash).await;
+                        let _ = reply.send(result);
+                    }
                 }
             }
         }
@@ -430,21 +489,9 @@ where
         + 'static,
 {
     match message {
-        IpcMessage::SetAnnounce {
-            announce_type,
-            value,
-        } => {
-            let mut clients = ipc.clients.lock().await;
-            let session = clients
-                .get_mut(&client_id)
-                .ok_or_else(|| "client disconnected".to_string())?;
-            session.config.set_announce(&announce_type, value)?;
-            log::info!(
-                target: "bot::ipc",
-                "client {client_id} set_announce type={announce_type} value={value}",
-            );
-            Ok(())
-        }
+        IpcMessage::SetAnnounce { .. } => Err(
+            "set_announce is deprecated; use node_setAnnounceFilter RPC".into(),
+        ),
         IpcMessage::SetRequireMempool { enabled } => {
             let mut clients = ipc.clients.lock().await;
             let session = clients
@@ -478,6 +525,7 @@ where
             let tx_control = ipc.tx_propagation.lock().await.clone();
             let tx_propagator = ipc.tx_propagator.lock().await.clone();
             let tracker = ipc.propagation_tracker.lock().await.clone();
+            let inclusion = ipc.tx_inclusion_tracker.lock().await.clone();
 
             if let Some(tx_control) = tx_control {
                 if let Some(request) = parse_propagation_request(propagate_type, propagate_param) {
@@ -490,11 +538,12 @@ where
                     best_hash,
                     tx_propagator.as_ref(),
                     tracker.as_ref(),
+                    inclusion.as_ref(),
                 )
                 .await;
                 result
             } else {
-                handle_transaction(hash, extrinsic, pool, best_hash, None, None).await
+                handle_transaction(hash, extrinsic, pool, best_hash, None, None, None).await
             }
         }
         IpcMessage::Header { .. } | IpcMessage::Mempool { .. } | IpcMessage::FindPeer { .. } => {
@@ -546,6 +595,7 @@ async fn handle_transaction<P>(
     best_hash: &Arc<dyn Fn() -> H256 + Send + Sync>,
     tx_propagator: Option<&TxPropagator>,
     _propagation_tracker: Option<&Arc<PropagationTracker>>,
+    tx_inclusion_tracker: Option<&Arc<TxInclusionTracker>>,
 ) -> Result<(), String>
 where
     P: TransactionPool<Block = Block, Hash = H256>
@@ -569,6 +619,9 @@ where
             target: "bot::ipc",
             "transaction submitted (prepared) hash={tx_hash:?}",
         );
+        if let Some(tracker) = tx_inclusion_tracker {
+            tracker.register_submitted(format!("{tx_hash:?}"));
+        }
         if let Some(propagator) = tx_propagator {
             propagator.propagate(tx_hash);
         }
@@ -587,6 +640,9 @@ where
             target: "bot::ipc",
             "transaction submitted hash={tx_hash:?}",
         );
+        if let Some(tracker) = tx_inclusion_tracker {
+            tracker.register_submitted(format!("{tx_hash:?}"));
+        }
         if let Some(propagator) = tx_propagator {
             propagator.propagate(tx_hash);
         }

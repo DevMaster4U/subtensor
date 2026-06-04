@@ -1,6 +1,7 @@
 //! Substrate Node Subtensor CLI library.
 #![warn(missing_docs)]
 
+mod bot_tx_inclusion;
 mod bot_block_announce {
     pub use node_subtensor::bot_block_announce::*;
 }

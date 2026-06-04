@@ -370,16 +370,23 @@ where
     let tx_propagation_control = subtensor_node_shim::TxPropagationControl::new();
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_node_shim::peers::PeerTracker::new());
+    let peer_scoreboard = subtensor_node_shim::PeerScoreboard::new();
     let propagation_tracker = subtensor_node_shim::PropagationTracker::new();
     let block_announce_ipc = Arc::new(subtensor_node_shim::BlockAnnounceIpcControl::new());
+    let announce_filter = Arc::new(subtensor_node_shim::AnnounceFilterControl::new());
+    let metrics_log = subtensor_node_shim::MetricsLogControl::new();
+    let tx_inclusion_tracker = subtensor_node_shim::TxInclusionTracker::new();
     let mempool_ipc = Arc::new(subtensor_node_shim::MempoolIpcControl::new());
     let ipc_manager = Arc::new(subtensor_node_shim::IpcManager::new(
         block_announce_ipc.clone(),
+        announce_filter.clone(),
         mempool_ipc.clone(),
     ));
     let ipc_for_validator = ipc_manager.clone();
     let propagation_tracker_for_validator = propagation_tracker.clone();
     let peer_tracker_for_validator = peer_tracker.clone();
+    let metrics_log_for_validator = metrics_log.clone();
+    let peer_scoreboard_for_validator = peer_scoreboard.clone();
     let ipc_config = subtensor_node_shim::IpcManagerConfig::default();
     let genesis_hash = client
         .block_hash(0u32)?
@@ -401,6 +408,8 @@ where
                     Some(ipc_for_validator),
                     propagation_tracker_for_validator,
                     peer_tracker_for_validator,
+                    peer_scoreboard_for_validator,
+                    metrics_log_for_validator,
                 ))
             })),
             warp_sync_config,
@@ -452,6 +461,7 @@ where
     let tx_propagator = subtensor_node_shim::TxPropagator::new(
         tx_handler_controller.clone(),
         Some(propagation_tracker.clone()),
+        Some(tx_inclusion_tracker.clone()),
     );
 
     let peer_manager = Arc::new(subtensor_node_shim::PeerManager::new(
@@ -462,6 +472,7 @@ where
         network.clone(),
         block_announces_protocol.clone(),
         transactions_protocol.clone(),
+        peer_scoreboard.clone(),
     ));
     peer_manager.preload_peer_addresses(reserved_nodes.iter().cloned());
     if let Ok(n) = peer_manager.preload_peer_addresses_from_file("reserved.txt") {
@@ -472,6 +483,7 @@ where
             );
         }
     }
+    peer_manager.enable_log_peer(None);
     peer_manager.clone().start(task_manager.spawn_handle());
     peer_manager.set_ipc(ipc_manager.clone());
 
@@ -480,6 +492,7 @@ where
     let tx_propagation_for_ipc = tx_propagation_control.clone();
     let tx_propagator_for_ipc = tx_propagator.clone();
     let propagation_tracker_for_ipc = propagation_tracker.clone();
+    let tx_inclusion_for_ipc = tx_inclusion_tracker.clone();
     task_manager.spawn_handle().spawn("bot-ipc-tx-wire", None, async move {
         ipc_for_tx
             .set_peer_manager(peer_manager_for_ipc)
@@ -489,9 +502,23 @@ where
                 tx_propagation_for_ipc,
                 tx_propagator_for_ipc,
                 propagation_tracker_for_ipc,
+                tx_inclusion_for_ipc,
             )
             .await;
     }.boxed());
+
+    crate::bot_tx_inclusion::start_tx_inclusion_watcher(
+        &task_manager,
+        client.clone(),
+        metrics_log.clone(),
+        tx_inclusion_tracker.clone(),
+    );
+    subtensor_node_shim::start_peer_ping_log_watcher(
+        &task_manager,
+        network.clone(),
+        peer_scoreboard.clone(),
+        metrics_log.clone(),
+    );
 
     ipc_manager.clone().start(
         &task_manager,
@@ -621,6 +648,9 @@ where
         let propagation_tracker = propagation_tracker.clone();
         let mempool_watcher_control = mempool_watcher_control.clone();
         let block_announce_ipc = block_announce_ipc.clone();
+        let announce_filter = announce_filter.clone();
+        let metrics_log = metrics_log.clone();
+        let peer_scoreboard = peer_scoreboard.clone();
         let mempool_ipc = mempool_ipc.clone();
         let ipc_config = ipc_config.clone();
         let tx_propagation_control_rpc = tx_propagation_control.clone();
@@ -672,11 +702,14 @@ where
                 .merge(
                     subtensor_node_shim::NodeControlRpc::new(
                         peer_manager.clone(),
+                        peer_scoreboard.clone(),
                         propagation_tracker.clone(),
                         mempool_watcher_control.clone(),
                         block_announce_ipc.clone(),
+                        announce_filter.clone(),
                         mempool_ipc.clone(),
                         ipc_config.clone(),
+                        metrics_log.clone(),
                         tx_propagation_control_rpc.clone(),
                         network.clone(),
                     )

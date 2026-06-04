@@ -13,6 +13,8 @@ use sp_consensus::block_validation::{
 };
 use sp_runtime::traits::{Block as BlockT, Header as HeaderT};
 use subtensor_node_shim::announce::{self, current_delay_time_ms, slot_from_digest};
+use subtensor_node_shim::metrics_log::{log_peer_announce_timing, MetricsLogControl};
+use subtensor_node_shim::peer_scoreboard::PeerScoreboard;
 use subtensor_node_shim::peers::PeerTracker;
 use subtensor_node_shim::{IpcManager, PropagationTracker};
 use subtensor_ipc::IpcMessage;
@@ -25,6 +27,8 @@ pub struct NotifyingBlockAnnounceValidator {
     ipc: Option<Arc<IpcManager>>,
     propagation_tracker: Arc<PropagationTracker>,
     peer_tracker: Arc<PeerTracker>,
+    peer_scoreboard: Arc<PeerScoreboard>,
+    metrics_log: Arc<MetricsLogControl>,
     /// Per-block announce count for IPC delivery.
     announce_counts: HashMap<u32, u32>,
 }
@@ -35,6 +39,8 @@ impl NotifyingBlockAnnounceValidator {
         ipc: Option<Arc<IpcManager>>,
         propagation_tracker: Arc<PropagationTracker>,
         peer_tracker: Arc<PeerTracker>,
+        peer_scoreboard: Arc<PeerScoreboard>,
+        metrics_log: Arc<MetricsLogControl>,
     ) -> Self {
         Self {
             inner: DefaultBlockAnnounceValidator,
@@ -42,6 +48,8 @@ impl NotifyingBlockAnnounceValidator {
             ipc,
             propagation_tracker,
             peer_tracker,
+            peer_scoreboard,
+            metrics_log,
             announce_counts: HashMap::new(),
         }
     }
@@ -100,6 +108,19 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
             if let Some(ref peer) = announcing_peer {
                 self.peer_tracker
                     .record_announce_peer(block_number, peer, delay_time_ms);
+                self.peer_scoreboard.record_block_announce(
+                    block_number,
+                    peer,
+                    delay_time_ms,
+                    announce_index == 1,
+                );
+                log_peer_announce_timing(
+                    &self.metrics_log,
+                    block_number,
+                    peer,
+                    announce_index,
+                    delay_time_ms,
+                );
             }
 
             if let Some(ipc) = &self.ipc {

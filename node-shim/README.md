@@ -76,7 +76,7 @@ Block announce for the **next** block (`best + 1`).
 | `announce_index` | 1-based announce counter for this block height on this node (1 = first seen) |
 | `delay_time_ms` | Milliseconds within the 12-second wall-clock cycle: `(unix_secs % 12) * 1000` rounded. Examples: elapsed `12.983` → `983`; `13.23` → `1230` |
 
-Delivery to a bot is filtered by that client's **`set_announce`** setting (see [Per-client settings](#per-client-ipc-settings)).
+Delivery to IPC clients is filtered by the node-wide **`node_setAnnounceFilter`** RPC setting (see [Announce filter](#announce-filter-rpc)).
 
 #### `mempool`
 
@@ -109,21 +109,27 @@ Emitted when **peer logging** is on (`node_enableLogPeer`) and a **new** peer is
 
 ### Bot → node (commands)
 
-#### `set_announce` — per-client announce filter
+#### Announce filter (RPC)
 
-```json
-{ "type": "set_announce", "announce_type": "count", "value": 1 }
-```
+IPC `set_announce` is **deprecated**; configure the filter on the node via JSON-RPC:
+
+| RPC | Params | Effect |
+|-----|--------|--------|
+| `node_setAnnounceFilter` | `announce_type`, `value` | Set global filter |
+| `node_announceFilter` | — | Read current filter |
 
 | `announce_type` | `value` | Effect |
 |-----------------|---------|--------|
 | `"count"` | `0` | All announces for each block |
-| `"count"` | `N` | First `N` announces per block (`1` = legacy “first announce only”) |
+| `"count"` | `N` | First `N` announces per block (`1` = first announce only) |
 | `"delay_time"` | `ms` | Only announces where `delay_time_ms == value` |
 
-**Default** for a new connection: `count` / `1` (first announce only).
+**Default:** `count` / `1`.
 
-Rust helper: `IpcMessage::set_announce("count", 0)` or `IpcClient::set_announce("delay_time", 983)`.
+```bash
+curl -s localhost:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_setAnnounceFilter","params":["count",9],"id":1}'
+```
 
 #### `set_require_mempool` — opt in to mempool events
 
@@ -182,7 +188,7 @@ Stored **per connected socket** in `ClientConfig`:
 
 | Setting | IPC method | Default |
 |---------|------------|---------|
-| Announce filter | `set_announce` | `count` / `1` |
+| Announce filter | `node_setAnnounceFilter` RPC | `count` / `1` |
 | Mempool notifications | `set_require_mempool` | `false` |
 | Peer-find notifications | `set_require_peer_find` | `false` |
 | Per-submit propagation | `transaction.propagate_*` | none (uses global `TxPropagationControl`) |
@@ -192,7 +198,7 @@ Multiple bots can connect with different filters on the same node.
 **Typical bot startup sequence:**
 
 ```rust
-outgoing.send(IpcClient::set_announce("count", 0))?;           // all announces
+// set announce filter via node_setAnnounceFilter RPC before connecting IPC
 outgoing.send(IpcClient::set_require_mempool(true))?;
 outgoing.send(IpcClient::set_require_peer_find(true))?;
 ```
@@ -226,6 +232,14 @@ These are **node-wide**; bots cannot change them over IPC.
 | `node_disableMempoolWatcher` | Stop watcher |
 | `node_enableMempoolIpc` | Allow mempool events to reach IPC (still per-client opt-in) |
 | `node_disableMempoolIpc` | Stop mempool IPC |
+| `node_setAnnounceFilter` | Global IPC header announce filter (`count` or `delay_time`) |
+| `node_announceFilter` | Read announce filter |
+| `node_enablePeerAnnounceTimingLog` | Log per-peer `delay_time_ms` on each block announce |
+| `node_disablePeerAnnounceTimingLog` | Disable announce timing logs |
+| `node_enablePeerRttLog` | Log per-peer libp2p ping RTT (`/ipfs/ping/1.0.0`, `rtt_ms`) |
+| `node_disablePeerRttLog` | Disable ping RTT logs |
+| `node_enableTxInclusionDelayLog` | Log submit→block inclusion delay for bot-submitted txs |
+| `node_disableTxInclusionDelayLog` | Disable inclusion delay logs |
 | `node_enableLogPeer` | Log newly seen peers; enables `find_peer` IPC when clients opt in |
 | `node_disableLogPeer` | Disable peer logging |
 
@@ -264,7 +278,12 @@ Returns global IPC and propagation snapshot.
   "propagate_mode_label": "normal",
   "tx_propagation_first_reserved_node": true,
   "tx_propagation_max_peers": 0,
-  "tx_propagation_peers": null
+  "tx_propagation_peers": null,
+  "announce_filter_type": "count",
+  "announce_filter_value": 1,
+  "log_peer_announce_timing": false,
+  "log_peer_rtt": false,
+  "log_tx_inclusion_delay": false
 }
 ```
 
@@ -277,15 +296,41 @@ Returns global IPC and propagation snapshot.
 | `node_peerConnect` | `multiaddr: string` | `peer_id` | Dial a peer |
 | `node_peerDisconnect` | `peer_id: string` | `bool` | Disconnect one peer |
 | `node_peerDisconnectAll` | — | `u32` | Disconnect count |
-| `node_peerConnectFromFile` | `path: string` | `{ loaded, peer_ids, multiaddrs }` | Load reserved peers from file |
+| `node_peerConnectFromFile` | `path: string` | `{ loaded, peer_ids, multiaddrs }` | Add reserved peers from file (does not disconnect existing peers) |
 | `node_clearNormalPeers` | — | `{ disconnected }` | Disconnect non-reserved peers |
 | `node_enableNormalPeer` | — | `true` | Allow inbound discovered peers |
 | `node_disableNormalPeer` | — | `{ disconnected }` | Deny + disconnect normal peers |
 | `node_peerSetMode` | `mode: u8` | `mode` | `0` only_custom, `1` both, `2` only_system |
 | `node_peerSetCheckingTime` | `checking_ms, sleep_ms` | `true` | Custom peer dial loop timing |
 | `node_peerStatus` | — | `PeerManageStatus` | Full peer manager snapshot |
+| `node_peerList` | — | `[PeerListEntry]` | Each connected peer: `peer_id`, `multiaddr`, `role`, plus `sync` / `tx_reserved` / `custom` / `reserved` flags |
+| `node_peerScores` | — | `PeerScoreboardExport` | Per-peer racing metrics + composite score (see below) |
 
-`node_enableLogPeer` accepts optional `path` (default `peer_log.txt`). When enabled, new peers are appended to the log file and eligible clients may receive `find_peer` IPC events.
+#### `node_peerScores` — peer ranking for trading/racing
+
+Returns all tracked peers (plus currently connected sync peers), sorted by composite `score` descending.
+
+Per peer:
+
+| Field | Meaning |
+|-------|---------|
+| `rtt_ms` | Latest libp2p ping RTT |
+| `avg_rtt_ms` | Average ping RTT |
+| `blocks_received_first` | Blocks where this peer was the first announcer |
+| `first_block_percentage` | `blocks_received_first / total_blocks` |
+| `avg_block_announcement_delay_ms` | Average slot delay (`delay_time_ms`) on announces from this peer |
+| `disconnect_count` | Sync disconnect events |
+| `connect_count` | Sync connect events |
+| `rtt_score` | Normalized RTT component (lower RTT → higher, best peer = 1.0) |
+| `uptime_score` | Connection stability (connect vs disconnect ratio) |
+| `score` | `0.6 × first_block_percentage + 0.3 × rtt_score + 0.1 × uptime_score` |
+
+```bash
+curl -s localhost:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_peerScores","params":[],"id":1}'
+```
+
+Peer logging is **enabled automatically** at node startup (`peer_log.txt`). `node_enableLogPeer` accepts optional `path` (default `peer_log.txt`) to override or re-enable. When enabled, new peers are appended to the log file and eligible clients may receive `find_peer` IPC events.
 
 ---
 

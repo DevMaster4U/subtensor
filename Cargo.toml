@@ -41,6 +41,7 @@ resolver = "2"
 
 [workspace.package]
 edition = "2024"
+authors = ["Opentensor Foundation <admin@opentensor.ai>"]
 
 [workspace.lints.rust]
 unexpected_cfgs = { level = "allow", check-cfg = ['cfg(substrate_runtime)'] }
@@ -325,6 +326,7 @@ pow-faucet = []
 w3f-bls = { git = "https://github.com/opentensor/bls", branch = "fix-no-std" }
 
 [patch."https://github.com/opentensor/polkadot-sdk.git"]
+sc-network = { path = "vendor/sc-network" }
 sc-network-transactions = { path = "vendor/sc-network-transactions" }
 sc-network-sync = { path = "vendor/sc-network-sync" }
 

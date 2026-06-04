@@ -7,9 +7,15 @@ use jsonrpsee::{core::RpcResult, proc_macros::rpc, types::ErrorObjectOwned};
 use sc_network::NetworkStatusProvider;
 use subtensor_ipc::PeerManageMode;
 
+use crate::announce_filter::AnnounceFilterControl;
 use crate::ipc::{BlockAnnounceIpcControl, IpcManagerConfig, MempoolIpcControl};
+use crate::metrics_log::MetricsLogControl;
 use crate::mempool::MempoolWatcherControl;
-use crate::peer_manage::{ClearNormalPeersResult, ConnectFileResult, PeerManageStatus, PeerManager};
+use crate::peer_manage::{
+    ClearNormalPeersResult, ConnectFileResult, FindClosestPeersResult, PeerListEntry,
+    PeerManageStatus, PeerManager,
+};
+use crate::peer_scoreboard::{PeerScoreboard, PeerScoreboardExport};
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
 use crate::transact::parse_propagation_peer_id;
 use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};
@@ -25,6 +31,11 @@ pub struct NodeStatus {
     pub tx_propagation_first_reserved_node: bool,
     pub tx_propagation_max_peers: u32,
     pub tx_propagation_peers: Option<Vec<String>>,
+    pub announce_filter_type: String,
+    pub announce_filter_value: u64,
+    pub log_peer_announce_timing: bool,
+    pub log_peer_rtt: bool,
+    pub log_tx_inclusion_delay: bool,
 }
 
 #[rpc(server)]
@@ -68,6 +79,18 @@ pub trait NodeControlApi {
     #[method(name = "node_peerStatus")]
     fn peer_status(&self) -> RpcResult<PeerManageStatus>;
 
+    /// Connected peers: peer id, multiaddr, role, and connection flags.
+    #[method(name = "node_peerList")]
+    fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>>;
+
+    /// DHT closest peers to `peer_id` and their multiaddrs (`find_closest_peers`).
+    #[method(name = "node_peerFindClosest")]
+    fn peer_find_closest(&self, peer_id: String) -> RpcResult<FindClosestPeersResult>;
+
+    /// Per-peer racing metrics and composite score (ranked highest first).
+    #[method(name = "node_peerScores")]
+    fn peer_scores(&self) -> RpcResult<PeerScoreboardExport>;
+
     #[method(name = "node_enableMempoolWatcher")]
     fn enable_mempool_watcher(&self) -> RpcResult<bool>;
 
@@ -85,6 +108,31 @@ pub trait NodeControlApi {
 
     #[method(name = "node_disableBlockAnnounceIpc")]
     fn disable_block_announce_ipc(&self) -> RpcResult<bool>;
+
+    /// Global announce filter for IPC header delivery (`count` or `delay_time`).
+    #[method(name = "node_setAnnounceFilter")]
+    fn set_announce_filter(&self, announce_type: String, value: u64) -> RpcResult<bool>;
+
+    #[method(name = "node_announceFilter")]
+    fn announce_filter(&self) -> RpcResult<(String, u64)>;
+
+    #[method(name = "node_enablePeerAnnounceTimingLog")]
+    fn enable_peer_announce_timing_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_disablePeerAnnounceTimingLog")]
+    fn disable_peer_announce_timing_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_enablePeerRttLog")]
+    fn enable_peer_rtt_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_disablePeerRttLog")]
+    fn disable_peer_rtt_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_enableTxInclusionDelayLog")]
+    fn enable_tx_inclusion_delay_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_disableTxInclusionDelayLog")]
+    fn disable_tx_inclusion_delay_log(&self) -> RpcResult<bool>;
 
     #[method(name = "node_setPropagateMode")]
     fn set_propagate_mode(&self, mode: u8) -> RpcResult<u8>;
@@ -113,15 +161,22 @@ pub trait NodeControlApi {
     /// Alias for [`Self::status`].
     #[method(name = "node_ipcStatus")]
     fn ipc_status(&self) -> RpcResult<NodeStatus>;
+
+    /// Update the Unix socket path for bot IPC (`SUBTENSOR_IPC_PATH`); rebinds the listener.
+    #[method(name = "node_setIpcPath")]
+    fn set_ipc_path(&self, path: String) -> RpcResult<String>;
 }
 
 pub struct NodeControlRpc {
     peer_manager: Arc<PeerManager>,
+    peer_scoreboard: Arc<PeerScoreboard>,
     propagation_tracker: Arc<PropagationTracker>,
     mempool_watcher: Arc<MempoolWatcherControl>,
     block_announce_ipc: Arc<BlockAnnounceIpcControl>,
+    announce_filter: Arc<AnnounceFilterControl>,
     mempool_ipc: Arc<MempoolIpcControl>,
     ipc_config: IpcManagerConfig,
+    metrics_log: Arc<MetricsLogControl>,
     tx_propagation: Arc<TxPropagationControl>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
 }
@@ -129,21 +184,27 @@ pub struct NodeControlRpc {
 impl NodeControlRpc {
     pub fn new(
         peer_manager: Arc<PeerManager>,
+        peer_scoreboard: Arc<PeerScoreboard>,
         propagation_tracker: Arc<PropagationTracker>,
         mempool_watcher: Arc<MempoolWatcherControl>,
         block_announce_ipc: Arc<BlockAnnounceIpcControl>,
+        announce_filter: Arc<AnnounceFilterControl>,
         mempool_ipc: Arc<MempoolIpcControl>,
         ipc_config: IpcManagerConfig,
+        metrics_log: Arc<MetricsLogControl>,
         tx_propagation: Arc<TxPropagationControl>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     ) -> Self {
         Self {
             peer_manager,
+            peer_scoreboard,
             propagation_tracker,
             mempool_watcher,
             block_announce_ipc,
+            announce_filter,
             mempool_ipc,
             ipc_config,
+            metrics_log,
             tx_propagation,
             network,
         }
@@ -160,8 +221,9 @@ impl NodeControlRpc {
 
     fn node_status(&self) -> NodeStatus {
         let mode = self.tx_propagation.propagate_mode();
+        let (announce_filter_type, announce_filter_value) = self.announce_filter.describe();
         NodeStatus {
-            socket_path: self.ipc_config.socket_path.clone(),
+            socket_path: self.ipc_config.socket_path(),
             block_announce_ipc: self.block_announce_ipc.is_enabled(),
             mempool_ipc: self.mempool_ipc.is_enabled(),
             mempool_watcher: self.mempool_watcher.is_running(),
@@ -170,6 +232,11 @@ impl NodeControlRpc {
             tx_propagation_first_reserved_node: self.tx_propagation.first_reserved_node(),
             tx_propagation_max_peers: self.tx_propagation.max_propagation_peers(),
             tx_propagation_peers: self.tx_propagation.propagation_allowlist_base58(),
+            announce_filter_type,
+            announce_filter_value,
+            log_peer_announce_timing: self.metrics_log.peer_announce_timing(),
+            log_peer_rtt: self.metrics_log.peer_rtt(),
+            log_tx_inclusion_delay: self.metrics_log.tx_inclusion_delay(),
         }
     }
 }
@@ -181,6 +248,12 @@ impl NodeControlApiServer for NodeControlRpc {
 
     fn ipc_status(&self) -> RpcResult<NodeStatus> {
         self.status()
+    }
+
+    fn set_ipc_path(&self, path: String) -> RpcResult<String> {
+        self.ipc_config
+            .set_socket_path(path)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
     }
 
     fn peer_connect(&self, multiaddr: String) -> RpcResult<String> {
@@ -275,6 +348,34 @@ impl NodeControlApiServer for NodeControlRpc {
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }
 
+    fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>> {
+        let pm = Arc::clone(&self.peer_manager);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move { pm.get_peer_list().await })
+        })
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn peer_find_closest(&self, peer_id: String) -> RpcResult<FindClosestPeersResult> {
+        let pm = Arc::clone(&self.peer_manager);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current()
+                .block_on(async move { pm.find_closest_peers(&peer_id).await })
+        })
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn peer_scores(&self) -> RpcResult<PeerScoreboardExport> {
+        let pm = Arc::clone(&self.peer_manager);
+        let scoreboard = Arc::clone(&self.peer_scoreboard);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move {
+                let connected = pm.connected_peer_ids().await;
+                Ok(scoreboard.export_ranked(connected))
+            })
+        })
+    }
+
     fn enable_mempool_watcher(&self) -> RpcResult<bool> {
         self.mempool_watcher.start();
         Ok(true)
@@ -302,6 +403,47 @@ impl NodeControlApiServer for NodeControlRpc {
 
     fn disable_block_announce_ipc(&self) -> RpcResult<bool> {
         self.block_announce_ipc.disable();
+        Ok(true)
+    }
+
+    fn set_announce_filter(&self, announce_type: String, value: u64) -> RpcResult<bool> {
+        self.announce_filter
+            .set(&announce_type, value)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))?;
+        Ok(true)
+    }
+
+    fn announce_filter(&self) -> RpcResult<(String, u64)> {
+        Ok(self.announce_filter.describe())
+    }
+
+    fn enable_peer_announce_timing_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_peer_announce_timing(true);
+        Ok(true)
+    }
+
+    fn disable_peer_announce_timing_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_peer_announce_timing(false);
+        Ok(true)
+    }
+
+    fn enable_peer_rtt_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_peer_rtt(true);
+        Ok(true)
+    }
+
+    fn disable_peer_rtt_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_peer_rtt(false);
+        Ok(true)
+    }
+
+    fn enable_tx_inclusion_delay_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_tx_inclusion_delay(true);
+        Ok(true)
+    }
+
+    fn disable_tx_inclusion_delay_log(&self) -> RpcResult<bool> {
+        self.metrics_log.set_tx_inclusion_delay(false);
         Ok(true)
     }
 

@@ -1,0 +1,451 @@
+nohup: ignoring input
+It isn't safe to expose RPC publicly without a proxy server that filters available set of RPC methods.
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: Subtensor Node    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: ✌️  version 4.0.0-dev-df75ee18f4a    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: ❤️  by Substrate DevHub <https://github.com/substrate-developer-hub>, 2017-2026    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: 📋 Chain specification: Bittensor    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: 🏷  Node name: gainful-furniture-8525    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: 👤 Role: FULL    
+2026-06-04 00:25:18.895  INFO main sc_cli::runner: 💾 Database: ParityDb at /var/lib/subtensor3/chains/bittensor/paritydb/full    
+2026-06-04 00:25:19.395  INFO main sc_service::client::client: 🔨 Initializing Genesis block/state (state: 0x4015…9643, header-hash: 0x2f05…6c03)    
+2026-06-04 00:25:19.412  WARN main node_subtensor::service: Grandpa block import patch enabled. Chain type = Live. Skip justifications for blocks = Some({0x04c71efb77060bfacfb49cd61826d594148ccda2ee23d66c7db819b16b55911c, 0xb49f8cd2a49b51a493fc55a8c9524ba08c3aa6b702f20af02878c1ec68e3ff5f})    
+2026-06-04 00:25:19.412  INFO main grandpa: 👴 Loading GRANDPA authority set from genesis on what appears to be first startup.    
+2026-06-04 00:25:19.416  INFO main txpool: Creating transaction pool txpool_type=ForkAware ready=Limit { count: 8192, total_bytes: 20971520 } future=Limit { count: 819, total_bytes: 2097152 }
+2026-06-04 00:25:19.417  INFO main babe: 👶 Creating empty BABE epoch changes on what appears to be first startup.    
+2026-06-04 00:25:19.417  INFO main bot::peers: sync peer slots: in=612 out=512 (total=1124)    
+2026-06-04 00:25:19.417  WARN main node_subtensor::service: Grandpa warp sync patch enabled. Chain type = Live. Set ID = 3    
+2026-06-04 00:25:19.417  INFO main sub-libp2p: Local node identity is: 12D3KooWAwBZPBoWvEyH6bDroGgUJR2uiyynfLceXneJLNbGpxkm    
+2026-06-04 00:25:19.417  INFO main sub-libp2p: Running litep2p network backend    
+2026-06-04 00:25:19.418  INFO main bot::transact: tx propagation: reserved nodes first, then others    
+2026-06-04 00:25:19.418  INFO main bot::transact: registered 6 --reserved-nodes peer(s) on tx protocol    
+2026-06-04 00:25:19.418  INFO main bot::peer_manage: preloaded 3 dialable peer address(es) from reserved.txt    
+2026-06-04 00:25:19.418  INFO main bot::peer_manage: peer log enabled: peer_log.txt (preloaded 3 address(es) from reserved.txt)    
+2026-06-04 00:25:19.418  INFO tokio-runtime-worker bot::ipc: IPC listening on /tmp/subtensor-bot.sock    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Operating system: linux    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 CPU architecture: x86_64    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Target environment: gnu    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 CPU: AMD Ryzen 7 7700X 8-Core Processor    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 CPU cores: 8    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Memory: 63390MB    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Kernel: 6.8.0-111-generic    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Linux distribution: Ubuntu 22.04.5 LTS    
+2026-06-04 00:25:19.420  INFO                 main sc_sysinfo: 💻 Virtual machine: no    
+2026-06-04 00:25:19.420  INFO                 main sc_service::builder: 📦 Highest known block at #0    
+2026-06-04 00:25:19.420 ERROR tokio-runtime-worker prometheus: Error binding to '127.0.0.1:9615': Os { code: 98, kind: AddrInUse, message: "Address already in use" }    
+2026-06-04 00:25:19.420  INFO                 main sc_rpc_server: Running JSON-RPC server: addr=0.0.0.0:9947,[::]:40071    
+2026-06-04 00:25:20.418  WARN tokio-runtime-worker sub-libp2p::peerset: /2f0555cc76fc2840a25a6ea3b9637146806f1f44b090c175ffde2a7e5ab36c03/transactions/1: PeerId("12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa") is already a reserved peer    
+2026-06-04 00:25:20.418  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa /ip4/88.216.68.239/tcp/30333/ws/p2p/12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa    
+2026-06-04 00:25:20.418  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa multiaddr=/ip4/88.216.68.239/tcp/30333/ws/p2p/12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa    
+2026-06-04 00:25:20.419  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMBJNvxLtgGXbdJMtMqowf1X7SNBmxNKzz3Gt3M82YVBa    
+2026-06-04 00:25:20.909  INFO tokio-runtime-worker sub-libp2p: 🔍 Discovered new external address for our node: /ip4/84.32.220.100/tcp/30336/ws/p2p/12D3KooWAwBZPBoWvEyH6bDroGgUJR2uiyynfLceXneJLNbGpxkm    
+2026-06-04 00:25:21.588  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq    
+2026-06-04 00:25:22.640  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb    
+2026-06-04 00:25:22.646  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:23.415  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu    
+2026-06-04 00:25:23.425  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP    
+2026-06-04 00:25:24.421  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (7 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 36.8kiB/s ⬆ 6.5kiB/s    
+2026-06-04 00:25:24.623  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX    
+2026-06-04 00:25:24.690  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRk8uGwANRWmJK85XjFWhgewrEZfqbvJt3gUAPt12vdEA    
+2026-06-04 00:25:24.714  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T    
+2026-06-04 00:25:25.432  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g    
+2026-06-04 00:25:25.441  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDxZTRSknNKseyzannikZY9J1vUj61ypwiN2382fJwgvy    
+2026-06-04 00:25:25.679  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8    
+2026-06-04 00:25:25.933  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQTvTcTHYBJJn5owgEcWteJpCB8rNyUvTeDdqfyPMjYRj    
+2026-06-04 00:25:26.539  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWG2JVm6zpQDyHz7ekUnH6BVcNUMH91aoM7RrRoYWwDStT    
+2026-06-04 00:25:26.627  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRu8Ju2gMkBsUD1P8sb4B8cnxU2wVc6Kcd8PVQZwra9qU    
+2026-06-04 00:25:26.668  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCagExE4kCWZmHrqFmE4o31zxNZTFEuJtp2p4eiXWrYwS    
+2026-06-04 00:25:26.695  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWAGfk89U8BTxkaG6w6qXRmiwUrGjxT3LUqUEctLUmmNmS    
+2026-06-04 00:25:27.060  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMfZJokXGRfCPEDG4Urs4yaqhVccqAp2BVAVkJgJDZTud    
+2026-06-04 00:25:27.173  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR    
+2026-06-04 00:25:27.620  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFHLXD5mAEKNBZCs2AN7Bs1SGW6gxn2biAj4A1mMyMYbn    
+2026-06-04 00:25:27.635  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA1TsUWiX2LDdzBAJ44Ap4ao4xDB5rjKuqR8Ewb14WKYW    
+2026-06-04 00:25:27.635  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWM3yUcgY6MKEXFMsmV8RoqH1KQMjbHgpJG6mZcVNBGTQB    
+2026-06-04 00:25:27.645  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWLCS8gLF3uKE2MGFkVxfuTeAQmChQdgt61kzo9FCf4Fsu    
+2026-06-04 00:25:27.734  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCTngDWvfU45scFKgU1rH2YU26YLJhvneZgxsF9h7Btc8    
+2026-06-04 00:25:27.790  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMgqyxVRvy6m74ov4EivAvj7qUWodzQrarc1kmsQa2iKz    
+2026-06-04 00:25:27.910  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWP1koCBNgmEesCQdGnpnZmEQVwYaL8eDiwDyqgYhSJM2y    
+2026-06-04 00:25:27.997  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWSR3pdaD53QrTX92gxQQB4CwvMRXaoVVEb8mvgp6HiaXX    
+2026-06-04 00:25:28.292  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFzvSSn9ETwhh9t8Fin3S4c1TuAgV2q5S5K6owRspg84J    
+2026-06-04 00:25:28.511  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:28.535  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMSJTej5aDsXjCpgFKhrHiWAuPbfG1jRFTWHduSKwdH9E    
+2026-06-04 00:25:28.589  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV    
+2026-06-04 00:25:28.632  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDZ9y4N72j1KKsyjSRrXZ11yn5kN695W6HVMtu3zxvcLM    
+2026-06-04 00:25:28.655  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK    
+2026-06-04 00:25:28.684  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY    
+2026-06-04 00:25:28.707  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo    
+2026-06-04 00:25:28.839  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw    
+2026-06-04 00:25:29.421  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (35 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 241.6kiB/s ⬆ 27.0kiB/s    
+2026-06-04 00:25:29.994  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooW9tkHYA191iYMh69HBeoZyam1pn7eVPDavR7C8KWyHm76    
+2026-06-04 00:25:30.824  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFvjDVCgbdcH1WXUgwaopDxWu9ysZi1JbDz5rmmEsZQkr    
+2026-06-04 00:25:32.610  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ    
+2026-06-04 00:25:34.422  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (39 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 81.6kiB/s ⬆ 4.0kiB/s    
+2026-06-04 00:25:34.494  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCkXPqqQjy9Ed37WBA5VvE5ML64erxvJCunrxSfmPzF1i    
+2026-06-04 00:25:34.638  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWK7AdA3MLZ2nA7yNGpB8TYAyGt2sSQbJjPg8myPV7KDR8    
+2026-06-04 00:25:35.624  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHXeDJNuE8PAKkS4zwX2icVeUSBP5aGSuwNomJ3fZq1Ep    
+2026-06-04 00:25:35.632  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFzmZZMsjfsCfwf7pSC9nh6M6hTXWz6aB9AA8Amzokqcz    
+2026-06-04 00:25:35.654  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWPcREQE4Uch7UNkoETVjMKd8b2LKTxr17vHorZmHvjXEL    
+2026-06-04 00:25:36.453  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDxZTRSknNKseyzannikZY9J1vUj61ypwiN2382fJwgvy /ip4/84.32.220.100/tcp/30333/ws/p2p/12D3KooWDxZTRSknNKseyzannikZY9J1vUj61ypwiN2382fJwgvy    
+2026-06-04 00:25:36.453  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDxZTRSknNKseyzannikZY9J1vUj61ypwiN2382fJwgvy multiaddr=/ip4/84.32.220.100/tcp/30333/ws/p2p/12D3KooWDxZTRSknNKseyzannikZY9J1vUj61ypwiN2382fJwgvy    
+2026-06-04 00:25:36.453  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g /ip4/84.32.70.223/tcp/30333/ws/p2p/12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g    
+2026-06-04 00:25:36.453  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g multiaddr=/ip4/84.32.70.223/tcp/30333/ws/p2p/12D3KooWK1g872Z4BkiMMiyV8eEk47MLkxbMk23GB5JgVrH6fv3g    
+2026-06-04 00:25:36.484  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGddSHRdgARrhBvdDoSZcEJ68KEUjsjXj1GiTZwPLToMi /ip4/184.107.57.218/tcp/30333/ws/p2p/12D3KooWGddSHRdgARrhBvdDoSZcEJ68KEUjsjXj1GiTZwPLToMi    
+2026-06-04 00:25:36.484  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGddSHRdgARrhBvdDoSZcEJ68KEUjsjXj1GiTZwPLToMi multiaddr=/ip4/184.107.57.218/tcp/30333/ws/p2p/12D3KooWGddSHRdgARrhBvdDoSZcEJ68KEUjsjXj1GiTZwPLToMi    
+2026-06-04 00:25:36.505  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWG2JVm6zpQDyHz7ekUnH6BVcNUMH91aoM7RrRoYWwDStT /ip4/178.156.154.88/tcp/30333/ws/p2p/12D3KooWG2JVm6zpQDyHz7ekUnH6BVcNUMH91aoM7RrRoYWwDStT    
+2026-06-04 00:25:36.505  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWG2JVm6zpQDyHz7ekUnH6BVcNUMH91aoM7RrRoYWwDStT multiaddr=/ip4/178.156.154.88/tcp/30333/ws/p2p/12D3KooWG2JVm6zpQDyHz7ekUnH6BVcNUMH91aoM7RrRoYWwDStT    
+2026-06-04 00:25:36.531  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWP1koCBNgmEesCQdGnpnZmEQVwYaL8eDiwDyqgYhSJM2y /ip4/194.147.148.13/tcp/30339/ws/p2p/12D3KooWP1koCBNgmEesCQdGnpnZmEQVwYaL8eDiwDyqgYhSJM2y    
+2026-06-04 00:25:36.531  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWP1koCBNgmEesCQdGnpnZmEQVwYaL8eDiwDyqgYhSJM2y multiaddr=/ip4/194.147.148.13/tcp/30339/ws/p2p/12D3KooWP1koCBNgmEesCQdGnpnZmEQVwYaL8eDiwDyqgYhSJM2y    
+2026-06-04 00:25:36.547  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGddSHRdgARrhBvdDoSZcEJ68KEUjsjXj1GiTZwPLToMi    
+2026-06-04 00:25:36.597  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq    
+2026-06-04 00:25:36.598  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq /p2p/12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq    
+2026-06-04 00:25:36.598  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq multiaddr=/p2p/12D3KooWGte34yPSyf2vZrjDf2BE3GXRt9EX4ReViwQWTWoCkuZq    
+2026-06-04 00:25:36.598  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKm5h7xNup7czH8aq1F6fUrbp5EBskxmzdbUqWkk9Xe8Z    
+2026-06-04 00:25:36.623  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCagExE4kCWZmHrqFmE4o31zxNZTFEuJtp2p4eiXWrYwS /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWCagExE4kCWZmHrqFmE4o31zxNZTFEuJtp2p4eiXWrYwS    
+2026-06-04 00:25:36.623  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCagExE4kCWZmHrqFmE4o31zxNZTFEuJtp2p4eiXWrYwS multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWCagExE4kCWZmHrqFmE4o31zxNZTFEuJtp2p4eiXWrYwS    
+2026-06-04 00:25:36.631  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx    
+2026-06-04 00:25:36.643  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWAGfk89U8BTxkaG6w6qXRmiwUrGjxT3LUqUEctLUmmNmS /ip4/99.23.128.187/tcp/30333/ws/p2p/12D3KooWAGfk89U8BTxkaG6w6qXRmiwUrGjxT3LUqUEctLUmmNmS    
+2026-06-04 00:25:36.643  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWAGfk89U8BTxkaG6w6qXRmiwUrGjxT3LUqUEctLUmmNmS multiaddr=/ip4/99.23.128.187/tcp/30333/ws/p2p/12D3KooWAGfk89U8BTxkaG6w6qXRmiwUrGjxT3LUqUEctLUmmNmS    
+2026-06-04 00:25:36.660  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDcX82m38HrYR725MjQwK7QDuAr51FFP5wsZqaCCfMpqE    
+2026-06-04 00:25:36.663  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWR8aSCWEBrH42qLfhZvj4kxxpyCZqqw6PAczppYn8L86q    
+2026-06-04 00:25:36.709  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFzvSSn9ETwhh9t8Fin3S4c1TuAgV2q5S5K6owRspg84J /ip4/176.57.188.209/tcp/2365/ws/p2p/12D3KooWFzvSSn9ETwhh9t8Fin3S4c1TuAgV2q5S5K6owRspg84J    
+2026-06-04 00:25:36.709  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFzvSSn9ETwhh9t8Fin3S4c1TuAgV2q5S5K6owRspg84J multiaddr=/ip4/176.57.188.209/tcp/2365/ws/p2p/12D3KooWFzvSSn9ETwhh9t8Fin3S4c1TuAgV2q5S5K6owRspg84J    
+2026-06-04 00:25:36.720  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRM3M8zijT3Mm6CzaCndy9h2QyeAtDJi3mBskXDbRTnLz    
+2026-06-04 00:25:36.750  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct /ip4/86.38.238.215/tcp/35986/ws/p2p/12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-06-04 00:25:36.750  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct multiaddr=/ip4/86.38.238.215/tcp/35986/ws/p2p/12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-06-04 00:25:36.783  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMTBCKwACKCVMpYN1NB8JVKtaJpicbRNtny6FTHCobg7K /ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWMTBCKwACKCVMpYN1NB8JVKtaJpicbRNtny6FTHCobg7K    
+2026-06-04 00:25:36.783  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMTBCKwACKCVMpYN1NB8JVKtaJpicbRNtny6FTHCobg7K multiaddr=/ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWMTBCKwACKCVMpYN1NB8JVKtaJpicbRNtny6FTHCobg7K    
+2026-06-04 00:25:36.819  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQTvTcTHYBJJn5owgEcWteJpCB8rNyUvTeDdqfyPMjYRj /ip4/216.158.74.162/tcp/46118/p2p/12D3KooWQTvTcTHYBJJn5owgEcWteJpCB8rNyUvTeDdqfyPMjYRj    
+2026-06-04 00:25:36.819  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQTvTcTHYBJJn5owgEcWteJpCB8rNyUvTeDdqfyPMjYRj multiaddr=/ip4/216.158.74.162/tcp/46118/p2p/12D3KooWQTvTcTHYBJJn5owgEcWteJpCB8rNyUvTeDdqfyPMjYRj    
+2026-06-04 00:25:36.826  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWA1TsUWiX2LDdzBAJ44Ap4ao4xDB5rjKuqR8Ewb14WKYW /ip6/::1/tcp/30333/ws/p2p/12D3KooWA1TsUWiX2LDdzBAJ44Ap4ao4xDB5rjKuqR8Ewb14WKYW    
+2026-06-04 00:25:36.826  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWA1TsUWiX2LDdzBAJ44Ap4ao4xDB5rjKuqR8Ewb14WKYW multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWA1TsUWiX2LDdzBAJ44Ap4ao4xDB5rjKuqR8Ewb14WKYW    
+2026-06-04 00:25:36.838  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJbkrZrKZrEA9R7CQyV8nN6HdEidnUptHXYsvVJQk8q3z /ip4/167.86.104.245/tcp/30333/ws/p2p/12D3KooWJbkrZrKZrEA9R7CQyV8nN6HdEidnUptHXYsvVJQk8q3z    
+2026-06-04 00:25:36.838  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJbkrZrKZrEA9R7CQyV8nN6HdEidnUptHXYsvVJQk8q3z multiaddr=/ip4/167.86.104.245/tcp/30333/ws/p2p/12D3KooWJbkrZrKZrEA9R7CQyV8nN6HdEidnUptHXYsvVJQk8q3z    
+2026-06-04 00:25:36.868  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWSR3pdaD53QrTX92gxQQB4CwvMRXaoVVEb8mvgp6HiaXX /ip4/5.78.143.212/tcp/38970/p2p/12D3KooWSR3pdaD53QrTX92gxQQB4CwvMRXaoVVEb8mvgp6HiaXX    
+2026-06-04 00:25:36.868  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWSR3pdaD53QrTX92gxQQB4CwvMRXaoVVEb8mvgp6HiaXX multiaddr=/ip4/5.78.143.212/tcp/38970/p2p/12D3KooWSR3pdaD53QrTX92gxQQB4CwvMRXaoVVEb8mvgp6HiaXX    
+2026-06-04 00:25:36.899  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCTngDWvfU45scFKgU1rH2YU26YLJhvneZgxsF9h7Btc8 /ip4/94.130.170.228/tcp/30333/ws/p2p/12D3KooWCTngDWvfU45scFKgU1rH2YU26YLJhvneZgxsF9h7Btc8    
+2026-06-04 00:25:36.899  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCTngDWvfU45scFKgU1rH2YU26YLJhvneZgxsF9h7Btc8 multiaddr=/ip4/94.130.170.228/tcp/30333/ws/p2p/12D3KooWCTngDWvfU45scFKgU1rH2YU26YLJhvneZgxsF9h7Btc8    
+2026-06-04 00:25:36.931  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMfZJokXGRfCPEDG4Urs4yaqhVccqAp2BVAVkJgJDZTud /ip6/::1/tcp/30333/ws/p2p/12D3KooWMfZJokXGRfCPEDG4Urs4yaqhVccqAp2BVAVkJgJDZTud    
+2026-06-04 00:25:36.931  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMfZJokXGRfCPEDG4Urs4yaqhVccqAp2BVAVkJgJDZTud multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWMfZJokXGRfCPEDG4Urs4yaqhVccqAp2BVAVkJgJDZTud    
+2026-06-04 00:25:37.081  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA57h3Tjjz5LzBEKFe4My4um84k6xecJ9TLYRQS2FW3Ct    
+2026-06-04 00:25:37.135  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMTBCKwACKCVMpYN1NB8JVKtaJpicbRNtny6FTHCobg7K    
+2026-06-04 00:25:37.259  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJbkrZrKZrEA9R7CQyV8nN6HdEidnUptHXYsvVJQk8q3z    
+2026-06-04 00:25:37.595  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRu8Ju2gMkBsUD1P8sb4B8cnxU2wVc6Kcd8PVQZwra9qU /ip4/5.161.252.108/tcp/43406/ws/p2p/12D3KooWRu8Ju2gMkBsUD1P8sb4B8cnxU2wVc6Kcd8PVQZwra9qU    
+2026-06-04 00:25:37.595  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRu8Ju2gMkBsUD1P8sb4B8cnxU2wVc6Kcd8PVQZwra9qU multiaddr=/ip4/5.161.252.108/tcp/43406/ws/p2p/12D3KooWRu8Ju2gMkBsUD1P8sb4B8cnxU2wVc6Kcd8PVQZwra9qU    
+2026-06-04 00:25:37.612  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu    
+2026-06-04 00:25:37.612  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu /p2p/12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu    
+2026-06-04 00:25:37.612  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu multiaddr=/p2p/12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu    
+2026-06-04 00:25:37.617  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:37.617  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU /p2p/12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:37.617  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU multiaddr=/p2p/12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:37.630  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb    
+2026-06-04 00:25:37.630  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb /p2p/12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb    
+2026-06-04 00:25:37.630  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb multiaddr=/p2p/12D3KooWEhbi2zHiqzJMNPWBEUhbNSM7HsCCvXtPCwA8ZF6QN6vb    
+2026-06-04 00:25:37.650  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKLTJ3BNs2UzfkB9Eodfj69D3rFm4UdKXXZyubsVDHQcR    
+2026-06-04 00:25:37.701  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRk8uGwANRWmJK85XjFWhgewrEZfqbvJt3gUAPt12vdEA /ip4/18.191.197.241/tcp/30333/ws/p2p/12D3KooWRk8uGwANRWmJK85XjFWhgewrEZfqbvJt3gUAPt12vdEA    
+2026-06-04 00:25:37.701  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRk8uGwANRWmJK85XjFWhgewrEZfqbvJt3gUAPt12vdEA multiaddr=/ip4/18.191.197.241/tcp/30333/ws/p2p/12D3KooWRk8uGwANRWmJK85XjFWhgewrEZfqbvJt3gUAPt12vdEA    
+2026-06-04 00:25:37.701  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 /ip4/100.124.16.124/tcp/30333/ws/p2p/12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8    
+2026-06-04 00:25:37.701  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8 multiaddr=/ip4/100.124.16.124/tcp/30333/ws/p2p/12D3KooWK11pSJU9HSh9wgL2zyg8gd3wi7SVE2vzK2fsz9pAaAB8    
+2026-06-04 00:25:37.816  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFHLXD5mAEKNBZCs2AN7Bs1SGW6gxn2biAj4A1mMyMYbn /ip4/178.105.59.50/tcp/30333/ws/p2p/12D3KooWFHLXD5mAEKNBZCs2AN7Bs1SGW6gxn2biAj4A1mMyMYbn    
+2026-06-04 00:25:37.816  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFHLXD5mAEKNBZCs2AN7Bs1SGW6gxn2biAj4A1mMyMYbn multiaddr=/ip4/178.105.59.50/tcp/30333/ws/p2p/12D3KooWFHLXD5mAEKNBZCs2AN7Bs1SGW6gxn2biAj4A1mMyMYbn    
+2026-06-04 00:25:37.823  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWM3yUcgY6MKEXFMsmV8RoqH1KQMjbHgpJG6mZcVNBGTQB /ip6/::1/tcp/30333/ws/p2p/12D3KooWM3yUcgY6MKEXFMsmV8RoqH1KQMjbHgpJG6mZcVNBGTQB    
+2026-06-04 00:25:37.823  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWM3yUcgY6MKEXFMsmV8RoqH1KQMjbHgpJG6mZcVNBGTQB multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWM3yUcgY6MKEXFMsmV8RoqH1KQMjbHgpJG6mZcVNBGTQB    
+2026-06-04 00:25:37.834  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWLCS8gLF3uKE2MGFkVxfuTeAQmChQdgt61kzo9FCf4Fsu /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWLCS8gLF3uKE2MGFkVxfuTeAQmChQdgt61kzo9FCf4Fsu    
+2026-06-04 00:25:37.834  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWLCS8gLF3uKE2MGFkVxfuTeAQmChQdgt61kzo9FCf4Fsu multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWLCS8gLF3uKE2MGFkVxfuTeAQmChQdgt61kzo9FCf4Fsu    
+2026-06-04 00:25:38.411  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooW9qoSL1nf5MjJST4wPR5BcfJJsogPayBW6UvhzN2EeQqu    
+2026-06-04 00:25:38.424  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRMXFSVPm2jYixKuVcWjU9PZMcxLYf9Ptp4jFU9fDrnsp    
+2026-06-04 00:25:38.457  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP    
+2026-06-04 00:25:38.457  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP /p2p/12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP    
+2026-06-04 00:25:38.457  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP multiaddr=/p2p/12D3KooWBbTFbBS1Q7TK4JzXiy2SrULKHXiMNiKybzjEoqKhcyUP    
+2026-06-04 00:25:39.326  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX    
+2026-06-04 00:25:39.326  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX /p2p/12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX    
+2026-06-04 00:25:39.326  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX multiaddr=/p2p/12D3KooWDu4ss5Dm1F7urAhPXR3MLTQHUSEHPcsMoSXNUa4RkjkX    
+2026-06-04 00:25:39.396  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T    
+2026-06-04 00:25:39.396  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T /p2p/12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T    
+2026-06-04 00:25:39.396  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T multiaddr=/p2p/12D3KooWDhCWdS4kkdigx1Ez6gwtM9PW6HSrzDHYqhXGXDQg7P1T    
+2026-06-04 00:25:39.423  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (56 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 982.4kiB/s ⬆ 23.0kiB/s    
+2026-06-04 00:25:39.607  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHHZrjvD3r4WwkCh6NNHprGqc6pD1wviNucGxwdaSyEzM    
+2026-06-04 00:25:39.637  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBQ77fQnM4Lvvq3CKRiaRM5G72Xsuzv1rXMScirEHYejG    
+2026-06-04 00:25:39.642  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWPH2rTiCrJtuqpRqv3pUsCmeGGxr6pmFVViL8tc3wK8Rf    
+2026-06-04 00:25:40.547  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV /ip4/108.171.210.74/tcp/30333/ws/p2p/12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV    
+2026-06-04 00:25:40.547  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV multiaddr=/ip4/108.171.210.74/tcp/30333/ws/p2p/12D3KooWJ15bj4iDWQyBiNDf15Z21uKStBLuyuHQudGNNCXH14MV    
+2026-06-04 00:25:40.691  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooW9tkHYA191iYMh69HBeoZyam1pn7eVPDavR7C8KWyHm76 /ip4/173.249.58.155/tcp/30333/ws    
+2026-06-04 00:25:40.691  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooW9tkHYA191iYMh69HBeoZyam1pn7eVPDavR7C8KWyHm76 multiaddr=/ip4/173.249.58.155/tcp/30333/ws    
+2026-06-04 00:25:40.694  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFvjDVCgbdcH1WXUgwaopDxWu9ysZi1JbDz5rmmEsZQkr /ip4/172.29.0.2/tcp/30333/ws/p2p/12D3KooWFvjDVCgbdcH1WXUgwaopDxWu9ysZi1JbDz5rmmEsZQkr    
+2026-06-04 00:25:40.694  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFvjDVCgbdcH1WXUgwaopDxWu9ysZi1JbDz5rmmEsZQkr multiaddr=/ip4/172.29.0.2/tcp/30333/ws/p2p/12D3KooWFvjDVCgbdcH1WXUgwaopDxWu9ysZi1JbDz5rmmEsZQkr    
+2026-06-04 00:25:40.710  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWErAYuJqkA5dmPiSZShDnGyPk385yuUCJRpTaF1AwFuS6    
+2026-06-04 00:25:40.785  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMSJTej5aDsXjCpgFKhrHiWAuPbfG1jRFTWHduSKwdH9E /ip4/207.180.247.90/tcp/30333/ws/p2p/12D3KooWMSJTej5aDsXjCpgFKhrHiWAuPbfG1jRFTWHduSKwdH9E    
+2026-06-04 00:25:40.785  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMSJTej5aDsXjCpgFKhrHiWAuPbfG1jRFTWHduSKwdH9E multiaddr=/ip4/207.180.247.90/tcp/30333/ws/p2p/12D3KooWMSJTej5aDsXjCpgFKhrHiWAuPbfG1jRFTWHduSKwdH9E    
+2026-06-04 00:25:40.829  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDZ9y4N72j1KKsyjSRrXZ11yn5kN695W6HVMtu3zxvcLM /ip4/46.225.239.236/tcp/30333/ws/p2p/12D3KooWDZ9y4N72j1KKsyjSRrXZ11yn5kN695W6HVMtu3zxvcLM    
+2026-06-04 00:25:40.829  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDZ9y4N72j1KKsyjSRrXZ11yn5kN695W6HVMtu3zxvcLM multiaddr=/ip4/46.225.239.236/tcp/30333/ws/p2p/12D3KooWDZ9y4N72j1KKsyjSRrXZ11yn5kN695W6HVMtu3zxvcLM    
+2026-06-04 00:25:40.929  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRMXFSVPm2jYixKuVcWjU9PZMcxLYf9Ptp4jFU9fDrnsp /ip4/84.32.220.100/tcp/30335/ws/p2p/12D3KooWRMXFSVPm2jYixKuVcWjU9PZMcxLYf9Ptp4jFU9fDrnsp    
+2026-06-04 00:25:40.929  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRMXFSVPm2jYixKuVcWjU9PZMcxLYf9Ptp4jFU9fDrnsp multiaddr=/ip4/84.32.220.100/tcp/30335/ws/p2p/12D3KooWRMXFSVPm2jYixKuVcWjU9PZMcxLYf9Ptp4jFU9fDrnsp    
+2026-06-04 00:25:40.946  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMgqyxVRvy6m74ov4EivAvj7qUWodzQrarc1kmsQa2iKz /ip4/168.119.65.53/tcp/30333/ws/p2p/12D3KooWMgqyxVRvy6m74ov4EivAvj7qUWodzQrarc1kmsQa2iKz    
+2026-06-04 00:25:40.946  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMgqyxVRvy6m74ov4EivAvj7qUWodzQrarc1kmsQa2iKz multiaddr=/ip4/168.119.65.53/tcp/30333/ws/p2p/12D3KooWMgqyxVRvy6m74ov4EivAvj7qUWodzQrarc1kmsQa2iKz    
+2026-06-04 00:25:41.876  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR    
+2026-06-04 00:25:41.876  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR /p2p/12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR    
+2026-06-04 00:25:41.876  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR multiaddr=/p2p/12D3KooWGtj1kjZBP5ZurbwUaKww1sd4gYcs1NrsuxKK1d1XohBR    
+2026-06-04 00:25:43.316  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx    
+2026-06-04 00:25:43.316  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWMbEvnMJKwwwprw4keMMptc3usQcz7gjSrAXoo5QnNzNx    
+2026-06-04 00:25:43.330  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWK7AdA3MLZ2nA7yNGpB8TYAyGt2sSQbJjPg8myPV7KDR8 /ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWK7AdA3MLZ2nA7yNGpB8TYAyGt2sSQbJjPg8myPV7KDR8    
+2026-06-04 00:25:43.330  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWK7AdA3MLZ2nA7yNGpB8TYAyGt2sSQbJjPg8myPV7KDR8 multiaddr=/ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWK7AdA3MLZ2nA7yNGpB8TYAyGt2sSQbJjPg8myPV7KDR8    
+2026-06-04 00:25:43.334  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWR8aSCWEBrH42qLfhZvj4kxxpyCZqqw6PAczppYn8L86q /ip6/::1/tcp/30333/ws/p2p/12D3KooWR8aSCWEBrH42qLfhZvj4kxxpyCZqqw6PAczppYn8L86q    
+2026-06-04 00:25:43.334  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWR8aSCWEBrH42qLfhZvj4kxxpyCZqqw6PAczppYn8L86q multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWR8aSCWEBrH42qLfhZvj4kxxpyCZqqw6PAczppYn8L86q    
+2026-06-04 00:25:43.335  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWPcREQE4Uch7UNkoETVjMKd8b2LKTxr17vHorZmHvjXEL /ip6/::1/tcp/30333/ws/p2p/12D3KooWPcREQE4Uch7UNkoETVjMKd8b2LKTxr17vHorZmHvjXEL    
+2026-06-04 00:25:43.335  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWPcREQE4Uch7UNkoETVjMKd8b2LKTxr17vHorZmHvjXEL multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWPcREQE4Uch7UNkoETVjMKd8b2LKTxr17vHorZmHvjXEL    
+2026-06-04 00:25:43.350  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK    
+2026-06-04 00:25:43.350  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK /p2p/12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK    
+2026-06-04 00:25:43.350  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK multiaddr=/p2p/12D3KooWRE1HkrsBh7YFmvAtoFbQphWMdi61tVCNJeZJiQ1NRtnK    
+2026-06-04 00:25:43.368  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWErAYuJqkA5dmPiSZShDnGyPk385yuUCJRpTaF1AwFuS6 /ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWErAYuJqkA5dmPiSZShDnGyPk385yuUCJRpTaF1AwFuS6    
+2026-06-04 00:25:43.368  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWErAYuJqkA5dmPiSZShDnGyPk385yuUCJRpTaF1AwFuS6 multiaddr=/ip4/172.18.0.2/tcp/30333/ws/p2p/12D3KooWErAYuJqkA5dmPiSZShDnGyPk385yuUCJRpTaF1AwFuS6    
+2026-06-04 00:25:43.379  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY    
+2026-06-04 00:25:43.379  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY /p2p/12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY    
+2026-06-04 00:25:43.379  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY multiaddr=/p2p/12D3KooWHfVp9d8B8FK5ta7GiC8c5ChSfUXqbr4QNkxfBwMcykDY    
+2026-06-04 00:25:43.388  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo    
+2026-06-04 00:25:43.388  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo /p2p/12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo    
+2026-06-04 00:25:43.388  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo multiaddr=/p2p/12D3KooWKr3jNyhegM6AkZ2KmghZZFP9FcXJSLxSHL4khjdzkiHo    
+2026-06-04 00:25:43.501  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGhexGznZYbJobiCwPuwAjZ33zLnJeqzfXpuUTgWgYvsU    
+2026-06-04 00:25:43.570  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw    
+2026-06-04 00:25:43.570  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw /p2p/12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw    
+2026-06-04 00:25:43.570  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw multiaddr=/p2p/12D3KooW9xZ2mcurXe8j3K3vaHVYYEHNE8VoPgPvkTsVeA4YCPPw    
+2026-06-04 00:25:44.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (58 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 243.7kiB/s ⬆ 22.7kiB/s    
+2026-06-04 00:25:44.929  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa    
+2026-06-04 00:25:44.996  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCkXPqqQjy9Ed37WBA5VvE5ML64erxvJCunrxSfmPzF1i /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWCkXPqqQjy9Ed37WBA5VvE5ML64erxvJCunrxSfmPzF1i    
+2026-06-04 00:25:44.996  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCkXPqqQjy9Ed37WBA5VvE5ML64erxvJCunrxSfmPzF1i multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWCkXPqqQjy9Ed37WBA5VvE5ML64erxvJCunrxSfmPzF1i    
+2026-06-04 00:25:45.316  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWHXeDJNuE8PAKkS4zwX2icVeUSBP5aGSuwNomJ3fZq1Ep /ip4/78.46.163.175/tcp/30333/ws/p2p/12D3KooWHXeDJNuE8PAKkS4zwX2icVeUSBP5aGSuwNomJ3fZq1Ep    
+2026-06-04 00:25:45.316  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWHXeDJNuE8PAKkS4zwX2icVeUSBP5aGSuwNomJ3fZq1Ep multiaddr=/ip4/78.46.163.175/tcp/30333/ws/p2p/12D3KooWHXeDJNuE8PAKkS4zwX2icVeUSBP5aGSuwNomJ3fZq1Ep    
+2026-06-04 00:25:45.324  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFzmZZMsjfsCfwf7pSC9nh6M6hTXWz6aB9AA8Amzokqcz /ip4/178.105.93.253/tcp/30333/ws/p2p/12D3KooWFzmZZMsjfsCfwf7pSC9nh6M6hTXWz6aB9AA8Amzokqcz    
+2026-06-04 00:25:45.324  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFzmZZMsjfsCfwf7pSC9nh6M6hTXWz6aB9AA8Amzokqcz multiaddr=/ip4/178.105.93.253/tcp/30333/ws/p2p/12D3KooWFzmZZMsjfsCfwf7pSC9nh6M6hTXWz6aB9AA8Amzokqcz    
+2026-06-04 00:25:45.726  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H    
+2026-06-04 00:25:45.778  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M    
+2026-06-04 00:25:45.888  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRM3M8zijT3Mm6CzaCndy9h2QyeAtDJi3mBskXDbRTnLz /ip4/172.18.0.3/tcp/30333/ws/p2p/12D3KooWRM3M8zijT3Mm6CzaCndy9h2QyeAtDJi3mBskXDbRTnLz    
+2026-06-04 00:25:45.888  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRM3M8zijT3Mm6CzaCndy9h2QyeAtDJi3mBskXDbRTnLz multiaddr=/ip4/172.18.0.3/tcp/30333/ws/p2p/12D3KooWRM3M8zijT3Mm6CzaCndy9h2QyeAtDJi3mBskXDbRTnLz    
+2026-06-04 00:25:45.991  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBA5NYnHDojNkwBJfXwkbj4SmfT9xh19zuz2yzaBip9cY /ip4/172.23.0.1/tcp/30333/ws/p2p/12D3KooWBA5NYnHDojNkwBJfXwkbj4SmfT9xh19zuz2yzaBip9cY    
+2026-06-04 00:25:45.991  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBA5NYnHDojNkwBJfXwkbj4SmfT9xh19zuz2yzaBip9cY multiaddr=/ip4/172.23.0.1/tcp/30333/ws/p2p/12D3KooWBA5NYnHDojNkwBJfXwkbj4SmfT9xh19zuz2yzaBip9cY    
+2026-06-04 00:25:46.059  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBA5NYnHDojNkwBJfXwkbj4SmfT9xh19zuz2yzaBip9cY    
+2026-06-04 00:25:46.322  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBQ77fQnM4Lvvq3CKRiaRM5G72Xsuzv1rXMScirEHYejG /ip4/31.22.104.138/tcp/30333/ws/p2p/12D3KooWBQ77fQnM4Lvvq3CKRiaRM5G72Xsuzv1rXMScirEHYejG    
+2026-06-04 00:25:46.322  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBQ77fQnM4Lvvq3CKRiaRM5G72Xsuzv1rXMScirEHYejG multiaddr=/ip4/31.22.104.138/tcp/30333/ws/p2p/12D3KooWBQ77fQnM4Lvvq3CKRiaRM5G72Xsuzv1rXMScirEHYejG    
+2026-06-04 00:25:46.381  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA1XDm2DcaHAsdqUwovSyXSaQgLxp9yypC8aoZ6WyHATc    
+2026-06-04 00:25:46.598  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWC9rSvRxew4nfuu2nL1BUHB8ZEDG8ZR4L8QfqTiRN7jCg    
+2026-06-04 00:25:46.633  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDjJ2hMob1cvReBgjRYCFtRQDKxencDmCdZpZHo6DhVi6    
+2026-06-04 00:25:46.661  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk    
+2026-06-04 00:25:46.839  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDcX82m38HrYR725MjQwK7QDuAr51FFP5wsZqaCCfMpqE /ip4/46.225.76.219/tcp/30333/ws/p2p/12D3KooWDcX82m38HrYR725MjQwK7QDuAr51FFP5wsZqaCCfMpqE    
+2026-06-04 00:25:46.839  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDcX82m38HrYR725MjQwK7QDuAr51FFP5wsZqaCCfMpqE multiaddr=/ip4/46.225.76.219/tcp/30333/ws/p2p/12D3KooWDcX82m38HrYR725MjQwK7QDuAr51FFP5wsZqaCCfMpqE    
+2026-06-04 00:25:46.899  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq    
+2026-06-04 00:25:47.319  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ    
+2026-06-04 00:25:47.319  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ /p2p/12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ    
+2026-06-04 00:25:47.319  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ multiaddr=/p2p/12D3KooWAqvEjJhzAassN94qATbdfCtVDiqbJMN65fYK57LZHWiJ    
+2026-06-04 00:25:47.429  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWA1XDm2DcaHAsdqUwovSyXSaQgLxp9yypC8aoZ6WyHATc /ip4/10.0.0.11/tcp/30333/ws/p2p/12D3KooWA1XDm2DcaHAsdqUwovSyXSaQgLxp9yypC8aoZ6WyHATc    
+2026-06-04 00:25:47.429  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWA1XDm2DcaHAsdqUwovSyXSaQgLxp9yypC8aoZ6WyHATc multiaddr=/ip4/10.0.0.11/tcp/30333/ws/p2p/12D3KooWA1XDm2DcaHAsdqUwovSyXSaQgLxp9yypC8aoZ6WyHATc    
+2026-06-04 00:25:47.581  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG    
+2026-06-04 00:25:47.743  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWD8Y5FMNz2K7MG2uvueB5P2avyLpMvkDF8xVcWvB3976y    
+2026-06-04 00:25:47.829  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWKm5h7xNup7czH8aq1F6fUrbp5EBskxmzdbUqWkk9Xe8Z /ip6/::1/tcp/30333/ws/p2p/12D3KooWKm5h7xNup7czH8aq1F6fUrbp5EBskxmzdbUqWkk9Xe8Z    
+2026-06-04 00:25:47.829  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWKm5h7xNup7czH8aq1F6fUrbp5EBskxmzdbUqWkk9Xe8Z multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWKm5h7xNup7czH8aq1F6fUrbp5EBskxmzdbUqWkk9Xe8Z    
+2026-06-04 00:25:47.831  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWPH2rTiCrJtuqpRqv3pUsCmeGGxr6pmFVViL8tc3wK8Rf /ip4/178.105.85.40/tcp/30333/ws/p2p/12D3KooWPH2rTiCrJtuqpRqv3pUsCmeGGxr6pmFVViL8tc3wK8Rf    
+2026-06-04 00:25:47.831  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWPH2rTiCrJtuqpRqv3pUsCmeGGxr6pmFVViL8tc3wK8Rf multiaddr=/ip4/178.105.85.40/tcp/30333/ws/p2p/12D3KooWPH2rTiCrJtuqpRqv3pUsCmeGGxr6pmFVViL8tc3wK8Rf    
+2026-06-04 00:25:47.847  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj    
+2026-06-04 00:25:47.922  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWKLTJ3BNs2UzfkB9Eodfj69D3rFm4UdKXXZyubsVDHQcR /ip4/146.86.145.213/tcp/45820/ws/p2p/12D3KooWKLTJ3BNs2UzfkB9Eodfj69D3rFm4UdKXXZyubsVDHQcR    
+2026-06-04 00:25:47.922  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWKLTJ3BNs2UzfkB9Eodfj69D3rFm4UdKXXZyubsVDHQcR multiaddr=/ip4/146.86.145.213/tcp/45820/ws/p2p/12D3KooWKLTJ3BNs2UzfkB9Eodfj69D3rFm4UdKXXZyubsVDHQcR    
+2026-06-04 00:25:47.994  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWC9rSvRxew4nfuu2nL1BUHB8ZEDG8ZR4L8QfqTiRN7jCg /ip4/54.188.171.197/tcp/15804/p2p/12D3KooWC9rSvRxew4nfuu2nL1BUHB8ZEDG8ZR4L8QfqTiRN7jCg    
+2026-06-04 00:25:47.994  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWC9rSvRxew4nfuu2nL1BUHB8ZEDG8ZR4L8QfqTiRN7jCg multiaddr=/ip4/54.188.171.197/tcp/15804/p2p/12D3KooWC9rSvRxew4nfuu2nL1BUHB8ZEDG8ZR4L8QfqTiRN7jCg    
+2026-06-04 00:25:48.089  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWHHZrjvD3r4WwkCh6NNHprGqc6pD1wviNucGxwdaSyEzM /ip6/2605:a140:2310:1061::1/tcp/30333/ws/p2p/12D3KooWHHZrjvD3r4WwkCh6NNHprGqc6pD1wviNucGxwdaSyEzM    
+2026-06-04 00:25:48.089  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWHHZrjvD3r4WwkCh6NNHprGqc6pD1wviNucGxwdaSyEzM multiaddr=/ip6/2605:a140:2310:1061::1/tcp/30333/ws/p2p/12D3KooWHHZrjvD3r4WwkCh6NNHprGqc6pD1wviNucGxwdaSyEzM    
+2026-06-04 00:25:49.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (70 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 2.1MiB/s ⬆ 30.3kiB/s    
+2026-06-04 00:25:49.482  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWA3Xa7UN9N4kcB5KSyQptbbgdCa1xXT4dsdJuJgNjhsrh /ip6/2604:2dc0:149:6c00::/tcp/30333/ws    
+2026-06-04 00:25:49.482  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWA3Xa7UN9N4kcB5KSyQptbbgdCa1xXT4dsdJuJgNjhsrh multiaddr=/ip6/2604:2dc0:149:6c00::/tcp/30333/ws    
+2026-06-04 00:25:49.541  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWA3Xa7UN9N4kcB5KSyQptbbgdCa1xXT4dsdJuJgNjhsrh    
+2026-06-04 00:25:49.693  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq    
+2026-06-04 00:25:50.095  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS    
+2026-06-04 00:25:50.225  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMW27Pz3C1Boz6tLEGwe25Me272aiGYZdRW2jQEXWhtA1    
+2026-06-04 00:25:50.619  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQYiZ3uidgxMSBzwvfWqovbtQXA6kghiKCEPGC6z1Fnf3    
+2026-06-04 00:25:50.632  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT    
+2026-06-04 00:25:52.095  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu    
+2026-06-04 00:25:52.659  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBGtnMgoimkWC3NC9JYKPupsGLFEcXG8aXaapjAjg254z    
+2026-06-04 00:25:53.493  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMQKU3ngqsYNSzmYGsMpmwwcvsweZ9VtrweUNJKyJsGEB    
+2026-06-04 00:25:53.809  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWR9EtYiGonEGYKmZZftrMXJK7exL9eWUPB5Wc7GqPWr5w    
+2026-06-04 00:25:53.868  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJ6knFDwLH66HVuo7NY5w7EqxgnSRPJ4Frd3r43dEtVdc    
+2026-06-04 00:25:54.230  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGcPf1K3qwC5468U4RkdNB7pRfsuzn2CRWgnbkXxSaK42    
+2026-06-04 00:25:54.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (83 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 448.4kiB/s ⬆ 18.8kiB/s    
+2026-06-04 00:25:54.464  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBc1y8JHzvvajTtbnQ6jZgw56A1JhnYbmeF5KXtSGkipu    
+2026-06-04 00:25:56.847  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk    
+2026-06-04 00:25:56.847  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWFD7LGphMNX2buRr4wSNu7xrt5kLN7Hm15gnwvd5jzitk    
+2026-06-04 00:25:56.935  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M /ip6/2605:6440:100a:19:7ec2:55ff:fe42:aa4c/tcp/30333/ws/p2p/12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M    
+2026-06-04 00:25:56.935  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M multiaddr=/ip6/2605:6440:100a:19:7ec2:55ff:fe42:aa4c/tcp/30333/ws/p2p/12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M    
+2026-06-04 00:25:56.952  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e    
+2026-06-04 00:25:56.977  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWG57Xc6k7uvgdgFnfzw82RsWG2sYK3Poa58Nq6RovLbN7    
+2026-06-04 00:25:57.080  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQYiZ3uidgxMSBzwvfWqovbtQXA6kghiKCEPGC6z1Fnf3 /ip4/162.120.16.190/tcp/30333/ws/p2p/12D3KooWQYiZ3uidgxMSBzwvfWqovbtQXA6kghiKCEPGC6z1Fnf3    
+2026-06-04 00:25:57.080  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQYiZ3uidgxMSBzwvfWqovbtQXA6kghiKCEPGC6z1Fnf3 multiaddr=/ip4/162.120.16.190/tcp/30333/ws/p2p/12D3KooWQYiZ3uidgxMSBzwvfWqovbtQXA6kghiKCEPGC6z1Fnf3    
+2026-06-04 00:25:57.328  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDjJ2hMob1cvReBgjRYCFtRQDKxencDmCdZpZHo6DhVi6 /ip4/178.104.169.214/tcp/46288/p2p/12D3KooWDjJ2hMob1cvReBgjRYCFtRQDKxencDmCdZpZHo6DhVi6    
+2026-06-04 00:25:57.328  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDjJ2hMob1cvReBgjRYCFtRQDKxencDmCdZpZHo6DhVi6 multiaddr=/ip4/178.104.169.214/tcp/46288/p2p/12D3KooWDjJ2hMob1cvReBgjRYCFtRQDKxencDmCdZpZHo6DhVi6    
+2026-06-04 00:25:57.335  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBGtnMgoimkWC3NC9JYKPupsGLFEcXG8aXaapjAjg254z /ip4/178.105.91.66/tcp/43840/p2p/12D3KooWBGtnMgoimkWC3NC9JYKPupsGLFEcXG8aXaapjAjg254z    
+2026-06-04 00:25:57.335  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBGtnMgoimkWC3NC9JYKPupsGLFEcXG8aXaapjAjg254z multiaddr=/ip4/178.105.91.66/tcp/43840/p2p/12D3KooWBGtnMgoimkWC3NC9JYKPupsGLFEcXG8aXaapjAjg254z    
+2026-06-04 00:25:57.405  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWD8Y5FMNz2K7MG2uvueB5P2avyLpMvkDF8xVcWvB3976y /ip6/::1/tcp/30333/ws/p2p/12D3KooWD8Y5FMNz2K7MG2uvueB5P2avyLpMvkDF8xVcWvB3976y    
+2026-06-04 00:25:57.405  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWD8Y5FMNz2K7MG2uvueB5P2avyLpMvkDF8xVcWvB3976y multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWD8Y5FMNz2K7MG2uvueB5P2avyLpMvkDF8xVcWvB3976y    
+2026-06-04 00:25:57.470  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq /ip4/94.130.77.84/tcp/45738/p2p/12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq    
+2026-06-04 00:25:57.470  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq multiaddr=/ip4/94.130.77.84/tcp/45738/p2p/12D3KooWARJ7gC3XUaK1RGfkNYUgFQGekWygi6YYSRiJSSdY7ykq    
+2026-06-04 00:25:57.664  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJ6knFDwLH66HVuo7NY5w7EqxgnSRPJ4Frd3r43dEtVdc /ip4/10.42.0.65/tcp/30333/ws/p2p/12D3KooWJ6knFDwLH66HVuo7NY5w7EqxgnSRPJ4Frd3r43dEtVdc    
+2026-06-04 00:25:57.664  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJ6knFDwLH66HVuo7NY5w7EqxgnSRPJ4Frd3r43dEtVdc multiaddr=/ip4/10.42.0.65/tcp/30333/ws/p2p/12D3KooWJ6knFDwLH66HVuo7NY5w7EqxgnSRPJ4Frd3r43dEtVdc    
+2026-06-04 00:25:57.671  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBc1y8JHzvvajTtbnQ6jZgw56A1JhnYbmeF5KXtSGkipu /ip4/74.214.172.234/tcp/30333/ws/p2p/12D3KooWBc1y8JHzvvajTtbnQ6jZgw56A1JhnYbmeF5KXtSGkipu    
+2026-06-04 00:25:57.671  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBc1y8JHzvvajTtbnQ6jZgw56A1JhnYbmeF5KXtSGkipu multiaddr=/ip4/74.214.172.234/tcp/30333/ws/p2p/12D3KooWBc1y8JHzvvajTtbnQ6jZgw56A1JhnYbmeF5KXtSGkipu    
+2026-06-04 00:25:57.912  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e /ip4/152.233.30.5/tcp/16277/ws/p2p/12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e    
+2026-06-04 00:25:57.912  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e multiaddr=/ip4/152.233.30.5/tcp/16277/ws/p2p/12D3KooWNmryjW7UNHuci857sUs8W1QewGr2jaYeCcLKDrhhKA1e    
+2026-06-04 00:25:59.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (85 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 689.7kiB/s ⬆ 18.3kiB/s    
+2026-06-04 00:25:59.755  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa    
+2026-06-04 00:25:59.755  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa /p2p/12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa    
+2026-06-04 00:25:59.755  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa multiaddr=/p2p/12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa    
+2026-06-04 00:26:00.144  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks    
+2026-06-04 00:26:00.418  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7    
+2026-06-04 00:26:00.696  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H    
+2026-06-04 00:26:00.696  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H /p2p/12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H    
+2026-06-04 00:26:00.696  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H multiaddr=/p2p/12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H    
+2026-06-04 00:26:00.760  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWPu9XLFR4XHVdKzpJi66rDMsjo2sAyrMjSNYBnMuFNDqk /ip4/178.105.51.114/tcp/30333/ws/p2p/12D3KooWPu9XLFR4XHVdKzpJi66rDMsjo2sAyrMjSNYBnMuFNDqk    
+2026-06-04 00:26:00.760  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWPu9XLFR4XHVdKzpJi66rDMsjo2sAyrMjSNYBnMuFNDqk multiaddr=/ip4/178.105.51.114/tcp/30333/ws/p2p/12D3KooWPu9XLFR4XHVdKzpJi66rDMsjo2sAyrMjSNYBnMuFNDqk    
+2026-06-04 00:26:00.763  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWSt1sF2Rwhxpx65KwEcHhNqeM2mMaDSTBw5n2X4vfCpYy /ip6/::1/tcp/30333/ws/p2p/12D3KooWSt1sF2Rwhxpx65KwEcHhNqeM2mMaDSTBw5n2X4vfCpYy    
+2026-06-04 00:26:00.763  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWSt1sF2Rwhxpx65KwEcHhNqeM2mMaDSTBw5n2X4vfCpYy multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWSt1sF2Rwhxpx65KwEcHhNqeM2mMaDSTBw5n2X4vfCpYy    
+2026-06-04 00:26:00.884  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7 /ip4/10.86.44.220/tcp/30333/ws/p2p/12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7    
+2026-06-04 00:26:00.884  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7 multiaddr=/ip4/10.86.44.220/tcp/30333/ws/p2p/12D3KooWKmHY7CGj15vL7fmcuPuRQ7ZX6bsDbnqUW1Gg3kj9yqF7    
+2026-06-04 00:26:00.980  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWPu9XLFR4XHVdKzpJi66rDMsjo2sAyrMjSNYBnMuFNDqk    
+2026-06-04 00:26:01.098  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWSt1sF2Rwhxpx65KwEcHhNqeM2mMaDSTBw5n2X4vfCpYy    
+2026-06-04 00:26:01.289  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks /ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks    
+2026-06-04 00:26:01.289  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks multiaddr=/ip4/127.0.0.1/tcp/30333/ws/p2p/12D3KooWHVU1EcdfzvDUGb9LxZAuyaXzDk2QMJkLC8yXqp3BnRks    
+2026-06-04 00:26:01.662  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq    
+2026-06-04 00:26:01.662  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq /p2p/12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq    
+2026-06-04 00:26:01.662  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq multiaddr=/p2p/12D3KooWGqxyN6MBEsnJ6FTjja58ftki9JJ5et6sF549jVtWSZXq    
+2026-06-04 00:26:02.338  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG    
+2026-06-04 00:26:02.338  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG /p2p/12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG    
+2026-06-04 00:26:02.338  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG multiaddr=/p2p/12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG    
+2026-06-04 00:26:02.634  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y    
+2026-06-04 00:26:02.699  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj    
+2026-06-04 00:26:02.699  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj /p2p/12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj    
+2026-06-04 00:26:02.699  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj multiaddr=/p2p/12D3KooWRJUFjk8NqEKRu5VAJSuKTjEooL4mHtgYWo68hYtowuZj    
+2026-06-04 00:26:02.758  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWNfpB3mnL2wcHp2ymoAnoYswiDvGsBgDBzV2zTrYTF8y7 /ip6/::1/tcp/30333/ws/p2p/12D3KooWNfpB3mnL2wcHp2ymoAnoYswiDvGsBgDBzV2zTrYTF8y7    
+2026-06-04 00:26:02.758  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWNfpB3mnL2wcHp2ymoAnoYswiDvGsBgDBzV2zTrYTF8y7 multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWNfpB3mnL2wcHp2ymoAnoYswiDvGsBgDBzV2zTrYTF8y7    
+2026-06-04 00:26:02.793  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX    
+2026-06-04 00:26:02.977  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNfpB3mnL2wcHp2ymoAnoYswiDvGsBgDBzV2zTrYTF8y7    
+2026-06-04 00:26:03.341  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWG57Xc6k7uvgdgFnfzw82RsWG2sYK3Poa58Nq6RovLbN7 /ip4/65.19.178.230/tcp/60622/p2p/12D3KooWG57Xc6k7uvgdgFnfzw82RsWG2sYK3Poa58Nq6RovLbN7    
+2026-06-04 00:26:03.341  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWG57Xc6k7uvgdgFnfzw82RsWG2sYK3Poa58Nq6RovLbN7 multiaddr=/ip4/65.19.178.230/tcp/60622/p2p/12D3KooWG57Xc6k7uvgdgFnfzw82RsWG2sYK3Poa58Nq6RovLbN7    
+2026-06-04 00:26:03.348  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGcPf1K3qwC5468U4RkdNB7pRfsuzn2CRWgnbkXxSaK42 /ip4/65.108.204.24/tcp/30333/ws/p2p/12D3KooWGcPf1K3qwC5468U4RkdNB7pRfsuzn2CRWgnbkXxSaK42    
+2026-06-04 00:26:03.348  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGcPf1K3qwC5468U4RkdNB7pRfsuzn2CRWgnbkXxSaK42 multiaddr=/ip4/65.108.204.24/tcp/30333/ws/p2p/12D3KooWGcPf1K3qwC5468U4RkdNB7pRfsuzn2CRWgnbkXxSaK42    
+2026-06-04 00:26:03.353  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMW27Pz3C1Boz6tLEGwe25Me272aiGYZdRW2jQEXWhtA1 /ip4/95.217.202.19/tcp/30333/ws/p2p/12D3KooWMW27Pz3C1Boz6tLEGwe25Me272aiGYZdRW2jQEXWhtA1    
+2026-06-04 00:26:03.353  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMW27Pz3C1Boz6tLEGwe25Me272aiGYZdRW2jQEXWhtA1 multiaddr=/ip4/95.217.202.19/tcp/30333/ws/p2p/12D3KooWMW27Pz3C1Boz6tLEGwe25Me272aiGYZdRW2jQEXWhtA1    
+2026-06-04 00:26:03.541  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWKG3ciFBDuKwEfY5ga1Dx8g17j2qgPZiRBGt5prtBwa1n    
+2026-06-04 00:26:03.746  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT    
+2026-06-04 00:26:03.834  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT /ip4/178.104.83.169/tcp/30333/ws/p2p/12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT    
+2026-06-04 00:26:03.834  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT multiaddr=/ip4/178.104.83.169/tcp/30333/ws/p2p/12D3KooWCDmEpa425gSVQxNeUocEAiWoWf9tM9pKuFkmPNrq9QjT    
+2026-06-04 00:26:03.936  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHrS6hEpXgHaAB3spgYKMPG23Qr7Do5BeMnJSr2u8i9Zr    
+2026-06-04 00:26:03.986  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWKG3ciFBDuKwEfY5ga1Dx8g17j2qgPZiRBGt5prtBwa1n /ip6/2a01:4ff:f0:7960::1/tcp/30333/ws/p2p/12D3KooWKG3ciFBDuKwEfY5ga1Dx8g17j2qgPZiRBGt5prtBwa1n    
+2026-06-04 00:26:03.986  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWKG3ciFBDuKwEfY5ga1Dx8g17j2qgPZiRBGt5prtBwa1n multiaddr=/ip6/2a01:4ff:f0:7960::1/tcp/30333/ws/p2p/12D3KooWKG3ciFBDuKwEfY5ga1Dx8g17j2qgPZiRBGt5prtBwa1n    
+2026-06-04 00:26:04.240  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBpE5VdEVZxDut239ruvTFchHabTZh3p9yQqAdHFSea5P    
+2026-06-04 00:26:04.243  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMQKU3ngqsYNSzmYGsMpmwwcvsweZ9VtrweUNJKyJsGEB /ip4/46.62.202.246/tcp/30333/ws/p2p/12D3KooWMQKU3ngqsYNSzmYGsMpmwwcvsweZ9VtrweUNJKyJsGEB    
+2026-06-04 00:26:04.243  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMQKU3ngqsYNSzmYGsMpmwwcvsweZ9VtrweUNJKyJsGEB multiaddr=/ip4/46.62.202.246/tcp/30333/ws/p2p/12D3KooWMQKU3ngqsYNSzmYGsMpmwwcvsweZ9VtrweUNJKyJsGEB    
+2026-06-04 00:26:04.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (95 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 1.1MiB/s ⬆ 25.9kiB/s    
+2026-06-04 00:26:04.450  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWCQwh4N384x9wtmXcg6TcTWmaow53mQUT2MDKkbEyQdDa    
+2026-06-04 00:26:04.450  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWP9z9jRbae3CCxX3FVoB38k6VufGyrzZaZ27syq6Ydu9H    
+2026-06-04 00:26:04.450  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWFgqwpyFfK8t7wrVzwiz1vK9jHVwJVWdXvsqiennWPYfG    
+2026-06-04 00:26:04.531  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWR9EtYiGonEGYKmZZftrMXJK7exL9eWUPB5Wc7GqPWr5w /ip4/18.176.159.242/tcp/52074/ws/p2p/12D3KooWR9EtYiGonEGYKmZZftrMXJK7exL9eWUPB5Wc7GqPWr5w    
+2026-06-04 00:26:04.531  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWR9EtYiGonEGYKmZZftrMXJK7exL9eWUPB5Wc7GqPWr5w multiaddr=/ip4/18.176.159.242/tcp/52074/ws/p2p/12D3KooWR9EtYiGonEGYKmZZftrMXJK7exL9eWUPB5Wc7GqPWr5w    
+2026-06-04 00:26:04.785  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS    
+2026-06-04 00:26:04.785  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS /p2p/12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS    
+2026-06-04 00:26:04.785  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS multiaddr=/p2p/12D3KooWGtmTUSXJVR2wzVdTJ2stLBsrGJnVYnqAs3CGXrEDyQRS    
+2026-06-04 00:26:04.833  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWHrS6hEpXgHaAB3spgYKMPG23Qr7Do5BeMnJSr2u8i9Zr /ip4/54.214.33.132/tcp/11505/ws/p2p/12D3KooWHrS6hEpXgHaAB3spgYKMPG23Qr7Do5BeMnJSr2u8i9Zr    
+2026-06-04 00:26:04.833  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWHrS6hEpXgHaAB3spgYKMPG23Qr7Do5BeMnJSr2u8i9Zr multiaddr=/ip4/54.214.33.132/tcp/11505/ws/p2p/12D3KooWHrS6hEpXgHaAB3spgYKMPG23Qr7Do5BeMnJSr2u8i9Zr    
+2026-06-04 00:26:05.499  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDP7wDs4jEz6gc8a3herM688RKcG4RtSH4Us9MGJjkpMA /ip4/172.86.90.38/tcp/62972/ws/p2p/12D3KooWDP7wDs4jEz6gc8a3herM688RKcG4RtSH4Us9MGJjkpMA    
+2026-06-04 00:26:05.499  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDP7wDs4jEz6gc8a3herM688RKcG4RtSH4Us9MGJjkpMA multiaddr=/ip4/172.86.90.38/tcp/62972/ws/p2p/12D3KooWDP7wDs4jEz6gc8a3herM688RKcG4RtSH4Us9MGJjkpMA    
+2026-06-04 00:26:05.567  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDP7wDs4jEz6gc8a3herM688RKcG4RtSH4Us9MGJjkpMA    
+2026-06-04 00:26:05.765  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQeq56YWV7kHAjodZFK29pXXTteWo4WDTgLEsdRWMCauW /ip4/178.105.133.120/tcp/30333/ws/p2p/12D3KooWQeq56YWV7kHAjodZFK29pXXTteWo4WDTgLEsdRWMCauW    
+2026-06-04 00:26:05.765  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQeq56YWV7kHAjodZFK29pXXTteWo4WDTgLEsdRWMCauW multiaddr=/ip4/178.105.133.120/tcp/30333/ws/p2p/12D3KooWQeq56YWV7kHAjodZFK29pXXTteWo4WDTgLEsdRWMCauW    
+2026-06-04 00:26:06.100  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQeq56YWV7kHAjodZFK29pXXTteWo4WDTgLEsdRWMCauW    
+2026-06-04 00:26:06.791  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu    
+2026-06-04 00:26:06.791  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu /p2p/12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu    
+2026-06-04 00:26:06.791  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu multiaddr=/p2p/12D3KooWJdTXqQmCtw8XVMGxDbqud7aWEHKNFoYsHeNLcjnUJSxu    
+2026-06-04 00:26:06.965  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2    
+2026-06-04 00:26:07.802  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc    
+2026-06-04 00:26:08.456  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQkxLQz9pagkYEgZs47BtCWGUAELkF37YFe6U3gcBFMRz    
+2026-06-04 00:26:09.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (100 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 746.5kiB/s ⬆ 13.0kiB/s    
+2026-06-04 00:26:10.734  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBpE5VdEVZxDut239ruvTFchHabTZh3p9yQqAdHFSea5P /ip4/3.140.248.178/tcp/21243/ws/p2p/12D3KooWBpE5VdEVZxDut239ruvTFchHabTZh3p9yQqAdHFSea5P    
+2026-06-04 00:26:10.734  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBpE5VdEVZxDut239ruvTFchHabTZh3p9yQqAdHFSea5P multiaddr=/ip4/3.140.248.178/tcp/21243/ws/p2p/12D3KooWBpE5VdEVZxDut239ruvTFchHabTZh3p9yQqAdHFSea5P    
+2026-06-04 00:26:10.743  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRMhKFPxLzRjrHnu9q4r3681gwpuAYhRmCBumSHz6hVVz    
+2026-06-04 00:26:11.427  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL    
+2026-06-04 00:26:11.668  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGch5GuRfvS9ZBhYReZeU3tnpx4EY4p1gzJ1K5R99i5X8    
+2026-06-04 00:26:12.487  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQ6EyRtJFfZDByk4mdMZKmosE2Xo4MGxK6tLuduqkv17M    
+2026-06-04 00:26:13.061  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWCC9Pq24DiTcgFTtq47YNjWv6JsXh6GTQQPfNAmk8fWfq    
+2026-06-04 00:26:13.490  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGch5GuRfvS9ZBhYReZeU3tnpx4EY4p1gzJ1K5R99i5X8 /ip4/198.244.203.187/tcp/60429/ws/p2p/12D3KooWGch5GuRfvS9ZBhYReZeU3tnpx4EY4p1gzJ1K5R99i5X8    
+2026-06-04 00:26:13.490  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGch5GuRfvS9ZBhYReZeU3tnpx4EY4p1gzJ1K5R99i5X8 multiaddr=/ip4/198.244.203.187/tcp/60429/ws/p2p/12D3KooWGch5GuRfvS9ZBhYReZeU3tnpx4EY4p1gzJ1K5R99i5X8    
+2026-06-04 00:26:14.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (105 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 1.4MiB/s ⬆ 15.8kiB/s    
+2026-06-04 00:26:14.570  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWEUffoNodUosNPogLbJwVBShB3BdF74HpyvjLPrHCgWQf /ip6/2a02:4780:10:97ff::1/tcp/30333/ws/p2p/12D3KooWEUffoNodUosNPogLbJwVBShB3BdF74HpyvjLPrHCgWQf    
+2026-06-04 00:26:14.570  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWEUffoNodUosNPogLbJwVBShB3BdF74HpyvjLPrHCgWQf multiaddr=/ip6/2a02:4780:10:97ff::1/tcp/30333/ws/p2p/12D3KooWEUffoNodUosNPogLbJwVBShB3BdF74HpyvjLPrHCgWQf    
+2026-06-04 00:26:14.707  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWEUffoNodUosNPogLbJwVBShB3BdF74HpyvjLPrHCgWQf    
+2026-06-04 00:26:14.764  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY /ip6/::1/tcp/30333/ws/p2p/12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY    
+2026-06-04 00:26:14.764  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY    
+2026-06-04 00:26:14.788  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWBdSbGHnAU8hrMK5XnU83PFz2ggEa8SRSafoSECfycbCr /ip4/91.99.239.199/tcp/30333/ws/p2p/12D3KooWBdSbGHnAU8hrMK5XnU83PFz2ggEa8SRSafoSECfycbCr    
+2026-06-04 00:26:14.788  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWBdSbGHnAU8hrMK5XnU83PFz2ggEa8SRSafoSECfycbCr multiaddr=/ip4/91.99.239.199/tcp/30333/ws/p2p/12D3KooWBdSbGHnAU8hrMK5XnU83PFz2ggEa8SRSafoSECfycbCr    
+2026-06-04 00:26:15.092  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMumdipWSPpXR9vMaU6rqgXqyVNcJn9GcXQfxd98xwbMY    
+2026-06-04 00:26:15.140  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWBdSbGHnAU8hrMK5XnU83PFz2ggEa8SRSafoSECfycbCr    
+2026-06-04 00:26:16.380  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWJnuwj1ohwHSNaQ4ByPgSgKGMYwDcxsb88FnohFAWjaBg    
+2026-06-04 00:26:17.134  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX    
+2026-06-04 00:26:17.134  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX /p2p/12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX    
+2026-06-04 00:26:17.134  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX multiaddr=/p2p/12D3KooWACFKGxYKfb2ZjVwopJrfei3tQLfcKMWPHLaneDjGRJKX    
+2026-06-04 00:26:17.338  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y    
+2026-06-04 00:26:17.338  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y /p2p/12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y    
+2026-06-04 00:26:17.338  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y multiaddr=/p2p/12D3KooWCcPh7hEMbcAPaomumuECG3WmJDDUJpoXUd25t53qkh5Y    
+2026-06-04 00:26:17.602  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQkxLQz9pagkYEgZs47BtCWGUAELkF37YFe6U3gcBFMRz /ip4/34.81.39.139/tcp/2976/ws/p2p/12D3KooWQkxLQz9pagkYEgZs47BtCWGUAELkF37YFe6U3gcBFMRz    
+2026-06-04 00:26:17.602  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQkxLQz9pagkYEgZs47BtCWGUAELkF37YFe6U3gcBFMRz multiaddr=/ip4/34.81.39.139/tcp/2976/ws/p2p/12D3KooWQkxLQz9pagkYEgZs47BtCWGUAELkF37YFe6U3gcBFMRz    
+2026-06-04 00:26:17.813  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWJnuwj1ohwHSNaQ4ByPgSgKGMYwDcxsb88FnohFAWjaBg /ip4/84.247.129.55/tcp/28721/ws/p2p/12D3KooWJnuwj1ohwHSNaQ4ByPgSgKGMYwDcxsb88FnohFAWjaBg    
+2026-06-04 00:26:17.813  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWJnuwj1ohwHSNaQ4ByPgSgKGMYwDcxsb88FnohFAWjaBg multiaddr=/ip4/84.247.129.55/tcp/28721/ws/p2p/12D3KooWJnuwj1ohwHSNaQ4ByPgSgKGMYwDcxsb88FnohFAWjaBg    
+2026-06-04 00:26:18.121  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc /ip4/185.184.192.74/tcp/30333/ws/p2p/12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc    
+2026-06-04 00:26:18.121  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc multiaddr=/ip4/185.184.192.74/tcp/30333/ws/p2p/12D3KooWNNPSZ4MifZrJszTebSUV2aXSW6CCHgBGCnyVHdMfHjVc    
+2026-06-04 00:26:18.420  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT    
+2026-06-04 00:26:18.420  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT /p2p/12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT    
+2026-06-04 00:26:18.420  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT multiaddr=/p2p/12D3KooWSxEBJGw1NaV5d1dGJhv3TkgWueMX6uTevh1RZvMhQRKT    
+2026-06-04 00:26:18.438  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL /ip4/216.128.159.11/tcp/44576/p2p/12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL    
+2026-06-04 00:26:18.438  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL multiaddr=/ip4/216.128.159.11/tcp/44576/p2p/12D3KooWEHDT2cjGrkMs6SLoUXaWv3bQeyEcTnXff2We6ieRJhYL    
+2026-06-04 00:26:19.424  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (109 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 644.4kiB/s ⬆ 10.8kiB/s    
+2026-06-04 00:26:20.493  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge /ip4/45.63.0.192/tcp/30333/ws/p2p/12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge    
+2026-06-04 00:26:20.493  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge multiaddr=/ip4/45.63.0.192/tcp/30333/ws/p2p/12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge    
+2026-06-04 00:26:20.530  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGUNFA6z5312BWzvjhSpgLmAHD63CiLYapXPwYT9Ga4Ge    
+2026-06-04 00:26:20.676  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS /ip6/::1/tcp/30333/ws/p2p/12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS    
+2026-06-04 00:26:20.676  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS    
+2026-06-04 00:26:20.711  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWEMYn7pUsSrTK2siwb3x7QTK9z6KwqK3ssAjkV7ShYRFS    
+2026-06-04 00:26:21.089  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWAuM2cvQgYGG5Lt9nTERJ7uScM55h3GQYUQ4S1AHxCoZe    
+2026-06-04 00:26:21.138  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu /ip4/192.168.0.110/tcp/30333/ws/p2p/12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu    
+2026-06-04 00:26:21.138  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu multiaddr=/ip4/192.168.0.110/tcp/30333/ws/p2p/12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu    
+2026-06-04 00:26:21.173  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWEF2xHDRAd7ENMqHnXGA8vu4CLe9NVdWVjh2J7wCMZKJu    
+2026-06-04 00:26:21.396  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQczg9jLoBHxJHTTrZfFRWqZMQanxTJiGgjNb5GZQ4H64    
+2026-06-04 00:26:21.566  INFO tokio-runtime-worker bot::peer_manage: peer log using p2p-only multiaddr for sync peer 12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2    
+2026-06-04 00:26:21.566  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2 /p2p/12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2    
+2026-06-04 00:26:21.566  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2 multiaddr=/p2p/12D3KooWSMPyp3kZVw9TffcWYNqFUapBy4SN2HmEqfVUZ7d4KFi2    
+2026-06-04 00:26:22.283  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQczg9jLoBHxJHTTrZfFRWqZMQanxTJiGgjNb5GZQ4H64 /ip4/10.110.207.173/tcp/30333/ws/p2p/12D3KooWQczg9jLoBHxJHTTrZfFRWqZMQanxTJiGgjNb5GZQ4H64    
+2026-06-04 00:26:22.283  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQczg9jLoBHxJHTTrZfFRWqZMQanxTJiGgjNb5GZQ4H64 multiaddr=/ip4/10.110.207.173/tcp/30333/ws/p2p/12D3KooWQczg9jLoBHxJHTTrZfFRWqZMQanxTJiGgjNb5GZQ4H64    
+2026-06-04 00:26:22.427  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRMhKFPxLzRjrHnu9q4r3681gwpuAYhRmCBumSHz6hVVz /ip4/46.225.140.239/tcp/30333/ws/p2p/12D3KooWRMhKFPxLzRjrHnu9q4r3681gwpuAYhRmCBumSHz6hVVz    
+2026-06-04 00:26:22.427  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRMhKFPxLzRjrHnu9q4r3681gwpuAYhRmCBumSHz6hVVz multiaddr=/ip4/46.225.140.239/tcp/30333/ws/p2p/12D3KooWRMhKFPxLzRjrHnu9q4r3681gwpuAYhRmCBumSHz6hVVz    
+2026-06-04 00:26:22.440  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWRcJtgQ5Fxn27A3DyU1YVuu6tpN68ZMg7isVELjwENk4N /ip4/84.32.220.100/tcp/30334/ws/p2p/12D3KooWRcJtgQ5Fxn27A3DyU1YVuu6tpN68ZMg7isVELjwENk4N    
+2026-06-04 00:26:22.440  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWRcJtgQ5Fxn27A3DyU1YVuu6tpN68ZMg7isVELjwENk4N multiaddr=/ip4/84.32.220.100/tcp/30334/ws/p2p/12D3KooWRcJtgQ5Fxn27A3DyU1YVuu6tpN68ZMg7isVELjwENk4N    
+2026-06-04 00:26:22.441  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWRcJtgQ5Fxn27A3DyU1YVuu6tpN68ZMg7isVELjwENk4N    
+2026-06-04 00:26:22.774  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1 /ip4/178.105.59.71/tcp/30333/ws/p2p/12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1    
+2026-06-04 00:26:22.774  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1 multiaddr=/ip4/178.105.59.71/tcp/30333/ws/p2p/12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1    
+2026-06-04 00:26:23.110  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWAJZkWP16MQFZkSrBBGKo7Qso8H9mppUA3swXcFLmJBD1    
+2026-06-04 00:26:23.799  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWQ8fTwyucfikG37AZTg5YzUL78SYhd7zuAzGaHPtBtnMc /ip4/94.130.79.215/tcp/59330/p2p/12D3KooWQ8fTwyucfikG37AZTg5YzUL78SYhd7zuAzGaHPtBtnMc    
+2026-06-04 00:26:23.799  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWQ8fTwyucfikG37AZTg5YzUL78SYhd7zuAzGaHPtBtnMc multiaddr=/ip4/94.130.79.215/tcp/59330/p2p/12D3KooWQ8fTwyucfikG37AZTg5YzUL78SYhd7zuAzGaHPtBtnMc    
+2026-06-04 00:26:24.019  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWP3ukE1oSZNpqxzyc84ywNm67zNnT4ovJwnodRqPDgHfP    
+2026-06-04 00:26:24.158  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWQ8fTwyucfikG37AZTg5YzUL78SYhd7zuAzGaHPtBtnMc    
+2026-06-04 00:26:24.425  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (118 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 976.9kiB/s ⬆ 18.3kiB/s    
+2026-06-04 00:26:24.432  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWCC9Pq24DiTcgFTtq47YNjWv6JsXh6GTQQPfNAmk8fWfq /ip4/152.233.30.5/tcp/48949/ws/p2p/12D3KooWCC9Pq24DiTcgFTtq47YNjWv6JsXh6GTQQPfNAmk8fWfq    
+2026-06-04 00:26:24.432  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWCC9Pq24DiTcgFTtq47YNjWv6JsXh6GTQQPfNAmk8fWfq multiaddr=/ip4/152.233.30.5/tcp/48949/ws/p2p/12D3KooWCC9Pq24DiTcgFTtq47YNjWv6JsXh6GTQQPfNAmk8fWfq    
+2026-06-04 00:26:25.383  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMynBggt4VQTfUaEdqArkKHUyo7j8r6MEU1EidEDCx7XL /ip6/::1/tcp/30333/ws/p2p/12D3KooWMynBggt4VQTfUaEdqArkKHUyo7j8r6MEU1EidEDCx7XL    
+2026-06-04 00:26:25.383  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMynBggt4VQTfUaEdqArkKHUyo7j8r6MEU1EidEDCx7XL multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWMynBggt4VQTfUaEdqArkKHUyo7j8r6MEU1EidEDCx7XL    
+2026-06-04 00:26:25.441  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9 /ip6/::1/tcp/30333/ws/p2p/12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9    
+2026-06-04 00:26:25.441  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9 multiaddr=/ip6/::1/tcp/30333/ws/p2p/12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9    
+2026-06-04 00:26:25.442  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMJAwwUh3gDL1xjJR3uezScPbob426QHzURAg2CNNnPe9    
+2026-06-04 00:26:25.734  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWMynBggt4VQTfUaEdqArkKHUyo7j8r6MEU1EidEDCx7XL    
+2026-06-04 00:26:27.779  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWAuM2cvQgYGG5Lt9nTERJ7uScM55h3GQYUQ4S1AHxCoZe /ip4/178.105.49.134/tcp/40394/p2p/12D3KooWAuM2cvQgYGG5Lt9nTERJ7uScM55h3GQYUQ4S1AHxCoZe    
+2026-06-04 00:26:27.779  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWAuM2cvQgYGG5Lt9nTERJ7uScM55h3GQYUQ4S1AHxCoZe multiaddr=/ip4/178.105.49.134/tcp/40394/p2p/12D3KooWAuM2cvQgYGG5Lt9nTERJ7uScM55h3GQYUQ4S1AHxCoZe    
+2026-06-04 00:26:29.425  INFO tokio-runtime-worker substrate: ⏩ Warping, Downloading finality proofs, 0.00 Mib (120 peers), best: #0 (0x2f05…6c03), finalized #0 (0x2f05…6c03), ⬇ 629.1kiB/s ⬆ 11.4kiB/s    
+2026-06-04 00:26:29.675  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-06-04 00:26:30.661  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq /ip4/3.140.248.178/tcp/11404/ws/p2p/12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-06-04 00:26:30.661  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq multiaddr=/ip4/3.140.248.178/tcp/11404/ws/p2p/12D3KooWGtyRztrxrQF13FNtNgJMTw6XzYmH1r82jJWrULC85STq    
+2026-06-04 00:26:31.383  INFO tokio-runtime-worker bot::peer_manage: logged new peer (normal): 12D3KooWDbj9JNfwhMCL8NmyNag1fT2avGMvQ9XAzXC2z5fGzMJg /ip4/91.98.169.183/tcp/30333/ws/p2p/12D3KooWDbj9JNfwhMCL8NmyNag1fT2avGMvQ9XAzXC2z5fGzMJg    
+2026-06-04 00:26:31.383  INFO tokio-runtime-worker bot::ipc: notify bot: find_peer peer_id=12D3KooWDbj9JNfwhMCL8NmyNag1fT2avGMvQ9XAzXC2z5fGzMJg multiaddr=/ip4/91.98.169.183/tcp/30333/ws/p2p/12D3KooWDbj9JNfwhMCL8NmyNag1fT2avGMvQ9XAzXC2z5fGzMJg    
+2026-06-04 00:26:31.734  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWDbj9JNfwhMCL8NmyNag1fT2avGMvQ9XAzXC2z5fGzMJg    
+2026-06-04 00:26:31.916  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWK7FDHQov6Q1F1a7FhWgpnsmN9bwSGqAkext36cBadMWW    
+2026-06-04 00:26:32.450  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWP6XzGCTDmWjM7AvnDREUPFZviErdEj4Ls2XZgkp6SZfr    
+2026-06-04 00:26:32.792  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWHGr7aozjfka3m2dpJuyW9y25H7cJjepNJhGgHTwfJCaW    
+2026-06-04 00:26:33.641  INFO tokio-runtime-worker sync: tx notification stream opened: 12D3KooWD7hTtzf1dwa1R2TbE9MWGox3uRSoeQa64mfQUVHRkanP    
+2026-06-04 00:26:34.234 ERROR tokio-runtime-worker sc_service::task_manager: Essential task `txpool-background` failed. Shutting down service.    
