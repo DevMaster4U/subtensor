@@ -13,7 +13,7 @@ use crate::metrics_log::MetricsLogControl;
 use crate::mempool::MempoolWatcherControl;
 use crate::peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, FindClosestPeersResult, PeerListEntry,
-    PeerManageStatus, PeerManager,
+    PeerManageStatus, PeerManager, SetDisablePeersResult,
 };
 use crate::peer_scoreboard::{PeerScoreboard, PeerScoreboardExport};
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
@@ -80,9 +80,13 @@ pub trait NodeControlApi {
     #[method(name = "node_peerStatus")]
     fn peer_status(&self) -> RpcResult<PeerManageStatus>;
 
-    /// Connected peers: peer id, multiaddr, role, and connection flags.
+    /// Connected peers: full snapshot (addresses, sync state, scores, direction, flags).
     #[method(name = "node_peerList")]
     fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>>;
+
+    /// Replace disabled peer list, persist to `disable_peers.txt`, drop and ban matching peers.
+    #[method(name = "node_setDisablePeers")]
+    fn set_disable_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetDisablePeersResult>;
 
     /// DHT closest peers to `peer_id` and their multiaddrs (`find_closest_peers`).
     #[method(name = "node_peerFindClosest")]
@@ -354,6 +358,15 @@ impl NodeControlApiServer for NodeControlRpc {
         let pm = Arc::clone(&self.peer_manager);
         tokio::task::block_in_place(|| {
             tokio::runtime::Handle::current().block_on(async move { pm.get_peer_list().await })
+        })
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn set_disable_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetDisablePeersResult> {
+        let pm = Arc::clone(&self.peer_manager);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current()
+                .block_on(async move { pm.set_disable_peers(peer_ids).await })
         })
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }

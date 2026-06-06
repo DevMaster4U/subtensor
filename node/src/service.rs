@@ -475,11 +475,20 @@ where
         peer_scoreboard.clone(),
     ));
     peer_manager.preload_peer_addresses(reserved_nodes.iter().cloned());
+    peer_manager.set_peer_tracker(peer_tracker.clone());
     if let Ok(n) = peer_manager.preload_peer_addresses_from_file("reserved.txt") {
         if n > 0 {
             log::info!(
                 target: "bot::peer_manage",
                 "preloaded {n} dialable peer address(es) from reserved.txt",
+            );
+        }
+    }
+    if let Ok(n) = peer_manager.load_disabled_peers_from_file("disable_peers.txt") {
+        if n > 0 {
+            log::info!(
+                target: "bot::peer_manage",
+                "applied {n} disabled peer(s) from disable_peers.txt",
             );
         }
     }
@@ -758,6 +767,8 @@ where
         Some(ipc_manager.clone()),
     );
 
+    let slot_duration = consensus_mechanism.slot_duration(&client)?;
+
     if role.is_authority() {
         let shield_keystore = Arc::new(MemoryShieldKeystore::new());
 
@@ -794,8 +805,6 @@ where
             shield_keystore.clone(),
         );
 
-        let slot_duration = consensus_mechanism.slot_duration(&client)?;
-
         let create_inherent_data_providers = move |_, ()| {
             let keystore = shield_keystore.clone();
             async move { CM::create_inherent_data_providers(slot_duration, keystore) }
@@ -820,6 +829,20 @@ where
                 telemetry: telemetry.as_ref().map(|x| x.handle()),
             },
         )?;
+    } else if sealing.is_none() {
+        let shield_keystore = Arc::new(MemoryShieldKeystore::new());
+        let create_inherent_data_providers = move |_, ()| {
+            let keystore = shield_keystore.clone();
+            async move { CM::create_inherent_data_providers(slot_duration, keystore) }
+        };
+        crate::bot_slot_watcher::start(
+            &task_manager.spawn_handle(),
+            slot_duration,
+            client.clone(),
+            select_chain.clone(),
+            sync_service.clone(),
+            create_inherent_data_providers,
+        );
     }
 
     if enable_grandpa {

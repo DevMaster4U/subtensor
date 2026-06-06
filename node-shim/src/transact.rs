@@ -45,6 +45,24 @@ impl TxPropagator {
         self.controller.propagate_transaction(hash);
     }
 
+    /// Propagate one transaction only to `peer` (must be connected on the tx protocol).
+    pub fn propagate_to_peer(&self, hash: <Block as BlockT>::Hash, peer: PeerId) {
+        let hash_str = format!("{hash:?}");
+        let peer_str = peer.to_base58();
+        if let Some(tracker) = &self.tx_inclusion_tracker {
+            tracker.register_submitted(hash_str.clone());
+        }
+        if let Some(tracker) = &self.propagation_tracker {
+            tracker.begin_own_propagation(hash_str.clone());
+        }
+        log::info!(
+            target: "bot::transact",
+            "📡 P2P propagate hash={hash_str} peer={peer_str}",
+        );
+        self.controller
+            .propagate_transaction_to_peers(hash, vec![peer]);
+    }
+
     pub fn propagate_all_ready(&self) {
         log::info!(
             target: "bot::transact",

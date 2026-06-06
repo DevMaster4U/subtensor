@@ -595,29 +595,53 @@ where
             extrinsic,
             propagate_type,
             propagate_param,
+            peer_id,
         } => {
+            let direct_peer = peer_id
+                .as_deref()
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(crate::transact::parse_propagation_peer_id)
+                .transpose()?;
+
             let tx_control = ipc.tx_propagation.lock().await.clone();
             let tx_propagator = ipc.tx_propagator.lock().await.clone();
             let tracker = ipc.propagation_tracker.lock().await.clone();
             let inclusion = ipc.tx_inclusion_tracker.lock().await.clone();
 
-            if let Some(tx_control) = tx_control {
-                if let Some(request) = parse_propagation_request(propagate_type, propagate_param) {
-                    tx_control.set_pending_request(request);
+            if direct_peer.is_none() {
+                if let Some(ref tx_control) = tx_control {
+                    if let Some(request) = parse_propagation_request(propagate_type, propagate_param)
+                    {
+                        tx_control.set_pending_request(request);
+                    }
                 }
-                let result = handle_transaction(
+            }
+
+            if let Some(propagator) = tx_propagator {
+                handle_transaction(
                     hash,
                     extrinsic,
                     pool,
                     best_hash,
-                    tx_propagator.as_ref(),
+                    Some(&propagator),
                     tracker.as_ref(),
                     inclusion.as_ref(),
+                    direct_peer,
                 )
-                .await;
-                result
+                .await
             } else {
-                handle_transaction(hash, extrinsic, pool, best_hash, None, None, None).await
+                handle_transaction(
+                    hash,
+                    extrinsic,
+                    pool,
+                    best_hash,
+                    None,
+                    None,
+                    None,
+                    direct_peer,
+                )
+                .await
             }
         }
         IpcMessage::Header { .. } | IpcMessage::Mempool { .. } | IpcMessage::FindPeer { .. } => {
@@ -670,12 +694,21 @@ async fn handle_transaction<P>(
     tx_propagator: Option<&TxPropagator>,
     _propagation_tracker: Option<&Arc<PropagationTracker>>,
     tx_inclusion_tracker: Option<&Arc<TxInclusionTracker>>,
+    direct_peer: Option<sc_network::PeerId>,
 ) -> Result<(), String>
 where
     P: TransactionPool<Block = Block, Hash = H256>
         + LocalTransactionPool<Block = Block, Hash = H256>
         + 'static,
 {
+    let propagate = |propagator: &TxPropagator, tx_hash: H256| {
+        if let Some(peer) = direct_peer {
+            propagator.propagate_to_peer(tx_hash, peer);
+        } else {
+            propagator.propagate(tx_hash);
+        }
+    };
+
     // Fast path: client already validated SCALE; node hex-decodes inner payload only.
     if let Some(inner_hex) = extrinsic {
         let inner = subtensor_ipc::decode_hex(&inner_hex)?;
@@ -697,7 +730,7 @@ where
             tracker.register_submitted(format!("{tx_hash:?}"));
         }
         if let Some(propagator) = tx_propagator {
-            propagator.propagate(tx_hash);
+            propagate(propagator, tx_hash);
         }
         return Ok(());
     }
@@ -718,7 +751,7 @@ where
             tracker.register_submitted(format!("{tx_hash:?}"));
         }
         if let Some(propagator) = tx_propagator {
-            propagator.propagate(tx_hash);
+            propagate(propagator, tx_hash);
         }
         return Ok(());
     }

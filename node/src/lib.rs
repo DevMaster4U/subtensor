@@ -1,4 +1,5 @@
 pub mod bot_block_announce;
+pub mod bot_slot_watcher;
 pub mod bot_tx_inclusion;
 pub mod chain_spec;
 pub mod cli;

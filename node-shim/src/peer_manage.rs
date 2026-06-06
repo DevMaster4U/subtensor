@@ -14,15 +14,19 @@ use sc_network::{
     event::{DhtEvent, Event},
     service::traits::NetworkDHTProvider,
     NetworkEventStream, NetworkPeers, NetworkStatusProvider, PeerId, ProtocolName,
+    ReputationChange,
 };
 use sc_network_sync::{SyncEvent, SyncEventStream, SyncingService};
 use sc_service::SpawnTaskHandle;
 use subtensor_ipc::PeerManageMode;
 
 use crate::ipc::IpcManager;
-use crate::peer_scoreboard::PeerScoreboard;
+use crate::peer_scoreboard::{PeerScoreboard, PeerScoreEntry};
 use crate::peers::{
-    connected_peer_addresses, parse_reserved_peers_file, ConnectedSnapshot, peer_is_connected,
+    connected_peer_addresses, connected_peer_details, connected_peer_directions,
+    parse_disable_peers_file, parse_reserved_peers_file, write_disable_peers_file,
+    ConnectedSnapshot, NetworkPeerDetails, PeerTracker, PeerTrackerInfo, peer_is_connected,
+    DEFAULT_DISABLE_PEERS_FILE,
 };
 
 /// Status snapshot for RPC.
@@ -72,12 +76,38 @@ pub struct ConnectFileResult {
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub struct PeerListEntry {
     pub peer_id: String,
-    pub multiaddr: Option<String>,
-    pub role: Option<String>,
+    pub connected: bool,
     pub sync: bool,
+    pub libp2p: bool,
+    /// `in` = remote dialed us, `out` = we dialed them.
+    pub direction: Option<String>,
+    pub multiaddr: Option<String>,
+    /// Multiaddr from custom/system peer registration, if any.
+    pub registered_multiaddr: Option<String>,
+    pub known_addresses: Vec<String>,
+    pub role: Option<String>,
+    pub version: Option<String>,
+    pub best_hash: Option<String>,
+    pub best_number: Option<u64>,
+    pub reputation: i32,
+    pub latest_ping_ms: Option<u64>,
     pub tx_reserved: bool,
     pub custom: bool,
     pub reserved: bool,
+    pub system_target: bool,
+    pub network_reserved: bool,
+    pub disabled: bool,
+    pub peer_log_seen: bool,
+    pub scores: PeerScoreEntry,
+    pub tracker: Option<PeerTrackerInfo>,
+}
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct SetDisablePeersResult {
+    pub applied: u32,
+    pub disconnected: u32,
+    pub disabled_peers: Vec<String>,
+    pub invalid_peer_ids: Vec<String>,
 }
 
 /// One peer returned by DHT `find_closest_peers`.
@@ -139,6 +169,10 @@ pub struct PeerManager {
     dht: Arc<dyn NetworkDHTProvider + Send + Sync>,
     ipc: RwLock<Option<Arc<IpcManager>>>,
     scoreboard: Arc<PeerScoreboard>,
+    disabled_peers: Arc<RwLock<HashSet<PeerId>>>,
+    /// Cached connection direction per peer (`in` / `out`), used when network_state is empty.
+    peer_directions: RwLock<HashMap<PeerId, String>>,
+    peer_tracker: RwLock<Option<Arc<PeerTracker>>>,
 }
 
 impl PeerManager {
@@ -178,7 +212,140 @@ impl PeerManager {
             known_peers: RwLock::new(HashMap::new()),
             ipc: RwLock::new(None),
             scoreboard,
+            disabled_peers: Arc::new(RwLock::new(HashSet::new())),
+            peer_directions: RwLock::new(HashMap::new()),
+            peer_tracker: RwLock::new(None),
         }
+    }
+
+    pub fn set_peer_tracker(&self, tracker: Arc<PeerTracker>) {
+        *self.peer_tracker.write().expect("poisoned") = Some(tracker);
+    }
+
+    pub fn is_disabled(&self, peer_id: &PeerId) -> bool {
+        self.disabled_peers.read().expect("poisoned").contains(peer_id)
+    }
+
+    pub fn disabled_peer_ids(&self) -> Vec<String> {
+        let mut ids: Vec<String> = self
+            .disabled_peers
+            .read()
+            .expect("poisoned")
+            .iter()
+            .map(|id| id.to_base58())
+            .collect();
+        ids.sort();
+        ids
+    }
+
+    /// Load disabled peers from file and apply bans/disconnects.
+    pub fn load_disabled_peers_from_file(&self, path: &str) -> Result<u32, String> {
+        let peers = parse_disable_peers_file(path)?;
+        *self.disabled_peers.write().expect("poisoned") =
+            peers.iter().copied().collect();
+        for peer_id in &peers {
+            self.apply_disabled_peer(*peer_id);
+        }
+        self.generation.fetch_add(1, Ordering::SeqCst);
+        if !peers.is_empty() {
+            log::info!(
+                target: "bot::peer_manage",
+                "loaded {} disabled peer(s) from {path}",
+                peers.len(),
+            );
+        }
+        Ok(peers.len() as u32)
+    }
+
+    /// Replace the disabled peer set, persist to file, and drop matching connections.
+    pub async fn set_disable_peers(
+        &self,
+        peer_ids: Vec<String>,
+    ) -> Result<SetDisablePeersResult, String> {
+        let mut valid = Vec::new();
+        let mut invalid = Vec::new();
+        let mut parsed = HashSet::new();
+
+        for id_str in peer_ids {
+            let trimmed = id_str.trim();
+            if trimmed.is_empty() {
+                continue;
+            }
+            match trimmed.parse::<PeerId>() {
+                Ok(id) => {
+                    valid.push(trimmed.to_string());
+                    parsed.insert(id);
+                }
+                Err(_) => invalid.push(id_str),
+            }
+        }
+
+        valid.sort();
+        write_disable_peers_file(DEFAULT_DISABLE_PEERS_FILE, &valid)?;
+        *self.disabled_peers.write().expect("poisoned") = parsed.clone();
+        self.generation.fetch_add(1, Ordering::SeqCst);
+
+        let snapshot = self.connected_snapshot().await;
+        let mut disconnected = 0u32;
+        for peer_id in &parsed {
+            if snapshot.sync_peers.contains(peer_id)
+                || peer_is_connected(&snapshot, peer_id)
+            {
+                disconnected += 1;
+            }
+            self.apply_disabled_peer(*peer_id);
+        }
+
+        log::info!(
+            target: "bot::peer_manage",
+            "disabled peers updated: {} peer(s), disconnected {disconnected}",
+            parsed.len(),
+        );
+
+        Ok(SetDisablePeersResult {
+            applied: parsed.len() as u32,
+            disconnected,
+            disabled_peers: valid,
+            invalid_peer_ids: invalid,
+        })
+    }
+
+    fn apply_disabled_peer(&self, peer_id: PeerId) {
+        self.network.report_peer(
+            peer_id,
+            ReputationChange::new_fatal("disabled by operator"),
+        );
+        self.network
+            .disconnect_peer(peer_id, self.block_announces_protocol.clone());
+        self.network
+            .disconnect_peer(peer_id, self.transactions_protocol.clone());
+        self.network.remove_reserved_peer(peer_id);
+        let _ = self.network.remove_peers_from_reserved_set(
+            self.transactions_protocol.clone(),
+            vec![peer_id],
+        );
+        self.network_reserved.write().expect("poisoned").remove(&peer_id);
+        self.tx_reserved.write().expect("poisoned").remove(&peer_id);
+        self.skip_until.write().expect("poisoned").remove(&peer_id);
+    }
+
+    fn mark_peer_direction_outbound(&self, peer_id: PeerId) {
+        self.peer_directions
+            .write()
+            .expect("poisoned")
+            .insert(peer_id, "out".into());
+    }
+
+    fn clear_peer_direction(&self, peer_id: PeerId) {
+        self.peer_directions.write().expect("poisoned").remove(&peer_id);
+    }
+
+    async fn resolve_peer_direction(&self, peer_id: &PeerId) -> Option<String> {
+        if let Some(dir) = self.peer_directions.read().expect("poisoned").get(peer_id) {
+            return Some(dir.clone());
+        }
+        let directions = connected_peer_directions(self.network_status.as_ref()).await;
+        directions.get(&peer_id.to_base58()).cloned()
     }
 
     pub async fn connected_peer_ids(&self) -> Vec<String> {
@@ -212,6 +379,7 @@ impl PeerManager {
     fn mark_peer_disconnected(&self, peer_id: PeerId) {
         self.scoreboard.record_disconnect(&peer_id.to_base58());
         self.known_peers.write().expect("poisoned").remove(&peer_id);
+        self.clear_peer_direction(peer_id);
     }
 
     fn record_peer_address(&self, peer_id: PeerId, multiaddr: String) {
@@ -539,6 +707,10 @@ impl PeerManager {
         let peer_id: PeerId = peer.peer_id.into();
         let id = peer_id.to_base58();
 
+        if self.is_disabled(&peer_id) {
+            return Err(format!("peer {id} is disabled"));
+        }
+
         {
             let mut peers = self.custom_peers.write().expect("poisoned");
             if !peers.iter().any(|p| p.peer_id == peer.peer_id) {
@@ -550,6 +722,7 @@ impl PeerManager {
         self.generation.fetch_add(1, Ordering::SeqCst);
         self.skip_until.write().expect("poisoned").remove(&peer_id);
 
+        self.mark_peer_direction_outbound(peer_id);
         self.network
             .add_reserved_peer(peer.clone())
             .map_err(|e| format!("add_reserved_peer: {e}"))?;
@@ -691,16 +864,23 @@ impl PeerManager {
         let snapshot = self.connected_snapshot().await;
         let reserved = self.reserved_peer_ids().await?;
         let custom_ids = self.custom_peer_ids.read().expect("poisoned").clone();
+        let custom_peers = self.custom_peers.read().expect("poisoned").clone();
+        let system_targets = self.system_targets.read().expect("poisoned").clone();
         let tx_reserved = self.tx_reserved.read().expect("poisoned").clone();
+        let network_reserved = self.network_reserved.read().expect("poisoned").clone();
+        let disabled = self.disabled_peers.read().expect("poisoned").clone();
+        let logged_peers = self.logged_peers.read().expect("poisoned").clone();
         let address_cache = self.peer_addresses.read().expect("poisoned").clone();
+        let directions = connected_peer_directions(self.network_status.as_ref()).await;
+        let network_details = connected_peer_details(self.network_status.as_ref()).await;
+        let peer_tracker = self.peer_tracker.read().expect("poisoned").clone();
 
-        let sync_infos: HashMap<PeerId, String> = self
+        let sync_infos: HashMap<PeerId, sc_network_sync::types::ExtendedPeerInfo<Block>> = self
             .sync
             .peers_info()
             .await
             .map_err(|_| "sync peers_info channel closed".to_string())?
             .into_iter()
-            .map(|(id, info)| (id, format!("{:?}", info.roles)))
             .collect();
 
         let mut peer_ids: HashSet<PeerId> = snapshot.sync_peers.iter().copied().collect();
@@ -716,12 +896,21 @@ impl PeerManager {
             peer_ids.insert(*id);
         }
 
+        let registered_addrs: HashMap<PeerId, String> = custom_peers
+            .iter()
+            .chain(system_targets.iter())
+            .map(|p| (PeerId::from(p.peer_id), String::from(p.clone())))
+            .collect();
+        let system_target_ids: HashSet<PeerId> =
+            system_targets.iter().map(|p| p.peer_id.into()).collect();
+
         let mut out = Vec::new();
         for peer_id in peer_ids {
             let peer_id_str = peer_id.to_base58();
             let sync = snapshot.sync_peers.contains(&peer_id);
-            let connected = peer_is_connected(&snapshot, &peer_id);
-            if !sync && !connected {
+            let libp2p = peer_is_connected(&snapshot, &peer_id);
+            let connected = sync || libp2p;
+            if !connected {
                 continue;
             }
 
@@ -739,9 +928,9 @@ impl PeerManager {
                         .and_then(|p| p.multiaddr.clone())
                 });
 
-            let role = sync_infos
-                .get(&peer_id)
-                .cloned()
+            let sync_info = sync_infos.get(&peer_id);
+            let role = sync_info
+                .map(|info| format!("{:?}", info.roles))
                 .or_else(|| {
                     self.known_peers
                         .read()
@@ -750,18 +939,67 @@ impl PeerManager {
                         .and_then(|p| p.role.clone())
                 });
 
+            let best_hash = sync_info.map(|info| format!("{:?}", info.best_hash));
+            let best_number = sync_info.map(|info| {
+                use sp_runtime::traits::UniqueSaturatedInto;
+                UniqueSaturatedInto::<u64>::unique_saturated_into(info.best_number)
+            });
+
             if let Some(ref addr) = multiaddr {
                 self.upsert_known_peer(peer_id, Some(addr.clone()), role.clone(), sync);
             }
 
+            let direction = self
+                .peer_directions
+                .read()
+                .expect("poisoned")
+                .get(&peer_id)
+                .cloned()
+                .or_else(|| directions.get(&peer_id_str).cloned());
+
+            let NetworkPeerDetails {
+                version,
+                latest_ping_ms,
+                known_addresses,
+            } = network_details
+                .get(&peer_id_str)
+                .cloned()
+                .unwrap_or_default();
+
+            let latest_ping_ms = latest_ping_ms.or_else(|| {
+                self.scoreboard
+                    .entry_for(&peer_id_str, connected)
+                    .rtt_ms
+            });
+
+            let tracker = peer_tracker
+                .as_ref()
+                .and_then(|t| t.lookup(&peer_id_str));
+
             out.push(PeerListEntry {
-                peer_id: peer_id_str,
-                multiaddr,
-                role,
+                peer_id: peer_id_str.clone(),
+                connected,
                 sync,
+                libp2p,
+                direction,
+                multiaddr,
+                registered_multiaddr: registered_addrs.get(&peer_id).cloned(),
+                known_addresses,
+                role,
+                version,
+                best_hash,
+                best_number,
+                reputation: self.network.peer_reputation(&peer_id),
+                latest_ping_ms,
                 tx_reserved: tx_reserved.contains(&peer_id),
                 custom: custom_ids.contains(&peer_id),
                 reserved: reserved.contains(&peer_id),
+                system_target: system_target_ids.contains(&peer_id),
+                network_reserved: network_reserved.contains(&peer_id),
+                disabled: disabled.contains(&peer_id),
+                peer_log_seen: logged_peers.contains(&peer_id),
+                scores: self.scoreboard.entry_for(&peer_id_str, connected),
+                tracker,
             });
         }
 
@@ -830,6 +1068,31 @@ impl PeerManager {
     }
 
     async fn on_sync_peer_connected(self: Arc<Self>, peer_id: PeerId) {
+        if self.is_disabled(&peer_id) {
+            log::info!(
+                target: "bot::peer_manage",
+                "rejecting disabled peer connection: {}",
+                peer_id.to_base58(),
+            );
+            self.apply_disabled_peer(peer_id);
+            return;
+        }
+
+        let direction = self
+            .resolve_peer_direction(&peer_id)
+            .await
+            .unwrap_or_else(|| "in".into());
+        self.peer_directions
+            .write()
+            .expect("poisoned")
+            .entry(peer_id)
+            .or_insert_with(|| direction.clone());
+        log::info!(
+            target: "bot::peer_manage",
+            "peer connected dir={direction} peer={}",
+            peer_id.to_base58(),
+        );
+
         let role = self
             .sync
             .peers_info()
@@ -962,6 +1225,16 @@ impl PeerManager {
             };
             match event {
                 SyncEvent::PeerConnected(remote) => {
+                    if self.is_disabled(&remote) {
+                        log::info!(
+                            target: "bot::peer_manage",
+                            "rejecting disabled peer connection: {}",
+                            remote.to_base58(),
+                        );
+                        self.apply_disabled_peer(remote);
+                        continue;
+                    }
+
                     let slf = Arc::clone(&self);
                     tokio::spawn(async move {
                         slf.on_sync_peer_connected(remote).await;
@@ -1048,6 +1321,10 @@ impl PeerManager {
         let mut all_ok = before.custom_not_connected == 0;
         for peer in targets {
             let peer_id: PeerId = peer.peer_id.into();
+            if self.is_disabled(&peer_id) {
+                self.apply_disabled_peer(peer_id);
+                continue;
+            }
             self.record_peer_address(peer_id, String::from(peer.clone()));
             let connected = peer_is_connected(&snapshot, &peer_id);
             let sync = snapshot.sync_peers.contains(&peer_id);
@@ -1067,7 +1344,7 @@ impl PeerManager {
 
             all_ok = false;
             if !connected || !sync {
-                self.ensure_network_reserved(peer);
+                self.ensure_network_reserved(peer, connected);
             }
             if connected && sync && !tx_registered {
                 self.ensure_tx_reserved(peer);
@@ -1131,16 +1408,22 @@ impl PeerManager {
         out
     }
 
-    fn ensure_network_reserved(&self, peer: &MultiaddrWithPeerId) -> bool {
+    fn ensure_network_reserved(&self, peer: &MultiaddrWithPeerId, connected: bool) -> bool {
         let peer_id: PeerId = peer.peer_id.into();
+        if self.is_disabled(&peer_id) {
+            self.apply_disabled_peer(peer_id);
+            return false;
+        }
         if self
             .network_reserved
             .read()
             .expect("poisoned")
             .contains(&peer_id)
+            && connected
         {
             return true;
         }
+        self.mark_peer_direction_outbound(peer_id);
         match self.network.add_reserved_peer(peer.clone()) {
             Ok(()) => {
                 self.record_peer_address(peer_id, String::from(peer.clone()));

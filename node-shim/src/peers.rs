@@ -25,6 +25,15 @@ fn combined_score(rec: &PeerRecord) -> u64 {
     rec.score.saturating_add(rec.tx_propagation_hits)
 }
 
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct PeerTrackerInfo {
+    pub announce_score: u64,
+    pub first_announce_hits: u64,
+    pub tx_propagation_hits: u64,
+    pub last_best_number: u32,
+    pub roles: Option<String>,
+}
+
 #[derive(Default)]
 pub struct PeerTracker {
     peers: RwLock<HashMap<String, PeerRecord>>,
@@ -213,16 +222,18 @@ impl PeerTracker {
     }
 
     /// Tracker fields for a peer id, if we have seen it on block announces or tx gossip.
-    pub fn lookup(&self, peer_id: &str) -> Option<(u64, u64, u64, u32, String)> {
+    pub fn lookup(&self, peer_id: &str) -> Option<PeerTrackerInfo> {
         let peers = self.peers.read().expect("poisoned");
-        peers.get(peer_id).map(|rec| {
-            (
-                combined_score(rec),
-                rec.first_announce_hits,
-                rec.tx_propagation_hits,
-                rec.last_best_number,
-                rec.roles.clone(),
-            )
+        peers.get(peer_id).map(|rec| PeerTrackerInfo {
+            announce_score: combined_score(rec),
+            first_announce_hits: rec.first_announce_hits,
+            tx_propagation_hits: rec.tx_propagation_hits,
+            last_best_number: rec.last_best_number,
+            roles: if rec.roles.is_empty() {
+                None
+            } else {
+                Some(rec.roles.clone())
+            },
         })
     }
 
@@ -329,6 +340,105 @@ pub(crate) fn is_dialable_multiaddr(multiaddr: &str) -> bool {
         || multiaddr.contains("/dns/")
         || multiaddr.contains("/dns4/")
         || multiaddr.contains("/dns6/")
+}
+
+pub const DEFAULT_DISABLE_PEERS_FILE: &str = "disable_peers.txt";
+
+/// Parse a peer-id list file (one base58 peer id per line).
+pub fn parse_disable_peers_file(path: &str) -> Result<Vec<sc_network::PeerId>, String> {
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| format!("failed to read {path}: {e}"))?;
+
+    let mut peers = Vec::new();
+    let mut errors = Vec::new();
+
+    for (line_no, line) in content.lines().enumerate() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        match line.parse::<sc_network::PeerId>() {
+            Ok(peer) => peers.push(peer),
+            Err(e) => errors.push(format!("line {}: {e}", line_no + 1)),
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(errors.join("; "));
+    }
+
+    Ok(peers)
+}
+
+/// Write peer ids to a disable list file (one per line).
+pub fn write_disable_peers_file(path: &str, peer_ids: &[String]) -> Result<(), String> {
+    let mut content = String::from("# Disabled peer ids (base58), one per line\n");
+    for peer_id in peer_ids {
+        content.push_str(peer_id);
+        content.push('\n');
+    }
+    std::fs::write(path, content).map_err(|e| format!("failed to write {path}: {e}"))
+}
+
+/// Connection direction from libp2p network state (`out` = we dialed, `in` = they dialed us).
+pub fn endpoint_direction(
+    endpoint: &sc_network::network_state::PeerEndpoint,
+) -> &'static str {
+    use sc_network::network_state::PeerEndpoint;
+    match endpoint {
+        PeerEndpoint::Dialing(_, _) => "out",
+        PeerEndpoint::Listening { .. } => "in",
+    }
+}
+
+/// Connected peer id → connection direction (`in` / `out`) from network state (libp2p only).
+pub async fn connected_peer_directions(
+    network: &(dyn sc_network::NetworkStatusProvider + Send + Sync),
+) -> HashMap<String, String> {
+    let Ok(state) = network.network_state().await else {
+        return HashMap::new();
+    };
+
+    state
+        .connected_peers
+        .into_iter()
+        .map(|(peer_id, peer)| (peer_id, endpoint_direction(&peer.endpoint).into()))
+        .collect()
+}
+
+/// Extra libp2p network-state fields per connected peer (empty on litep2p).
+#[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
+pub struct NetworkPeerDetails {
+    pub version: Option<String>,
+    pub latest_ping_ms: Option<u64>,
+    pub known_addresses: Vec<String>,
+}
+
+pub async fn connected_peer_details(
+    network: &(dyn sc_network::NetworkStatusProvider + Send + Sync),
+) -> HashMap<String, NetworkPeerDetails> {
+    let Ok(state) = network.network_state().await else {
+        return HashMap::new();
+    };
+
+    state
+        .connected_peers
+        .into_iter()
+        .map(|(peer_id, peer)| {
+            (
+                peer_id,
+                NetworkPeerDetails {
+                    version: peer.version_string,
+                    latest_ping_ms: peer.latest_ping_time.map(|d| d.as_millis() as u64),
+                    known_addresses: peer
+                        .known_addresses
+                        .into_iter()
+                        .map(|a| a.to_string())
+                        .collect(),
+                },
+            )
+        })
+        .collect()
 }
 
 pub fn parse_reserved_peers_file(path: &str) -> Result<Vec<sc_network::config::MultiaddrWithPeerId>, String> {

@@ -5,6 +5,9 @@ mod bot_tx_inclusion;
 mod bot_block_announce {
     pub use node_subtensor::bot_block_announce::*;
 }
+mod bot_slot_watcher {
+    pub use node_subtensor::bot_slot_watcher::*;
+}
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarking;
 mod chain_spec;

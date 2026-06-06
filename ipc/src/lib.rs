@@ -7,7 +7,7 @@
 //! | `header` | node → bot | Block announce (`header_number` + metadata) |
 //! | `mempool` | node → bot | Pool import notification (`info` = JSON object string) |
 //! | `find_peer` | node → bot | Discovered peer (`peer_id` + `multiaddr`) |
-//! | `transaction` | bot → node | Submit tx (`extrinsic` = client-validated inner hex, or legacy `hash` wire hex) |
+//! | `transaction` | bot → node | Submit tx (`extrinsic` or legacy `hash` wire hex); optional `peer_id` for direct gossip |
 //! | `set_announce` | bot → node | **Deprecated** — use `node_setAnnounceFilter` RPC |
 //! | `set_require_mempool` | bot → node | Opt in to mempool notifications |
 //! | `set_require_peer_find` | bot → node | Opt in to peer-find notifications (when node peer log is on) |
@@ -102,6 +102,10 @@ pub enum IpcMessage {
     ///
     /// Legacy [`Self::Transaction::hash`]: full wire hex (`0x` + SCALE opaque extrinsic);
     /// the node hex-decodes and SCALE-decodes on the hot path.
+    ///
+    /// When [`Self::Transaction::peer_id`] is set, gossip goes only to that peer (base58
+    /// [`PeerId`](https://docs.rs/libp2p/latest/libp2p/struct.PeerId.html) or multiaddr with
+    /// `/p2p/…`). [`Self::Transaction::propagate_type`] / `propagate_param` are ignored.
     Transaction {
         #[serde(default, skip_serializing_if = "String::is_empty")]
         hash: String,
@@ -111,6 +115,8 @@ pub enum IpcMessage {
         propagate_type: Option<String>,
         #[serde(default, skip_serializing_if = "Option::is_none")]
         propagate_param: Option<String>,
+        #[serde(default, skip_serializing_if = "Option::is_none", alias = "peerid")]
+        peer_id: Option<String>,
     },
     /// Configure per-client block announce filtering (bot → node).
     SetAnnounce {
@@ -165,6 +171,7 @@ impl IpcMessage {
             extrinsic: None,
             propagate_type: None,
             propagate_param: None,
+            peer_id: None,
         }
     }
 
@@ -175,6 +182,20 @@ impl IpcMessage {
             extrinsic: Some(extrinsic_hex),
             propagate_type: None,
             propagate_param: None,
+            peer_id: None,
+        }
+    }
+
+    pub fn transaction_prepared_with_peer(
+        extrinsic_hex: String,
+        peer_id: impl Into<String>,
+    ) -> Self {
+        Self::Transaction {
+            hash: String::new(),
+            extrinsic: Some(extrinsic_hex),
+            propagate_type: None,
+            propagate_param: None,
+            peer_id: Some(peer_id.into()),
         }
     }
 
@@ -188,6 +209,7 @@ impl IpcMessage {
             extrinsic: None,
             propagate_type: Some(propagate_type.into()),
             propagate_param: Some(propagate_param.into()),
+            peer_id: None,
         }
     }
 
@@ -201,6 +223,7 @@ impl IpcMessage {
             extrinsic: Some(extrinsic_hex),
             propagate_type: Some(propagate_type.into()),
             propagate_param: Some(propagate_param.into()),
+            peer_id: None,
         }
     }
 
@@ -320,6 +343,24 @@ mod tests {
         let frame = encode_frame(&msg).unwrap();
         let (decoded, _) = decode_frame::<IpcMessage>(&frame).unwrap().unwrap();
         assert!(matches!(decoded, IpcMessage::Mempool { .. }));
+    }
+
+    #[test]
+    fn roundtrip_transaction_with_peer_id() {
+        let msg = IpcMessage::transaction_prepared_with_peer(
+            "0xdeadbeef".into(),
+            "12D3KooWExamplePeerIdBase58Here",
+        );
+        let frame = encode_frame(&msg).unwrap();
+        let (decoded, _) = decode_frame::<IpcMessage>(&frame).unwrap().unwrap();
+        assert!(matches!(
+            decoded,
+            IpcMessage::Transaction {
+                extrinsic: Some(ref e),
+                peer_id: Some(ref p),
+                ..
+            } if e == "0xdeadbeef" && p == "12D3KooWExamplePeerIdBase58Here"
+        ));
     }
 
     #[test]

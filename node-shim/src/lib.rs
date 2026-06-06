@@ -23,12 +23,12 @@ pub use mempool::MempoolWatcherControl;
 pub use node_rpc::{NodeControlRpc, NodeStatus};
 pub use peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, CustomPeerRow, PeerListEntry, PeerManageStatus,
-    PeerManager,
+    PeerManager, SetDisablePeersResult,
 };
 pub use peer_scoreboard::{PeerScoreEntry, PeerScoreboard, PeerScoreboardExport};
 pub use peers::{
     block_announces_protocol_name, connected_peer_addresses, connected_snapshot,
-    peer_is_connected, transactions_protocol_name, ConnectedSnapshot,
+    peer_is_connected, transactions_protocol_name, ConnectedSnapshot, PeerTrackerInfo,
 };
 pub use propagation_tracker::{OwnPropagationRecord, PropagationPeerInfo, PropagationTracker};
 pub use transact::{TxPropagator, parse_propagation_peer_id};
