@@ -53,3 +53,5 @@ node_modules
 
 # Claude Code configuration
 .claude
+
+*.log
