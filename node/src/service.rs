@@ -372,6 +372,7 @@ where
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_node_shim::peers::PeerTracker::new());
     let peer_scoreboard = subtensor_node_shim::PeerScoreboard::new();
+    let slot_state = subtensor_node_shim::SlotStateStore::new();
     let propagation_tracker = subtensor_node_shim::PropagationTracker::new();
     let block_announce_ipc = Arc::new(subtensor_node_shim::BlockAnnounceIpcControl::new());
     let announce_filter = Arc::new(subtensor_node_shim::AnnounceFilterControl::new());
@@ -388,6 +389,7 @@ where
     let peer_tracker_for_validator = peer_tracker.clone();
     let metrics_log_for_validator = metrics_log.clone();
     let peer_scoreboard_for_validator = peer_scoreboard.clone();
+    let slot_state_for_validator = slot_state.clone();
     let ipc_config = subtensor_node_shim::IpcManagerConfig::default();
     let genesis_hash = client
         .block_hash(0u32)?
@@ -410,6 +412,7 @@ where
                     propagation_tracker_for_validator,
                     peer_tracker_for_validator,
                     peer_scoreboard_for_validator,
+                    slot_state_for_validator,
                     metrics_log_for_validator,
                 ))
             })),
@@ -714,6 +717,7 @@ where
                     subtensor_node_shim::NodeControlRpc::new(
                         peer_manager.clone(),
                         peer_scoreboard.clone(),
+                        slot_state.clone(),
                         propagation_tracker.clone(),
                         mempool_watcher_control.clone(),
                         pool_import_log_control.clone(),

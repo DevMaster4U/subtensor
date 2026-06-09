@@ -4,6 +4,7 @@ pub mod ipc;
 pub mod metrics_log;
 pub mod peer_ping;
 pub mod peer_scoreboard;
+pub mod slot_state;
 pub mod mempool;
 pub mod node_rpc;
 pub mod pool_log;
@@ -28,6 +29,7 @@ pub use peer_manage::{
     PeerManager, SetDisablePeersResult,
 };
 pub use peer_scoreboard::{PeerScoreEntry, PeerScoreboard, PeerScoreboardExport};
+pub use slot_state::{SlotPeerSummary, SlotState, SlotStateExport, SlotStateStore};
 pub use peers::{
     block_announces_protocol_name, connected_peer_addresses, connected_snapshot,
     peer_is_connected, transactions_protocol_name, ConnectedSnapshot, PeerTrackerInfo,

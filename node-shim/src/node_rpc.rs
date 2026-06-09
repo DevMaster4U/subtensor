@@ -17,6 +17,7 @@ use crate::peer_manage::{
     PeerManageStatus, PeerManager, SetDisablePeersResult,
 };
 use crate::peer_scoreboard::{PeerScoreboard, PeerScoreboardExport};
+use crate::slot_state::{SlotState, SlotStateExport, SlotStateStore};
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
 use crate::transact::parse_propagation_peer_id;
 use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};
@@ -87,9 +88,13 @@ pub trait NodeControlApi {
     #[method(name = "node_peerList")]
     fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>>;
 
-    /// Replace disabled peer list, persist to `disable_peers.txt`, drop and ban matching peers.
+    /// Replace the disabled peer set, persist to `disable_peers.txt`, drop and ban matching peers.
     #[method(name = "node_setDisablePeers")]
     fn set_disable_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetDisablePeersResult>;
+
+    /// Replace disabled peers from a file (one base58 peer id per line), persist to `disable_peers.txt`.
+    #[method(name = "node_setDisablePeersFromFile")]
+    fn set_disable_peers_from_file(&self, path: String) -> RpcResult<SetDisablePeersResult>;
 
     /// DHT closest peers to `peer_id` and their multiaddrs (`find_closest_peers`).
     #[method(name = "node_peerFindClosest")]
@@ -98,6 +103,14 @@ pub trait NodeControlApi {
     /// Per-peer racing metrics and composite score (ranked highest first).
     #[method(name = "node_peerScores")]
     fn peer_scores(&self) -> RpcResult<PeerScoreboardExport>;
+
+    /// Aggregated block announce summary for all 20 slot positions (`block_number % 20`).
+    #[method(name = "node_slotState")]
+    fn slot_state(&self) -> RpcResult<SlotStateExport>;
+
+    /// Aggregated block announce summary for one slot position (0–19).
+    #[method(name = "node_slotStateBySlot")]
+    fn slot_state_by_slot(&self, slot: u32) -> RpcResult<SlotState>;
 
     #[method(name = "node_enableMempoolWatcher")]
     fn enable_mempool_watcher(&self) -> RpcResult<bool>;
@@ -192,6 +205,7 @@ pub trait NodeControlApi {
 pub struct NodeControlRpc {
     peer_manager: Arc<PeerManager>,
     peer_scoreboard: Arc<PeerScoreboard>,
+    slot_state: Arc<SlotStateStore>,
     propagation_tracker: Arc<PropagationTracker>,
     mempool_watcher: Arc<MempoolWatcherControl>,
     pool_import_log: Arc<PoolImportLogControl>,
@@ -208,6 +222,7 @@ impl NodeControlRpc {
     pub fn new(
         peer_manager: Arc<PeerManager>,
         peer_scoreboard: Arc<PeerScoreboard>,
+        slot_state: Arc<SlotStateStore>,
         propagation_tracker: Arc<PropagationTracker>,
         mempool_watcher: Arc<MempoolWatcherControl>,
         pool_import_log: Arc<PoolImportLogControl>,
@@ -222,6 +237,7 @@ impl NodeControlRpc {
         Self {
             peer_manager,
             peer_scoreboard,
+            slot_state,
             propagation_tracker,
             mempool_watcher,
             pool_import_log,
@@ -393,6 +409,15 @@ impl NodeControlApiServer for NodeControlRpc {
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }
 
+    fn set_disable_peers_from_file(&self, path: String) -> RpcResult<SetDisablePeersResult> {
+        let pm = Arc::clone(&self.peer_manager);
+        tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current()
+                .block_on(async move { pm.set_disable_peers_from_file(&path).await })
+        })
+        .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
     fn peer_find_closest(&self, peer_id: String) -> RpcResult<FindClosestPeersResult> {
         let pm = Arc::clone(&self.peer_manager);
         tokio::task::block_in_place(|| {
@@ -410,6 +435,20 @@ impl NodeControlApiServer for NodeControlRpc {
                 let connected = pm.connected_peer_ids().await;
                 Ok(scoreboard.export_ranked(connected))
             })
+        })
+    }
+
+    fn slot_state(&self) -> RpcResult<SlotStateExport> {
+        Ok(self.slot_state.export())
+    }
+
+    fn slot_state_by_slot(&self, slot: u32) -> RpcResult<SlotState> {
+        self.slot_state.slot(slot).ok_or_else(|| {
+            ErrorObjectOwned::owned(
+                -32602,
+                format!("slot must be 0..{}", crate::slot_state::SLOT_COUNT - 1),
+                None::<()>,
+            )
         })
     }
 

@@ -310,6 +310,17 @@ impl PeerManager {
         })
     }
 
+    /// Replace disabled peers from `path`, persist to `disable_peers.txt`, drop and ban matching peers.
+    pub async fn set_disable_peers_from_file(
+        &self,
+        path: &str,
+    ) -> Result<SetDisablePeersResult, String> {
+        let peers = parse_disable_peers_file(path)?;
+        let mut valid: Vec<String> = peers.iter().map(|id| id.to_base58()).collect();
+        valid.sort();
+        self.set_disable_peers(valid.clone()).await
+    }
+
     fn apply_disabled_peer(&self, peer_id: PeerId) {
         self.network.report_peer(
             peer_id,
