@@ -11,6 +11,7 @@ use crate::announce_filter::AnnounceFilterControl;
 use crate::ipc::{BlockAnnounceIpcControl, IpcManagerConfig, MempoolIpcControl};
 use crate::metrics_log::MetricsLogControl;
 use crate::mempool::MempoolWatcherControl;
+use crate::pool_log::PoolImportLogControl;
 use crate::peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, FindClosestPeersResult, PeerListEntry,
     PeerManageStatus, PeerManager, SetDisablePeersResult,
@@ -27,6 +28,8 @@ pub struct NodeStatus {
     pub block_announce_ipc: bool,
     pub mempool_ipc: bool,
     pub mempool_watcher: bool,
+    pub pool_import_log: bool,
+    pub mempool_log: bool,
     pub propagate_mode: u8,
     pub propagate_mode_label: String,
     pub tx_propagation_first_reserved_node: bool,
@@ -101,6 +104,20 @@ pub trait NodeControlApi {
 
     #[method(name = "node_disableMempoolWatcher")]
     fn disable_mempool_watcher(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_enablePoolImportLog")]
+    fn enable_pool_import_log(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_disablePoolImportLog")]
+    fn disable_pool_import_log(&self) -> RpcResult<bool>;
+
+    /// Alias for [`Self::enable_pool_import_log`] — controls `bot::pool` import logging.
+    #[method(name = "node_enableMempoolLog")]
+    fn enable_mempool_log(&self) -> RpcResult<bool>;
+
+    /// Alias for [`Self::disable_pool_import_log`].
+    #[method(name = "node_disableMempoolLog")]
+    fn disable_mempool_log(&self) -> RpcResult<bool>;
 
     #[method(name = "node_enableMempoolIpc")]
     fn enable_mempool_ipc(&self) -> RpcResult<bool>;
@@ -177,6 +194,7 @@ pub struct NodeControlRpc {
     peer_scoreboard: Arc<PeerScoreboard>,
     propagation_tracker: Arc<PropagationTracker>,
     mempool_watcher: Arc<MempoolWatcherControl>,
+    pool_import_log: Arc<PoolImportLogControl>,
     block_announce_ipc: Arc<BlockAnnounceIpcControl>,
     announce_filter: Arc<AnnounceFilterControl>,
     mempool_ipc: Arc<MempoolIpcControl>,
@@ -192,6 +210,7 @@ impl NodeControlRpc {
         peer_scoreboard: Arc<PeerScoreboard>,
         propagation_tracker: Arc<PropagationTracker>,
         mempool_watcher: Arc<MempoolWatcherControl>,
+        pool_import_log: Arc<PoolImportLogControl>,
         block_announce_ipc: Arc<BlockAnnounceIpcControl>,
         announce_filter: Arc<AnnounceFilterControl>,
         mempool_ipc: Arc<MempoolIpcControl>,
@@ -205,6 +224,7 @@ impl NodeControlRpc {
             peer_scoreboard,
             propagation_tracker,
             mempool_watcher,
+            pool_import_log,
             block_announce_ipc,
             announce_filter,
             mempool_ipc,
@@ -233,6 +253,8 @@ impl NodeControlRpc {
             block_announce_ipc: self.block_announce_ipc.is_enabled(),
             mempool_ipc: self.mempool_ipc.is_enabled(),
             mempool_watcher: self.mempool_watcher.is_running(),
+            pool_import_log: self.pool_import_log.is_enabled(),
+            mempool_log: self.pool_import_log.is_enabled(),
             propagate_mode: mode.as_u8(),
             propagate_mode_label: mode.label().into(),
             tx_propagation_first_reserved_node: self.tx_propagation.first_reserved_node(),
@@ -398,6 +420,26 @@ impl NodeControlApiServer for NodeControlRpc {
 
     fn disable_mempool_watcher(&self) -> RpcResult<bool> {
         self.mempool_watcher.stop();
+        Ok(true)
+    }
+
+    fn enable_pool_import_log(&self) -> RpcResult<bool> {
+        self.pool_import_log.enable();
+        Ok(true)
+    }
+
+    fn disable_pool_import_log(&self) -> RpcResult<bool> {
+        self.pool_import_log.disable();
+        Ok(true)
+    }
+
+    fn enable_mempool_log(&self) -> RpcResult<bool> {
+        self.pool_import_log.enable();
+        Ok(true)
+    }
+
+    fn disable_mempool_log(&self) -> RpcResult<bool> {
+        self.pool_import_log.disable();
         Ok(true)
     }
 

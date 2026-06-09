@@ -604,6 +604,15 @@ where
                 .map(crate::transact::parse_propagation_peer_id)
                 .transpose()?;
 
+            log::info!(
+                target: "bot::ipc",
+                "IPC transaction peer_id={peer_id:?} direct_peer={}",
+                direct_peer
+                    .as_ref()
+                    .map(|p| p.to_base58())
+                    .unwrap_or_else(|| "none".into()),
+            );
+
             let tx_control = ipc.tx_propagation.lock().await.clone();
             let tx_propagator = ipc.tx_propagator.lock().await.clone();
             let tracker = ipc.propagation_tracker.lock().await.clone();
@@ -724,7 +733,11 @@ where
             .map_err(|e| format!("pool submit: {e:?}"))?;
         log::info!(
             target: "bot::ipc",
-            "transaction submitted (prepared) hash={tx_hash:?}",
+            "transaction submitted (prepared) hash={tx_hash:?} direct_peer={}",
+            direct_peer
+                .as_ref()
+                .map(|p| p.to_base58())
+                .unwrap_or_else(|| "none".into()),
         );
         if let Some(tracker) = tx_inclusion_tracker {
             tracker.register_submitted(format!("{tx_hash:?}"));

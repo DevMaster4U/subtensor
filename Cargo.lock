@@ -18235,11 +18235,13 @@ dependencies = [
 name = "subtensor-node-shim"
 version = "0.1.0"
 dependencies = [
+ "frame-support",
  "futures",
  "hex",
  "jsonrpsee",
  "log",
  "node-subtensor-runtime",
+ "pallet-ethereum",
  "parity-scale-codec",
  "sc-network",
  "sc-network-sync",

@@ -30,6 +30,9 @@ sp-core.workspace = true
 sp-blockchain.workspace = true
 sp-consensus-aura = { workspace = true, features = ["std"] }
 
+frame-support = { workspace = true, features = ["std"] }
+
 hex.workspace = true
 
 node-subtensor-runtime = { workspace = true, features = ["std"] }
+pallet-ethereum = { workspace = true, features = ["std"] }

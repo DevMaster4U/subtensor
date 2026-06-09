@@ -6,6 +6,7 @@ pub mod peer_ping;
 pub mod peer_scoreboard;
 pub mod mempool;
 pub mod node_rpc;
+pub mod pool_log;
 pub mod peer_manage;
 pub mod peers;
 pub mod propagation_tracker;
@@ -20,6 +21,7 @@ pub use metrics_log::{
 };
 pub use peer_ping::start_peer_ping_log_watcher;
 pub use mempool::MempoolWatcherControl;
+pub use pool_log::{log_after_local_submit, PoolImportLogControl};
 pub use node_rpc::{NodeControlRpc, NodeStatus};
 pub use peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, CustomPeerRow, PeerListEntry, PeerManageStatus,

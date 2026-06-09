@@ -230,6 +230,10 @@ These are **node-wide**; bots cannot change them over IPC.
 | `node_disableBlockAnnounceIpc` | Stop header forwarding |
 | `node_enableMempoolWatcher` | Start watching the local tx pool import stream |
 | `node_disableMempoolWatcher` | Stop watcher |
+| `node_enableMempoolLog` | Log each pool import + ready-queue order (`bot::pool`, enabled by default) |
+| `node_disableMempoolLog` | Stop mempool/pool import logging |
+| `node_enablePoolImportLog` | Alias for `node_enableMempoolLog` |
+| `node_disablePoolImportLog` | Alias for `node_disableMempoolLog` |
 | `node_enableMempoolIpc` | Allow mempool events to reach IPC (still per-client opt-in) |
 | `node_disableMempoolIpc` | Stop mempool IPC |
 | `node_setAnnounceFilter` | Global IPC header announce filter (`count` or `delay_time`) |
@@ -274,6 +278,8 @@ Returns global IPC and propagation snapshot.
   "block_announce_ipc": true,
   "mempool_ipc": true,
   "mempool_watcher": true,
+  "mempool_log": true,
+  "pool_import_log": true,
   "propagate_mode": 0,
   "propagate_mode_label": "normal",
   "tx_propagation_first_reserved_node": true,

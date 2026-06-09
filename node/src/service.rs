@@ -367,6 +367,7 @@ where
     };
 
     let mempool_watcher_control = Arc::new(subtensor_node_shim::MempoolWatcherControl::new());
+    let pool_import_log_control = subtensor_node_shim::PoolImportLogControl::new();
     let tx_propagation_control = subtensor_node_shim::TxPropagationControl::new();
     let reserved_nodes = config.network.default_peers_set.reserved_nodes.clone();
     let peer_tracker = Arc::new(subtensor_node_shim::peers::PeerTracker::new());
@@ -656,6 +657,7 @@ where
         let peer_manager = peer_manager.clone();
         let propagation_tracker = propagation_tracker.clone();
         let mempool_watcher_control = mempool_watcher_control.clone();
+        let pool_import_log_control = pool_import_log_control.clone();
         let block_announce_ipc = block_announce_ipc.clone();
         let announce_filter = announce_filter.clone();
         let metrics_log = metrics_log.clone();
@@ -714,6 +716,7 @@ where
                         peer_scoreboard.clone(),
                         propagation_tracker.clone(),
                         mempool_watcher_control.clone(),
+                        pool_import_log_control.clone(),
                         block_announce_ipc.clone(),
                         announce_filter.clone(),
                         mempool_ipc.clone(),
@@ -765,6 +768,12 @@ where
         transaction_pool.clone(),
         mempool_watcher_control.clone(),
         Some(ipc_manager.clone()),
+    );
+
+    subtensor_node_shim::pool_log::start_pool_import_logger(
+        &task_manager,
+        transaction_pool.clone(),
+        pool_import_log_control.clone(),
     );
 
     let slot_duration = consensus_mechanism.slot_duration(&client)?;
