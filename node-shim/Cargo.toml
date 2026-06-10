@@ -21,6 +21,7 @@ tokio = { workspace = true, features = ["time", "rt", "rt-multi-thread", "net", 
 subtensor-ipc = { workspace = true }
 
 sc-service.workspace = true
+sc-tracing.workspace = true
 sc-transaction-pool-api.workspace = true
 sc-network.workspace = true
 sc-network-sync.workspace = true

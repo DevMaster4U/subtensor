@@ -377,6 +377,10 @@ where
     let block_announce_ipc = Arc::new(subtensor_node_shim::BlockAnnounceIpcControl::new());
     let announce_filter = Arc::new(subtensor_node_shim::AnnounceFilterControl::new());
     let metrics_log = subtensor_node_shim::MetricsLogControl::new();
+    let user_log = subtensor_node_shim::UserLogControl::new();
+    if let Err(e) = user_log.apply_system_logs() {
+        log::warn!("failed to suppress bot logs at startup: {e}");
+    }
     let tx_inclusion_tracker = subtensor_node_shim::TxInclusionTracker::new();
     let mempool_ipc = Arc::new(subtensor_node_shim::MempoolIpcControl::new());
     let ipc_manager = Arc::new(subtensor_node_shim::IpcManager::new(
@@ -480,19 +484,27 @@ where
     ));
     peer_manager.preload_peer_addresses(reserved_nodes.iter().cloned());
     peer_manager.set_peer_tracker(peer_tracker.clone());
-    if let Ok(n) = peer_manager.preload_peer_addresses_from_file("reserved.txt") {
+    let reserved_file = subtensor_node_shim::reserved_peers_file();
+    if let Ok(n) = peer_manager.preload_peer_addresses_from_file(
+        reserved_file.to_str().unwrap_or("config/reserved.txt"),
+    ) {
         if n > 0 {
             log::info!(
                 target: "bot::peer_manage",
-                "preloaded {n} dialable peer address(es) from reserved.txt",
+                "preloaded {n} dialable peer address(es) from {}",
+                reserved_file.display(),
             );
         }
     }
-    if let Ok(n) = peer_manager.load_disabled_peers_from_file("disable_peers.txt") {
+    let disable_file = subtensor_node_shim::disable_peers_file();
+    if let Ok(n) = peer_manager.load_disabled_peers_from_file(
+        disable_file.to_str().unwrap_or("config/disable_peers.txt"),
+    ) {
         if n > 0 {
             log::info!(
                 target: "bot::peer_manage",
-                "applied {n} disabled peer(s) from disable_peers.txt",
+                "applied {n} disabled peer(s) from {}",
+                disable_file.display(),
             );
         }
     }
@@ -664,6 +676,7 @@ where
         let block_announce_ipc = block_announce_ipc.clone();
         let announce_filter = announce_filter.clone();
         let metrics_log = metrics_log.clone();
+        let user_log = user_log.clone();
         let peer_scoreboard = peer_scoreboard.clone();
         let mempool_ipc = mempool_ipc.clone();
         let ipc_config = ipc_config.clone();
@@ -726,6 +739,7 @@ where
                         mempool_ipc.clone(),
                         ipc_config.clone(),
                         metrics_log.clone(),
+                        user_log.clone(),
                         tx_propagation_control_rpc.clone(),
                         network.clone(),
                     )

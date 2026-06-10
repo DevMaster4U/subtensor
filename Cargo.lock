@@ -18247,6 +18247,7 @@ dependencies = [
  "sc-network-sync",
  "sc-network-transactions",
  "sc-service",
+ "sc-tracing",
  "sc-transaction-pool-api",
  "serde",
  "serde_json",

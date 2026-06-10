@@ -1,5 +1,6 @@
 pub mod announce;
 pub mod announce_filter;
+pub mod config_paths;
 pub mod ipc;
 pub mod metrics_log;
 pub mod peer_ping;
@@ -14,8 +15,10 @@ pub mod propagation_tracker;
 pub mod transact;
 pub mod tx_gossip;
 pub mod tx_propagation;
+pub mod user_log;
 
 pub use announce_filter::AnnounceFilterControl;
+pub use config_paths::{config_dir, disable_peers_file, disable_peers_file_display, reserved_peers_file};
 pub use ipc::{AnnounceFilter, BlockAnnounceIpcControl, ClientConfig, IpcManager, IpcManagerConfig, MempoolIpcControl};
 pub use metrics_log::{
     log_peer_announce_timing, log_tx_inclusion_delay, MetricsLogControl, TxInclusionTracker,
@@ -41,4 +44,5 @@ pub use tx_propagation::{
     PropagateMode, RankFunction, SetPropagationPeersResult, TxPropagationControl,
     TxPropagationRequest,
 };
+pub use user_log::UserLogControl;
 pub use subtensor_ipc::IpcMessage;

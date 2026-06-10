@@ -21,6 +21,7 @@ use crate::slot_state::{SlotState, SlotStateExport, SlotStateStore};
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
 use crate::transact::parse_propagation_peer_id;
 use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};
+use crate::user_log::UserLogControl;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct NodeStatus {
@@ -41,6 +42,7 @@ pub struct NodeStatus {
     pub log_peer_announce_timing: bool,
     pub log_peer_rtt: bool,
     pub log_tx_inclusion_delay: bool,
+    pub user_log: bool,
 }
 
 #[rpc(server)]
@@ -88,11 +90,11 @@ pub trait NodeControlApi {
     #[method(name = "node_peerList")]
     fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>>;
 
-    /// Replace the disabled peer set, persist to `disable_peers.txt`, drop and ban matching peers.
+    /// Replace the disabled peer set, persist to the configured disable-peers file, drop and ban matching peers.
     #[method(name = "node_setDisablePeers")]
     fn set_disable_peers(&self, peer_ids: Vec<String>) -> RpcResult<SetDisablePeersResult>;
 
-    /// Replace disabled peers from a file (one base58 peer id per line), persist to `disable_peers.txt`.
+    /// Replace disabled peers from a file (one base58 peer id per line), persist to the configured disable-peers file.
     #[method(name = "node_setDisablePeersFromFile")]
     fn set_disable_peers_from_file(&self, path: String) -> RpcResult<SetDisablePeersResult>;
 
@@ -169,6 +171,14 @@ pub trait NodeControlApi {
     #[method(name = "node_disableTxInclusionDelayLog")]
     fn disable_tx_inclusion_delay_log(&self) -> RpcResult<bool>;
 
+    /// Show only custom `bot::*` logs (hide Substrate default logs).
+    #[method(name = "node_enableUserLog")]
+    fn enable_user_log(&self) -> RpcResult<bool>;
+
+    /// Hide custom `bot::*` logs; restore Substrate default logs only.
+    #[method(name = "node_disableUserLog")]
+    fn disable_user_log(&self) -> RpcResult<bool>;
+
     #[method(name = "node_setPropagateMode")]
     fn set_propagate_mode(&self, mode: u8) -> RpcResult<u8>;
 
@@ -214,6 +224,7 @@ pub struct NodeControlRpc {
     mempool_ipc: Arc<MempoolIpcControl>,
     ipc_config: IpcManagerConfig,
     metrics_log: Arc<MetricsLogControl>,
+    user_log: Arc<UserLogControl>,
     tx_propagation: Arc<TxPropagationControl>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
 }
@@ -231,6 +242,7 @@ impl NodeControlRpc {
         mempool_ipc: Arc<MempoolIpcControl>,
         ipc_config: IpcManagerConfig,
         metrics_log: Arc<MetricsLogControl>,
+        user_log: Arc<UserLogControl>,
         tx_propagation: Arc<TxPropagationControl>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
     ) -> Self {
@@ -246,6 +258,7 @@ impl NodeControlRpc {
             mempool_ipc,
             ipc_config,
             metrics_log,
+            user_log,
             tx_propagation,
             network,
         }
@@ -281,6 +294,7 @@ impl NodeControlRpc {
             log_peer_announce_timing: self.metrics_log.peer_announce_timing(),
             log_peer_rtt: self.metrics_log.peer_rtt(),
             log_tx_inclusion_delay: self.metrics_log.tx_inclusion_delay(),
+            user_log: self.user_log.is_enabled(),
         }
     }
 }
@@ -540,6 +554,20 @@ impl NodeControlApiServer for NodeControlRpc {
 
     fn disable_tx_inclusion_delay_log(&self) -> RpcResult<bool> {
         self.metrics_log.set_tx_inclusion_delay(false);
+        Ok(true)
+    }
+
+    fn enable_user_log(&self) -> RpcResult<bool> {
+        self.user_log
+            .apply_user_logs()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))?;
+        Ok(true)
+    }
+
+    fn disable_user_log(&self) -> RpcResult<bool> {
+        self.user_log
+            .apply_system_logs()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))?;
         Ok(true)
     }
 

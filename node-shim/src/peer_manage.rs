@@ -22,11 +22,11 @@ use subtensor_ipc::PeerManageMode;
 
 use crate::ipc::IpcManager;
 use crate::peer_scoreboard::{PeerScoreboard, PeerScoreEntry};
+use crate::config_paths::disable_peers_file;
 use crate::peers::{
     connected_peer_addresses, connected_peer_details, connected_peer_directions,
     parse_disable_peers_file, parse_reserved_peers_file, write_disable_peers_file,
     ConnectedSnapshot, NetworkPeerDetails, PeerTracker, PeerTrackerInfo, peer_is_connected,
-    DEFAULT_DISABLE_PEERS_FILE,
 };
 
 /// Status snapshot for RPC.
@@ -281,7 +281,11 @@ impl PeerManager {
         }
 
         valid.sort();
-        write_disable_peers_file(DEFAULT_DISABLE_PEERS_FILE, &valid)?;
+        let disable_path = disable_peers_file();
+        write_disable_peers_file(
+            disable_path.to_str().ok_or_else(|| "invalid disable peers path".to_string())?,
+            &valid,
+        )?;
         *self.disabled_peers.write().expect("poisoned") = parsed.clone();
         self.generation.fetch_add(1, Ordering::SeqCst);
 
@@ -421,8 +425,15 @@ impl PeerManager {
         let path = path.unwrap_or_else(|| "peer_log.txt".into());
         *self.peer_log_path.write().expect("poisoned") = Some(path.clone());
         self.peer_log_enabled.store(true, Ordering::SeqCst);
-        for candidate in ["reserved.txt", "bot/reserved.txt"] {
-            match self.preload_peer_addresses_from_file(candidate) {
+        let reserved_path = crate::config_paths::reserved_peers_file();
+        let mut candidates = vec![
+            reserved_path.to_string_lossy().into_owned(),
+            "reserved.txt".into(),
+            "bot/reserved.txt".into(),
+        ];
+        candidates.dedup();
+        for candidate in candidates {
+            match self.preload_peer_addresses_from_file(&candidate) {
                 Ok(n) if n > 0 => {
                     log::info!(
                         target: "bot::peer_manage",

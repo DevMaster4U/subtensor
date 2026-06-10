@@ -342,7 +342,7 @@ pub(crate) fn is_dialable_multiaddr(multiaddr: &str) -> bool {
         || multiaddr.contains("/dns6/")
 }
 
-pub const DEFAULT_DISABLE_PEERS_FILE: &str = "disable_peers.txt";
+pub const DEFAULT_DISABLE_PEERS_FILE: &str = "config/disable_peers.txt";
 
 /// Parse a peer-id list file (one base58 peer id per line).
 pub fn parse_disable_peers_file(path: &str) -> Result<Vec<sc_network::PeerId>, String> {
