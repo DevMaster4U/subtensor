@@ -85,6 +85,10 @@ if [[ -n "${SUBTENSOR_LOG:-}" ]]; then
   ARGS+=(--log "${SUBTENSOR_LOG}")
 fi
 
+if [[ "${SUBTENSOR_ENABLE_LOG_RELOADING:-true}" == "true" ]]; then
+  ARGS+=(--enable-log-reloading)
+fi
+
 if [[ -n "${SUBTENSOR_EXTRA_ARGS:-}" ]]; then
   # shellcheck disable=SC2206
   EXTRA=( ${SUBTENSOR_EXTRA_ARGS} )

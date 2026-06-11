@@ -1,7 +1,4 @@
-//! Always-on transaction pool import logging (independent of the mempool watcher).
-//!
-//! Subscribes to [`TransactionPool::import_notification_stream`] and logs each newly
-//! imported transaction (hash + runtime call name).
+//! Transaction pool import logging (`node_enableMempoolLog` RPC).
 
 use codec::{Decode, Encode};
 use frame_support::traits::GetCallMetadata;
@@ -45,7 +42,7 @@ where
     );
 }
 
-/// Runtime toggle for pool import logging (`node_enableMempoolLog` / `node_enablePoolImportLog` RPC).
+/// Runtime toggle for pool import logging (`node_enableMempoolLog` RPC).
 pub struct PoolImportLogControl {
     enabled: AtomicBool,
 }
@@ -53,7 +50,7 @@ pub struct PoolImportLogControl {
 impl Default for PoolImportLogControl {
     fn default() -> Self {
         Self {
-            enabled: AtomicBool::new(true),
+            enabled: AtomicBool::new(false),
         }
     }
 }

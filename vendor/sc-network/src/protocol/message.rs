@@ -19,6 +19,8 @@
 //! Network packet message types. These get serialized and put into the lower level protocol
 //! payload.
 
+#![allow(dead_code)]
+
 use codec::{Decode, Encode};
 use sc_client_api::StorageProof;
 use sc_network_common::message::RequestId;

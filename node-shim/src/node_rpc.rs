@@ -30,7 +30,6 @@ pub struct NodeStatus {
     pub block_announce_ipc: bool,
     pub mempool_ipc: bool,
     pub mempool_watcher: bool,
-    pub pool_import_log: bool,
     pub mempool_log: bool,
     pub propagate_mode: u8,
     pub propagate_mode_label: String,
@@ -120,17 +119,10 @@ pub trait NodeControlApi {
     #[method(name = "node_disableMempoolWatcher")]
     fn disable_mempool_watcher(&self) -> RpcResult<bool>;
 
-    #[method(name = "node_enablePoolImportLog")]
-    fn enable_pool_import_log(&self) -> RpcResult<bool>;
-
-    #[method(name = "node_disablePoolImportLog")]
-    fn disable_pool_import_log(&self) -> RpcResult<bool>;
-
-    /// Alias for [`Self::enable_pool_import_log`] — controls `bot::pool` import logging.
+    /// Enable `bot::pool` import logging (each pool import + ready-queue order).
     #[method(name = "node_enableMempoolLog")]
     fn enable_mempool_log(&self) -> RpcResult<bool>;
 
-    /// Alias for [`Self::disable_pool_import_log`].
     #[method(name = "node_disableMempoolLog")]
     fn disable_mempool_log(&self) -> RpcResult<bool>;
 
@@ -150,7 +142,7 @@ pub trait NodeControlApi {
     #[method(name = "node_setAnnounceFilter")]
     fn set_announce_filter(&self, announce_type: String, value: u64) -> RpcResult<bool>;
 
-    #[method(name = "node_announceFilter")]
+    #[method(name = "node_getAnnounceFilter")]
     fn announce_filter(&self) -> RpcResult<(String, u64)>;
 
     #[method(name = "node_enablePeerAnnounceTimingLog")]
@@ -282,7 +274,6 @@ impl NodeControlRpc {
             block_announce_ipc: self.block_announce_ipc.is_enabled(),
             mempool_ipc: self.mempool_ipc.is_enabled(),
             mempool_watcher: self.mempool_watcher.is_running(),
-            pool_import_log: self.pool_import_log.is_enabled(),
             mempool_log: self.pool_import_log.is_enabled(),
             propagate_mode: mode.as_u8(),
             propagate_mode_label: mode.label().into(),
@@ -473,16 +464,6 @@ impl NodeControlApiServer for NodeControlRpc {
 
     fn disable_mempool_watcher(&self) -> RpcResult<bool> {
         self.mempool_watcher.stop();
-        Ok(true)
-    }
-
-    fn enable_pool_import_log(&self) -> RpcResult<bool> {
-        self.pool_import_log.enable();
-        Ok(true)
-    }
-
-    fn disable_pool_import_log(&self) -> RpcResult<bool> {
-        self.pool_import_log.disable();
         Ok(true)
     }
 

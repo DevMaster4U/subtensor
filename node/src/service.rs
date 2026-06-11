@@ -429,7 +429,6 @@ where
         subtensor_node_shim::transactions_protocol_name(genesis_hash.as_ref());
 
     if !reserved_nodes.is_empty() {
-        tx_propagation_control.enable_first_reserved_node();
         let tx_reserved_addrs: HashSet<sc_network::Multiaddr> = reserved_nodes
             .iter()
             .map(|node| node.concat())
@@ -508,7 +507,6 @@ where
             );
         }
     }
-    peer_manager.enable_log_peer(None);
     peer_manager.clone().start(task_manager.spawn_handle());
     peer_manager.set_ipc(ipc_manager.clone());
 
@@ -865,7 +863,6 @@ where
         crate::bot_slot_watcher::start(
             &task_manager.spawn_handle(),
             slot_duration,
-            client.clone(),
             select_chain.clone(),
             sync_service.clone(),
             create_inherent_data_providers,
