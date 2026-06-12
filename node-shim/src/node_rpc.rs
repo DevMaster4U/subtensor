@@ -8,6 +8,10 @@ use sc_network::NetworkStatusProvider;
 use subtensor_ipc::PeerManageMode;
 
 use crate::announce_filter::AnnounceFilterControl;
+use crate::announcing_peers::{
+    AnnounceReceiveRpc, AnnouncingMode, AnnouncingPeersControl, AnnouncingPeersResult,
+    ForwardedAnnouncePayload,
+};
 use crate::ipc::{BlockAnnounceIpcControl, IpcManagerConfig, MempoolIpcControl};
 use crate::metrics_log::MetricsLogControl;
 use crate::mempool::MempoolWatcherControl;
@@ -19,6 +23,9 @@ use crate::peer_manage::{
 use crate::peer_scoreboard::{PeerScoreboard, PeerScoreboardExport};
 use crate::slot_state::{SlotState, SlotStateExport, SlotStateStore};
 use crate::propagation_tracker::{OwnPropagationRecord, PropagationTracker};
+use crate::remote_nodes::{RemoteNodeEntry, RemoteNodesControl, RemoteNodesResult};
+use crate::remote_submit::RemoteSubmitControl;
+use crate::submit::{PreparedSubmitRequest, TxSubmitHandle};
 use crate::transact::parse_propagation_peer_id;
 use crate::tx_propagation::{PropagateMode, SetPropagationPeersResult, TxPropagationControl};
 use crate::user_log::UserLogControl;
@@ -38,6 +45,11 @@ pub struct NodeStatus {
     pub tx_propagation_peers: Option<Vec<String>>,
     pub announce_filter_type: String,
     pub announce_filter_value: u64,
+    pub announcing_peers: Vec<String>,
+    pub announcing_mode: u8,
+    pub announcing_mode_label: String,
+    pub remote_nodes: Vec<RemoteNodeEntry>,
+    pub remote_submit_enabled: bool,
     pub log_peer_announce_timing: bool,
     pub log_peer_rtt: bool,
     pub log_tx_inclusion_delay: bool,
@@ -145,6 +157,61 @@ pub trait NodeControlApi {
     #[method(name = "node_getAnnounceFilter")]
     fn announce_filter(&self) -> RpcResult<(String, u64)>;
 
+    /// Peers that receive forwarded first block announces.
+    #[method(name = "node_announcingPeers")]
+    fn announcing_peers(&self) -> RpcResult<Vec<String>>;
+
+    #[method(name = "node_addAnnouncingPeer")]
+    fn add_announcing_peer(&self, peer_id: String) -> RpcResult<AnnouncingPeersResult>;
+
+    #[method(name = "node_removeAnnouncingPeer")]
+    fn remove_announcing_peer(&self, peer_id: String) -> RpcResult<AnnouncingPeersResult>;
+
+    #[method(name = "node_addAnnouncingPeersFromFile")]
+    fn add_announcing_peers_from_file(&self, path: String) -> RpcResult<AnnouncingPeersResult>;
+
+    #[method(name = "node_clearAnnouncingPeers")]
+    fn clear_announcing_peers(&self) -> RpcResult<AnnouncingPeersResult>;
+
+    /// `0` = libp2p sync, `1` = WS/HTTP JSON-RPC (recommended).
+    #[method(name = "node_setAnnouncingMode")]
+    fn set_announcing_mode(&self, mode: u8) -> RpcResult<u8>;
+
+    #[method(name = "node_announcingMode")]
+    fn announcing_mode(&self) -> RpcResult<u8>;
+
+    /// Receive a forwarded first announce (rpc mode receiver on node B).
+    #[method(name = "node_receiveForwardedAnnounce")]
+    fn receive_forwarded_announce(
+        &self,
+        payload: ForwardedAnnouncePayload,
+    ) -> RpcResult<bool>;
+
+    /// Remote submit targets used by the node after IPC transactions (operator registry).
+    #[method(name = "node_remoteNodes")]
+    fn remote_nodes(&self) -> RpcResult<Vec<RemoteNodeEntry>>;
+
+    #[method(name = "node_setRemoteNodes")]
+    fn set_remote_nodes(&self, nodes: Vec<RemoteNodeEntry>) -> RpcResult<RemoteNodesResult>;
+
+    #[method(name = "node_enableRemoteSubmit")]
+    fn enable_remote_submit(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_disableRemoteSubmit")]
+    fn disable_remote_submit(&self) -> RpcResult<bool>;
+
+    #[method(name = "node_addRemoteNode")]
+    fn add_remote_node(&self, node: RemoteNodeEntry) -> RpcResult<RemoteNodesResult>;
+
+    #[method(name = "node_removeRemoteNode")]
+    fn remove_remote_node(&self, name: String) -> RpcResult<RemoteNodesResult>;
+
+    #[method(name = "node_clearRemoteNodes")]
+    fn clear_remote_nodes(&self) -> RpcResult<RemoteNodesResult>;
+
+    #[method(name = "node_setRemoteNodesFromFile")]
+    fn set_remote_nodes_from_file(&self, path: String) -> RpcResult<RemoteNodesResult>;
+
     #[method(name = "node_enablePeerAnnounceTimingLog")]
     fn enable_peer_announce_timing_log(&self) -> RpcResult<bool>;
 
@@ -202,6 +269,20 @@ pub trait NodeControlApi {
     /// Start or restart the Unix socket IPC listener on `path`.
     #[method(name = "node_startIpc")]
     fn start_ipc(&self, path: String) -> RpcResult<String>;
+
+    /// Fast-path prepared extrinsic submit (same as IPC `extrinsic` field).
+    ///
+    /// Params: `extrinsic_hex`, optional `hash`, optional `peer_id`, optional `propagate_type`,
+    /// optional `propagate_param`.
+    #[method(name = "node_submitPreparedExtrinsic")]
+    fn submit_prepared_extrinsic(
+        &self,
+        extrinsic_hex: String,
+        hash: Option<String>,
+        peer_id: Option<String>,
+        propagate_type: Option<String>,
+        propagate_param: Option<String>,
+    ) -> RpcResult<String>;
 }
 
 pub struct NodeControlRpc {
@@ -218,7 +299,12 @@ pub struct NodeControlRpc {
     metrics_log: Arc<MetricsLogControl>,
     user_log: Arc<UserLogControl>,
     tx_propagation: Arc<TxPropagationControl>,
+    announcing_peers: Arc<AnnouncingPeersControl>,
+    remote_nodes: Arc<RemoteNodesControl>,
+    remote_submit: Arc<RemoteSubmitControl>,
+    announce_receive: Arc<dyn AnnounceReceiveRpc + Send + Sync>,
     network: Arc<dyn NetworkStatusProvider + Send + Sync>,
+    tx_submit: Arc<TxSubmitHandle>,
 }
 
 impl NodeControlRpc {
@@ -236,7 +322,12 @@ impl NodeControlRpc {
         metrics_log: Arc<MetricsLogControl>,
         user_log: Arc<UserLogControl>,
         tx_propagation: Arc<TxPropagationControl>,
+        announcing_peers: Arc<AnnouncingPeersControl>,
+        remote_nodes: Arc<RemoteNodesControl>,
+        remote_submit: Arc<RemoteSubmitControl>,
+        announce_receive: Arc<dyn AnnounceReceiveRpc + Send + Sync>,
         network: Arc<dyn NetworkStatusProvider + Send + Sync>,
+        tx_submit: Arc<TxSubmitHandle>,
     ) -> Self {
         Self {
             peer_manager,
@@ -252,7 +343,12 @@ impl NodeControlRpc {
             metrics_log,
             user_log,
             tx_propagation,
+            announcing_peers,
+            remote_nodes,
+            remote_submit,
+            announce_receive,
             network,
+            tx_submit,
         }
     }
 
@@ -282,6 +378,11 @@ impl NodeControlRpc {
             tx_propagation_peers: self.tx_propagation.propagation_allowlist_base58(),
             announce_filter_type,
             announce_filter_value,
+            announcing_peers: self.announcing_peers.targets(),
+            announcing_mode: self.announcing_peers.mode().as_u8(),
+            announcing_mode_label: self.announcing_peers.mode().label().into(),
+            remote_nodes: self.remote_nodes.list(),
+            remote_submit_enabled: self.remote_submit.is_enabled(),
             log_peer_announce_timing: self.metrics_log.peer_announce_timing(),
             log_peer_rtt: self.metrics_log.peer_rtt(),
             log_tx_inclusion_delay: self.metrics_log.tx_inclusion_delay(),
@@ -508,6 +609,105 @@ impl NodeControlApiServer for NodeControlRpc {
         Ok(self.announce_filter.describe())
     }
 
+    fn announcing_peers(&self) -> RpcResult<Vec<String>> {
+        Ok(self.announcing_peers.targets())
+    }
+
+    fn add_announcing_peer(&self, peer_id: String) -> RpcResult<AnnouncingPeersResult> {
+        self.announcing_peers
+            .add(&peer_id)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn remove_announcing_peer(&self, peer_id: String) -> RpcResult<AnnouncingPeersResult> {
+        self.announcing_peers
+            .remove(&peer_id)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn add_announcing_peers_from_file(&self, path: String) -> RpcResult<AnnouncingPeersResult> {
+        self.announcing_peers
+            .add_from_file(path.trim())
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn clear_announcing_peers(&self) -> RpcResult<AnnouncingPeersResult> {
+        self.announcing_peers
+            .clear_all()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn set_announcing_mode(&self, mode: u8) -> RpcResult<u8> {
+        let mode = AnnouncingMode::from_u8(mode).ok_or_else(|| {
+            ErrorObjectOwned::owned(
+                -32602,
+                "mode must be 0 (sync) or 1 (rpc)",
+                None::<()>,
+            )
+        })?;
+        self.announcing_peers
+            .set_mode(mode)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))?;
+        Ok(mode.as_u8())
+    }
+
+    fn announcing_mode(&self) -> RpcResult<u8> {
+        Ok(self.announcing_peers.mode().as_u8())
+    }
+
+    fn receive_forwarded_announce(
+        &self,
+        payload: ForwardedAnnouncePayload,
+    ) -> RpcResult<bool> {
+        self.announce_receive
+            .receive_forwarded(payload)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn remote_nodes(&self) -> RpcResult<Vec<RemoteNodeEntry>> {
+        Ok(self.remote_nodes.list())
+    }
+
+    fn set_remote_nodes(&self, nodes: Vec<RemoteNodeEntry>) -> RpcResult<RemoteNodesResult> {
+        self.remote_nodes
+            .set_all(nodes)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn add_remote_node(&self, node: RemoteNodeEntry) -> RpcResult<RemoteNodesResult> {
+        self.remote_nodes
+            .add(node)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn remove_remote_node(&self, name: String) -> RpcResult<RemoteNodesResult> {
+        self.remote_nodes
+            .remove(&name)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn clear_remote_nodes(&self) -> RpcResult<RemoteNodesResult> {
+        self.remote_nodes
+            .clear()
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn set_remote_nodes_from_file(&self, path: String) -> RpcResult<RemoteNodesResult> {
+        self.remote_nodes
+            .set_from_file(path.trim())
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn enable_remote_submit(&self) -> RpcResult<bool> {
+        self.remote_submit.enable();
+        Ok(true)
+    }
+
+    fn disable_remote_submit(&self) -> RpcResult<bool> {
+        self.remote_submit.disable();
+        Ok(true)
+    }
+
     fn enable_peer_announce_timing_log(&self) -> RpcResult<bool> {
         self.metrics_log.set_peer_announce_timing(true);
         Ok(true)
@@ -617,5 +817,25 @@ impl NodeControlApiServer for NodeControlRpc {
             .into_iter()
             .map(|r| PropagationTracker::enrich_record(r, &addrs))
             .collect())
+    }
+
+    fn submit_prepared_extrinsic(
+        &self,
+        extrinsic_hex: String,
+        hash: Option<String>,
+        peer_id: Option<String>,
+        propagate_type: Option<String>,
+        propagate_param: Option<String>,
+    ) -> RpcResult<String> {
+        let request = PreparedSubmitRequest {
+            hash: hash.unwrap_or_default(),
+            extrinsic: Some(extrinsic_hex),
+            propagate_type,
+            propagate_param,
+            peer_id,
+        };
+        self.tx_submit
+            .submit(request)
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
     }
 }

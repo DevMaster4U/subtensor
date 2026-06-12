@@ -1,6 +1,5 @@
 //! Block announce hook: IPC events + peer/propagation tracking for the node shim.
 
-use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::Arc;
 
@@ -17,7 +16,7 @@ use subtensor_node_shim::metrics_log::{log_peer_announce_timing, MetricsLogContr
 use subtensor_node_shim::peer_scoreboard::PeerScoreboard;
 use subtensor_node_shim::peers::PeerTracker;
 use subtensor_node_shim::slot_state::SlotStateStore;
-use subtensor_node_shim::{IpcManager, PropagationTracker};
+use subtensor_node_shim::{AnnounceForwarder, AnnounceIndexTracker, IpcManager, PropagationTracker};
 use subtensor_ipc::IpcMessage;
 
 use crate::client::FullClient;
@@ -31,8 +30,8 @@ pub struct NotifyingBlockAnnounceValidator {
     peer_scoreboard: Arc<PeerScoreboard>,
     slot_state: Arc<SlotStateStore>,
     metrics_log: Arc<MetricsLogControl>,
-    /// Per-block announce count for IPC delivery.
-    announce_counts: HashMap<u32, u32>,
+    announce_forwarder: Option<Arc<AnnounceForwarder>>,
+    announce_index: Arc<AnnounceIndexTracker>,
 }
 
 impl NotifyingBlockAnnounceValidator {
@@ -44,6 +43,8 @@ impl NotifyingBlockAnnounceValidator {
         peer_scoreboard: Arc<PeerScoreboard>,
         slot_state: Arc<SlotStateStore>,
         metrics_log: Arc<MetricsLogControl>,
+        announce_forwarder: Option<Arc<AnnounceForwarder>>,
+        announce_index: Arc<AnnounceIndexTracker>,
     ) -> Self {
         Self {
             inner: DefaultBlockAnnounceValidator,
@@ -54,7 +55,8 @@ impl NotifyingBlockAnnounceValidator {
             peer_scoreboard,
             slot_state,
             metrics_log,
-            announce_counts: HashMap::new(),
+            announce_forwarder,
+            announce_index,
         }
     }
 }
@@ -71,20 +73,14 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
         >,
     > {
         let best_number = self.client.info().best_number;
-        self.announce_counts.retain(|&n, _| n > best_number);
 
         if announce::is_immediate_next_block(header, best_number) {
             let block_number = *header.number();
             let delay_time_ms = current_delay_time_ms();
             let announcing_peer = announce_peer::current().map(|p| p.to_base58());
-            let announce_index = {
-                let count = self
-                    .announce_counts
-                    .entry(block_number)
-                    .and_modify(|c| *c = c.saturating_add(1))
-                    .or_insert(1);
-                *count
-            };
+            let announce_index = self
+                .announce_index
+                .next_index(block_number, best_number);
 
             if announce_index == 1 {
                 log::info!(
@@ -101,48 +97,57 @@ impl BlockAnnounceValidator<Block> for NotifyingBlockAnnounceValidator {
                     std::iter::empty::<(String, u64, String)>(),
                     announcing_peer.as_deref(),
                 );
+
+                if let Some(forwarder) = &self.announce_forwarder {
+                    forwarder.forward_first_announce(header, data, announcing_peer.clone());
+                }
+
+                if let Some(ref peer) = announcing_peer {
+                    self.peer_tracker
+                        .record_announce_peer(block_number, peer, delay_time_ms);
+                    self.peer_scoreboard.record_block_announce(
+                        block_number,
+                        peer,
+                        delay_time_ms,
+                        true,
+                    );
+                    self.slot_state.record_announce(
+                        block_number,
+                        peer,
+                        delay_time_ms,
+                        true,
+                    );
+                    log_peer_announce_timing(
+                        &self.metrics_log,
+                        block_number,
+                        peer,
+                        announce_index,
+                        delay_time_ms,
+                    );
+                }
+
+                if let Some(ipc) = &self.ipc {
+                    ipc.notify_header(IpcMessage::header(
+                        block_number,
+                        format!("{:?}", header.hash()),
+                        format!("{:?}", header.parent_hash()),
+                        slot_from_digest(header.digest()),
+                        announcing_peer,
+                        announce_index,
+                        delay_time_ms,
+                    ));
+                }
             } else {
                 log::trace!(
                     target: "bot::announce",
-                    "announce #{block_number} index={announce_index} hash={:?} from={announcing_peer:?} (local best #{best_number})",
+                    "announce #{block_number} index={announce_index} hash={:?} from={announcing_peer:?} (local best #{best_number}, skipped IPC)",
                     header.hash(),
                 );
-            }
 
-            if let Some(ref peer) = announcing_peer {
-                self.peer_tracker
-                    .record_announce_peer(block_number, peer, delay_time_ms);
-                self.peer_scoreboard.record_block_announce(
-                    block_number,
-                    peer,
-                    delay_time_ms,
-                    announce_index == 1,
-                );
-                self.slot_state.record_announce(
-                    block_number,
-                    peer,
-                    delay_time_ms,
-                    announce_index == 1,
-                );
-                log_peer_announce_timing(
-                    &self.metrics_log,
-                    block_number,
-                    peer,
-                    announce_index,
-                    delay_time_ms,
-                );
-            }
-
-            if let Some(ipc) = &self.ipc {
-                ipc.notify_header(IpcMessage::header(
-                    block_number,
-                    format!("{:?}", header.hash()),
-                    format!("{:?}", header.parent_hash()),
-                    slot_from_digest(header.digest()),
-                    announcing_peer,
-                    announce_index,
-                    delay_time_ms,
-                ));
+                if let Some(ref peer) = announcing_peer {
+                    self.peer_tracker
+                        .record_announce_peer(block_number, peer, delay_time_ms);
+                }
             }
         }
 

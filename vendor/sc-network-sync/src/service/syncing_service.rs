@@ -46,6 +46,13 @@ pub enum ToServiceCommand<B: BlockT> {
 	),
 	JustificationImported(PeerId, B::Hash, NumberFor<B>, bool),
 	AnnounceBlock(B::Hash, Option<Vec<u8>>),
+	/// Forward a received block announce to specific sync peers (operator relay path).
+	ForwardBlockAnnounce {
+		header: B::Header,
+		data: Option<Vec<u8>>,
+		is_best: bool,
+		peers: Vec<PeerId>,
+	},
 	NewBestBlockImported(B::Hash, NumberFor<B>),
 	EventStream(TracingUnboundedSender<SyncEvent>),
 	Status(oneshot::Sender<SyncStatus<B>>),
@@ -210,6 +217,27 @@ impl<B: BlockT> SyncEventStream for SyncingService<B> {
 		let (tx, rx) = tracing_unbounded(name, 100_000);
 		let _ = self.tx.unbounded_send(ToServiceCommand::EventStream(tx));
 		Box::pin(rx)
+	}
+}
+
+impl<B: BlockT> SyncingService<B> {
+	/// Send a block announce notification to specific connected sync peers.
+	pub fn forward_block_announce(
+		&self,
+		header: B::Header,
+		data: Option<Vec<u8>>,
+		is_best: bool,
+		peers: Vec<PeerId>,
+	) {
+		if peers.is_empty() {
+			return;
+		}
+		let _ = self.tx.unbounded_send(ToServiceCommand::ForwardBlockAnnounce {
+			header,
+			data,
+			is_best,
+			peers,
+		});
 	}
 }
 

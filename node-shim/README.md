@@ -33,7 +33,7 @@ Used by the [subtensor](https://github.com/opentensor/subtensor) node binary. Bo
 | **JSON-RPC `node_*`** | Operator / automation via HTTP WS (port 9944) | **Global** node toggles |
 | **IPC messages** | Bot process on the socket | **Per-connection** opt-in + per-tx propagate |
 
-All custom bot features are **disabled at startup**. Enable each via `node_*` RPC before expecting bot behaviour.
+Most bot features (IPC, mempool, block announce forwarding, etc.) are **disabled at startup**. Peer mode defaults to `both` with normal peers enabled; enable other features via `node_*` RPC before expecting bot behaviour.
 
 ---
 
@@ -45,6 +45,8 @@ All custom bot features are **disabled at startup**. Enable each via `node_*` RP
 | Override | `SUBTENSOR_IPC_PATH` on bot side |
 | Reserved peers file | `config/reserved.txt` (preloaded at startup) |
 | Disabled peers file | `config/disable_peers.txt` (preloaded at startup) |
+| Announcing peers file | `config/announcing_peers.txt` (preloaded at startup) |
+| Announcing peers file override | `SUBTENSOR_ANNOUNCING_PEERS_FILE` |
 
 Wire format: **4-byte big-endian length** + **JSON** body (see `subtensor-ipc`).
 
@@ -160,6 +162,14 @@ curl -s http://127.0.0.1:9944 \
 | `node_disableBlockAnnounceIpc` | — | `bool` |
 | `node_setAnnounceFilter` | `announce_type, value` | `bool` |
 | `node_getAnnounceFilter` | — | `[string, u64]` |
+| `node_setAnnouncingMode` | `mode: u8` | `u8` |
+| `node_announcingMode` | — | `u8` |
+| `node_announcingPeers` | — | `string[]` |
+| `node_addAnnouncingPeer` | `target: string` | `AnnouncingPeersResult` |
+| `node_removeAnnouncingPeer` | `target: string` | `AnnouncingPeersResult` |
+| `node_addAnnouncingPeersFromFile` | `path: string` | `AnnouncingPeersResult` |
+| `node_clearAnnouncingPeers` | — | `AnnouncingPeersResult` |
+| `node_receiveForwardedAnnounce` | `payload: object` | `bool` |
 | `node_enableMempoolWatcher` | — | `bool` |
 | `node_disableMempoolWatcher` | — | `bool` |
 | `node_enableMempoolIpc` | — | `bool` |
@@ -231,6 +241,9 @@ curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
     "tx_propagation_peers": null,
     "announce_filter_type": "count",
     "announce_filter_value": 1,
+    "announcing_peers": ["ws://127.0.0.1:9945"],
+    "announcing_mode": 1,
+    "announcing_mode_label": "rpc",
     "log_peer_announce_timing": false,
     "log_peer_rtt": false,
     "log_tx_inclusion_delay": false,
@@ -295,6 +308,126 @@ curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
 {"jsonrpc":"2.0","id":1,"result":true}
 {"jsonrpc":"2.0","id":1,"result":["count",10]}
 ```
+
+#### Announce forwarding (relay node → bot node)
+
+When this node sees the **first** block announce for `best + 1`, it can forward that header to configured targets so a downstream bot node gets the same bot-side state + IPC without waiting on libp2p sync.
+
+This is **bot-only logic**: peer tracker, scoreboard, slot state, propagation tracker, and IPC `header` frames. It does **not** import the block into the DB and does **not** inject into Substrate `ChainSync` on the receiver.
+
+| `announcing_mode` | Value | Targets in `announcing_peers` | Forward transport |
+|-------------------|-------|-------------------------------|-------------------|
+| `sync` | `0` | Base58 peer ids (must be connected sync peers) | Libp2p block-announces |
+| `rpc` | `1` | `ws://`, `wss://`, `http://`, or `https://` RPC URLs | JSON-RPC `node_receiveForwardedAnnounce` |
+
+Default mode is **`rpc` (1)** — recommended. Rpc mode sends the raw received header immediately; the relay node does not need the block in its local DB first.
+
+**Relay node (A) — enable rpc mode and add bot node (B):**
+
+```bash
+# rpc mode (default)
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_setAnnouncingMode","params":[1],"id":1}'
+
+# B's RPC endpoint (persistent WS connection for ws:// URLs)
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_addAnnouncingPeer","params":["ws://127.0.0.1:9945"],"id":1}'
+```
+
+**Receiver node (B) — no extra config.** Ensure block announce IPC is enabled for the bot:
+
+```bash
+curl -s http://127.0.0.1:9945 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_enableBlockAnnounceIpc","params":[],"id":1}'
+```
+
+When A forwards, B handles `node_receiveForwardedAnnounce` internally: same bot tracking as a local first announce, then `header` over IPC if enabled.
+
+##### `node_setAnnouncingMode` / `node_announcingMode`
+
+```bash
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_setAnnouncingMode","params":[1],"id":1}'
+```
+
+```json
+{"jsonrpc":"2.0","id":1,"result":1}
+```
+
+##### `node_announcingPeers` / `node_addAnnouncingPeer` / `node_removeAnnouncingPeer`
+
+```bash
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_announcingPeers","params":[],"id":1}'
+```
+
+```json
+{"jsonrpc":"2.0","id":1,"result":["ws://127.0.0.1:9945"]}
+```
+
+```bash
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_addAnnouncingPeer","params":["ws://10.0.0.2:9944"],"id":1}'
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "peers": ["ws://127.0.0.1:9945", "ws://10.0.0.2:9944"],
+    "invalid_peer_ids": []
+  }
+}
+```
+
+In **`sync` mode**, `target` is a base58 peer id. In **`rpc` mode**, `target` is a full RPC URL.
+
+##### `node_addAnnouncingPeersFromFile` / `node_clearAnnouncingPeers`
+
+File format: one target per line (`#` comments allowed).
+
+- **rpc mode:** `ws://host:9944` or `http://host:9933`
+- **sync mode:** base58 peer id
+
+Default path: `config/announcing_peers.txt` (loaded at node startup).
+
+```bash
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_addAnnouncingPeersFromFile","params":["config/announcing_peers.txt"],"id":1}'
+```
+
+```bash
+curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","method":"node_clearAnnouncingPeers","params":[],"id":1}'
+```
+
+##### `node_receiveForwardedAnnounce` (receiver / internal)
+
+Called by the relay over WS or HTTP. Operators normally do not call this manually.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "node_receiveForwardedAnnounce",
+  "params": [{
+    "header_number": 8348335,
+    "hash": "0xabc…",
+    "parent_hash": "0xdef…",
+    "header_hex": "0x…scale_encoded_header…",
+    "data_hex": null,
+    "announcing_peer": "12D3KooWEKCdC2F61VwEB9GpdrC9AL6nXHJTs7rUH7SoJoSQJ5A5",
+    "delay_time_ms": 983
+  }],
+  "id": 1
+}
+```
+
+```json
+{"jsonrpc":"2.0","id":1,"result":true}
+```
+
+Receiver applies bot tracking + IPC only when `header_number == local_best + 1`.
 
 ---
 
@@ -407,7 +540,7 @@ curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
 
 #### `node_enableNormalPeer` / `node_disableNormalPeer` / `node_clearNormalPeers`
 
-Normal (non-reserved) sync peers are **disabled by default**.
+Normal (non-reserved) sync peers are **enabled by default**. Use `node_disableNormalPeer` to restrict to reserved peers only.
 
 ```bash
 curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
@@ -477,10 +610,10 @@ curl -s http://127.0.0.1:9944 -H 'Content-Type: application/json' \
   "jsonrpc": "2.0",
   "id": 1,
   "result": {
-    "mode": "only_custom",
+    "mode": "both",
     "checking_ms": 5000,
     "sleep_ms": 10000,
-    "normal_peers_enabled": false,
+    "normal_peers_enabled": true,
     "peer_log_enabled": true,
     "peer_log_path": "peer_log.txt",
     "custom_peer_count": 55,
@@ -820,6 +953,49 @@ When no propagation has occurred yet:
 
 ---
 
+## Transaction submit flow (two-node setup)
+
+```mermaid
+sequenceDiagram
+  participant Bot as Bot on A
+  participant A as Node A
+  participant B as Node B
+
+  Bot->>A: IPC transaction
+  A->>A: local pool submit
+  A->>B: node_submitPreparedExtrinsic (c_rpc)
+  Note over Bot,B: Optional: Bot->>B direct WS when BOT_OPTIONAL_REMOTE_SUBMIT=1
+```
+
+| Step | Who | What |
+|------|-----|------|
+| 1 | Bot → A | IPC `transaction` (only required bot submit) |
+| 2 | A | Local pool submit + gossip per IPC propagate settings |
+| 3 | A → B | Forward to `node_remoteNodes` entries (`c_rpc` / `rpc` per `submitTypes`) |
+| 4 (optional) | Bot → B | Direct `c_rpc`/`rpc` from bot `.env` when `BOT_OPTIONAL_REMOTE_SUBMIT=1` |
+
+**Operator registry on node A** (`config/remote_nodes.json` or `node_setRemoteNodes`):
+
+```json
+[
+  {
+    "name": "node-b",
+    "c_rpc": ["ws://B_IP:9952"],
+    "rpc": ["http://B_IP:9952"],
+    "submitTypes": ["c_rpc"]
+  }
+]
+```
+
+- `c_rpc` → `node_submitPreparedExtrinsic` over WS (HTTP `rpc` URL as fallback)
+- `rpc` → `author_submitExtrinsic` over HTTP
+
+Toggle node-side forwarding: `node_enableRemoteSubmit` / `node_disableRemoteSubmit`.
+
+The bot does **not** read `node_remoteNodes` for normal submits. Optional bot-side remotes live in `BOT_REMOTE_NODES` / `BOT_C_RPC_URL`.
+
+---
+
 ## End-to-end setup
 
 ### 1. Operator — enable features via RPC
@@ -835,11 +1011,19 @@ curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_startIpc","params":["
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableBlockAnnounceIpc","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_setAnnounceFilter","params":["count",1],"id":1}'
 
-# Optional: mempool, logging, peers, propagation
+# Optional: relay first announces to another node's RPC (bot node B)
+curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_setAnnouncingMode","params":[1],"id":1}'
+curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_addAnnouncingPeer","params":["ws://127.0.0.1:9945"],"id":1}'
+
+# Remote submit targets (node A forwards IPC txs to B after local submit)
+curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_setRemoteNodes","params":[[{"name":"node-b","c_rpc":["ws://127.0.0.1:9945"],"submitTypes":["c_rpc"]}]],"id":1}'
+curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableRemoteSubmit","params":[],"id":1}'
+
+# Optional: mempool, logging, propagation (normal peers are on by default)
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableMempoolWatcher","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableMempoolIpc","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableMempoolLog","params":[],"id":1}'
-curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableNormalPeer","params":[],"id":1}'
+# curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_disableNormalPeer","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableUserLog","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_enableTxPropagationFirstReservedNode","params":[],"id":1}'
 curl -s $RPC -H "$HDR" -d '{"jsonrpc":"2.0","method":"node_setTxPropagationMaxPeers","params":[5],"id":1}'
@@ -855,7 +1039,7 @@ outgoing.send(IpcClient::set_require_mempool(true))?;
 outgoing.send(IpcClient::set_require_peer_find(true))?;
 ```
 
-### 3. Bot — submit transaction (fast path)
+### 3. Bot — submit transaction (IPC only; node forwards to remotes)
 
 ```rust
 let msg = IpcClient::transaction_prepared_with_propagate(
@@ -863,8 +1047,11 @@ let msg = IpcClient::transaction_prepared_with_propagate(
     "announce",
     "3",
 )?;
-outgoing.send(msg)?;
+outgoing.send(msg)?; // node A submits locally, then forwards per node_remoteNodes
 ```
+
+Optional bot-side direct remote submit (safety duplicate): set `BOT_OPTIONAL_REMOTE_SUBMIT=1` and
+`BOT_C_RPC_URL` / `BOT_REMOTE_NODES` in the bot `.env`.
 
 ---
 

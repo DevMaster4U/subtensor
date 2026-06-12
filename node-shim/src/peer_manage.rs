@@ -204,7 +204,7 @@ impl PeerManager {
             skip_until: Arc::new(RwLock::new(HashMap::new())),
             network_reserved: Arc::new(RwLock::new(HashSet::new())),
             tx_reserved: Arc::new(RwLock::new(HashSet::new())),
-            normal_peers_enabled: AtomicBool::new(false),
+            normal_peers_enabled: AtomicBool::new(true),
             peer_log_enabled: AtomicBool::new(false),
             peer_log_path: RwLock::new(None),
             logged_peers: RwLock::new(HashSet::new()),
@@ -1156,7 +1156,9 @@ impl PeerManager {
     }
 
     pub fn start(self: Arc<Self>, spawn_handle: SpawnTaskHandle) {
-        if !self.normal_peers_enabled() {
+        if self.normal_peers_enabled() {
+            self.network.accept_unreserved_peers();
+        } else {
             self.network.deny_unreserved_peers();
         }
         let dial = Arc::clone(&self);

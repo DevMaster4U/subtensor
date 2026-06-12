@@ -7,13 +7,11 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::Duration;
 
-use codec::Decode;
 use futures::FutureExt;
 use node_subtensor_runtime::opaque::Block;
 use sc_service::TaskManager;
 use sc_transaction_pool_api::{LocalTransactionPool, TransactionPool};
 use sp_core::H256;
-use sp_runtime::OpaqueExtrinsic;
 use subtensor_ipc::{decode_frame, encode_frame, IpcMessage};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{UnixListener, UnixStream};
@@ -24,8 +22,10 @@ use crate::announce_filter::AnnounceFilterControl;
 use crate::metrics_log::TxInclusionTracker;
 use crate::peer_manage::PeerManager;
 use crate::propagation_tracker::PropagationTracker;
+use crate::remote_submit::RemoteSubmitControl;
+use crate::submit::{submit_prepared_extrinsic, PreparedSubmitRequest};
 use crate::transact::TxPropagator;
-use crate::tx_propagation::{PropagateMode, RankFunction, TxPropagationControl, TxPropagationRequest};
+use crate::tx_propagation::TxPropagationControl;
 
 /// Runtime toggle for forwarding block announce headers over IPC.
 pub struct BlockAnnounceIpcControl {
@@ -208,6 +208,7 @@ pub struct IpcManager {
     tx_propagator: Arc<Mutex<Option<TxPropagator>>>,
     propagation_tracker: Arc<Mutex<Option<Arc<PropagationTracker>>>>,
     tx_inclusion_tracker: Arc<Mutex<Option<Arc<TxInclusionTracker>>>>,
+    remote_submit: Arc<Mutex<Option<Arc<RemoteSubmitControl>>>>,
 }
 
 impl IpcManager {
@@ -226,7 +227,12 @@ impl IpcManager {
             tx_propagator: Arc::new(Mutex::new(None)),
             propagation_tracker: Arc::new(Mutex::new(None)),
             tx_inclusion_tracker: Arc::new(Mutex::new(None)),
+            remote_submit: Arc::new(Mutex::new(None)),
         }
+    }
+
+    pub async fn set_remote_submit(&self, remote_submit: Arc<RemoteSubmitControl>) {
+        *self.remote_submit.lock().await = Some(remote_submit);
     }
 
     pub fn block_announce_control(&self) -> Arc<BlockAnnounceIpcControl> {
@@ -615,40 +621,37 @@ where
 
             let tx_control = ipc.tx_propagation.lock().await.clone();
             let tx_propagator = ipc.tx_propagator.lock().await.clone();
-            let tracker = ipc.propagation_tracker.lock().await.clone();
             let inclusion = ipc.tx_inclusion_tracker.lock().await.clone();
 
-            if direct_peer.is_none() {
-                if let Some(ref tx_control) = tx_control {
-                    if let Some(request) = parse_propagation_request(propagate_type, propagate_param)
-                    {
-                        tx_control.set_pending_request(request);
-                    }
-                }
-            }
-
+            let remote_submit = ipc.remote_submit.lock().await.clone();
             if let Some(propagator) = tx_propagator {
                 handle_transaction(
                     hash,
                     extrinsic,
+                    propagate_type,
+                    propagate_param,
                     pool,
                     best_hash,
+                    tx_control.as_deref(),
                     Some(&propagator),
-                    tracker.as_ref(),
-                    inclusion.as_ref(),
+                    inclusion.as_deref(),
                     direct_peer,
+                    remote_submit.as_deref(),
                 )
                 .await
             } else {
                 handle_transaction(
                     hash,
                     extrinsic,
+                    propagate_type,
+                    propagate_param,
                     pool,
                     best_hash,
-                    None,
+                    tx_control.as_deref(),
                     None,
                     None,
                     direct_peer,
+                    remote_submit.as_deref(),
                 )
                 .await
             }
@@ -659,119 +662,43 @@ where
     }
 }
 
-fn parse_propagation_request(
-    propagate_type: Option<String>,
-    propagate_param: Option<String>,
-) -> Option<TxPropagationRequest> {
-    let propagate_type = propagate_type?;
-    match propagate_type.as_str() {
-        "normal" => {
-            let rank_name = propagate_param.as_deref().unwrap_or("first_announce_hit_count");
-            let rank_function = RankFunction::from_name(rank_name)?;
-            Some(TxPropagationRequest {
-                mode: PropagateMode::Normal,
-                rank_function: Some(rank_function),
-                announce_count: None,
-            })
-        }
-        "announce" => {
-            let count = propagate_param
-                .as_deref()
-                .unwrap_or("1")
-                .parse::<u32>()
-                .ok()?;
-            Some(TxPropagationRequest {
-                mode: PropagateMode::Parallel,
-                rank_function: None,
-                announce_count: Some(count),
-            })
-        }
-        "parallel" | "parrel" => Some(TxPropagationRequest {
-            mode: PropagateMode::Parallel,
-            rank_function: None,
-            announce_count: None,
-        }),
-        _ => None,
-    }
-}
-
 async fn handle_transaction<P>(
     hash: String,
     extrinsic: Option<String>,
+    propagate_type: Option<String>,
+    propagate_param: Option<String>,
     pool: &Arc<P>,
     best_hash: &Arc<dyn Fn() -> H256 + Send + Sync>,
+    tx_propagation: Option<&TxPropagationControl>,
     tx_propagator: Option<&TxPropagator>,
-    _propagation_tracker: Option<&Arc<PropagationTracker>>,
-    tx_inclusion_tracker: Option<&Arc<TxInclusionTracker>>,
+    tx_inclusion_tracker: Option<&TxInclusionTracker>,
     direct_peer: Option<sc_network::PeerId>,
+    remote_submit: Option<&RemoteSubmitControl>,
 ) -> Result<(), String>
 where
     P: TransactionPool<Block = Block, Hash = H256>
         + LocalTransactionPool<Block = Block, Hash = H256>
         + 'static,
 {
-    let propagate = |propagator: &TxPropagator, tx_hash: H256| {
-        if let Some(peer) = direct_peer {
-            propagator.propagate_to_peer(tx_hash, peer);
-        } else {
-            propagator.propagate(tx_hash);
-        }
+    let request = PreparedSubmitRequest {
+        hash,
+        extrinsic,
+        propagate_type,
+        propagate_param,
+        peer_id: None,
     };
-
-    // Fast path: client already validated SCALE; node hex-decodes inner payload only.
-    if let Some(inner_hex) = extrinsic {
-        let inner = subtensor_ipc::decode_hex(&inner_hex)?;
-        if inner.is_empty() {
-            return Err("extrinsic payload is empty".into());
-        }
-        let wire = subtensor_ipc::encode_opaque_wire(&inner);
-        let opaque = OpaqueExtrinsic::from_bytes(&mut &wire[..])
-            .map_err(|e| format!("opaque extrinsic: {e}"))?;
-        let at = best_hash();
-        let tx_hash = pool
-            .submit_local(at, opaque)
-            .map_err(|e| format!("pool submit: {e:?}"))?;
-        log::info!(
-            target: "bot::ipc",
-            "transaction submitted (prepared) hash={tx_hash:?} direct_peer={}",
-            direct_peer
-                .as_ref()
-                .map(|p| p.to_base58())
-                .unwrap_or_else(|| "none".into()),
-        );
-        if let Some(tracker) = tx_inclusion_tracker {
-            tracker.register_submitted(format!("{tx_hash:?}"));
-        }
-        if let Some(propagator) = tx_propagator {
-            propagate(propagator, tx_hash);
-        }
-        return Ok(());
+    submit_prepared_extrinsic(
+        &request,
+        pool,
+        best_hash,
+        tx_propagation,
+        tx_propagator,
+        tx_inclusion_tracker,
+        direct_peer,
+    )
+    .map(|_| ())?;
+    if let Some(remote_submit) = remote_submit {
+        remote_submit.forward_after_ipc(request);
     }
-
-    // Legacy path: full wire hex; hex-decode + SCALE-decode on the node.
-    let bytes = subtensor_ipc::decode_hex(&hash)?;
-
-    if let Ok(opaque) = OpaqueExtrinsic::decode(&mut &bytes[..]) {
-        let at = best_hash();
-        let tx_hash = pool
-            .submit_local(at, opaque)
-            .map_err(|e| format!("pool submit: {e:?}"))?;
-        log::info!(
-            target: "bot::ipc",
-            "transaction submitted hash={tx_hash:?}",
-        );
-        if let Some(tracker) = tx_inclusion_tracker {
-            tracker.register_submitted(format!("{tx_hash:?}"));
-        }
-        if let Some(propagator) = tx_propagator {
-            propagate(propagator, tx_hash);
-        }
-        return Ok(());
-    }
-
-    if bytes.len() == 32 {
-        return Err("submit opaque extrinsic hex to import a transaction".into());
-    }
-
-    Err("transaction: expected hex-encoded opaque extrinsic (or use extrinsic field)".into())
+    Ok(())
 }

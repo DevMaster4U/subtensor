@@ -374,6 +374,9 @@ where
     let peer_scoreboard = subtensor_node_shim::PeerScoreboard::new();
     let slot_state = subtensor_node_shim::SlotStateStore::new();
     let propagation_tracker = subtensor_node_shim::PropagationTracker::new();
+    let announcing_peers = subtensor_node_shim::AnnouncingPeersControl::new();
+    let remote_nodes = subtensor_node_shim::RemoteNodesControl::new();
+    let remote_submit = subtensor_node_shim::RemoteSubmitControl::new(remote_nodes.clone());
     let block_announce_ipc = Arc::new(subtensor_node_shim::BlockAnnounceIpcControl::new());
     let announce_filter = Arc::new(subtensor_node_shim::AnnounceFilterControl::new());
     let metrics_log = subtensor_node_shim::MetricsLogControl::new();
@@ -382,6 +385,7 @@ where
         log::warn!("failed to suppress bot logs at startup: {e}");
     }
     let tx_inclusion_tracker = subtensor_node_shim::TxInclusionTracker::new();
+    let tx_submit_handle = subtensor_node_shim::TxSubmitHandle::new();
     let mempool_ipc = Arc::new(subtensor_node_shim::MempoolIpcControl::new());
     let ipc_manager = Arc::new(subtensor_node_shim::IpcManager::new(
         block_announce_ipc.clone(),
@@ -390,6 +394,12 @@ where
     ));
     let ipc_for_validator = ipc_manager.clone();
     let propagation_tracker_for_validator = propagation_tracker.clone();
+    let announcing_peers_for_load = announcing_peers.clone();
+    let remote_nodes_for_load = remote_nodes.clone();
+    let announce_index_tracker = Arc::new(subtensor_node_shim::AnnounceIndexTracker::new());
+    let announce_index_for_validator = announce_index_tracker.clone();
+    let announce_forwarder = subtensor_node_shim::AnnounceForwarder::new(announcing_peers.clone());
+    let announce_forwarder_for_validator = announce_forwarder.clone();
     let peer_tracker_for_validator = peer_tracker.clone();
     let metrics_log_for_validator = metrics_log.clone();
     let peer_scoreboard_for_validator = peer_scoreboard.clone();
@@ -401,7 +411,7 @@ where
     let block_announces_protocol =
         subtensor_node_shim::block_announces_protocol_name(genesis_hash.as_ref());
 
-    let (network, system_rpc_tx, tx_handler_controller, sync_service) =
+    let (network, system_rpc_tx, tx_handler_controller, network_sync_service) =
         sc_service::build_network(sc_service::BuildNetworkParams {
             config: &config,
             net_config,
@@ -418,12 +428,36 @@ where
                     peer_scoreboard_for_validator,
                     slot_state_for_validator,
                     metrics_log_for_validator,
+                    Some(announce_forwarder_for_validator),
+                    announce_index_for_validator,
                 ))
             })),
             warp_sync_config,
             block_relay: None,
             metrics,
         })?;
+    let sync_service = network_sync_service.clone();
+    announce_forwarder.set_sync(sync_service.clone());
+    let announcing_file = subtensor_node_shim::announcing_peers_file();
+    if let Ok(n) = announcing_peers_for_load.load_from_default_file() {
+        if n > 0 {
+            log::info!(
+                target: "bot::announce",
+                "loaded {n} announcing peer(s) from {}",
+                announcing_file.display(),
+            );
+        }
+    }
+    let remote_nodes_file = subtensor_node_shim::remote_nodes_file();
+    if let Ok(n) = remote_nodes_for_load.load_from_default_file() {
+        if n > 0 {
+            log::info!(
+                target: "bot::submit",
+                "loaded {n} remote node(s) from {}",
+                remote_nodes_file.display(),
+            );
+        }
+    }
 
     let transactions_protocol =
         subtensor_node_shim::transactions_protocol_name(genesis_hash.as_ref());
@@ -511,23 +545,40 @@ where
     peer_manager.set_ipc(ipc_manager.clone());
 
     let ipc_for_tx = ipc_manager.clone();
+    let remote_submit_for_ipc = remote_submit.clone();
     let peer_manager_for_ipc = peer_manager.clone();
     let tx_propagation_for_ipc = tx_propagation_control.clone();
     let tx_propagator_for_ipc = tx_propagator.clone();
     let propagation_tracker_for_ipc = propagation_tracker.clone();
     let tx_inclusion_for_ipc = tx_inclusion_tracker.clone();
+    let tx_submit_for_controls = tx_submit_handle.clone();
+    let transaction_pool_for_submit = transaction_pool.clone();
+    let client_for_submit = client.clone();
     task_manager.spawn_handle().spawn("bot-ipc-tx-wire", None, async move {
         ipc_for_tx
             .set_peer_manager(peer_manager_for_ipc)
             .await;
         ipc_for_tx
+            .set_remote_submit(remote_submit_for_ipc)
+            .await;
+        ipc_for_tx
             .set_tx_controls(
-                tx_propagation_for_ipc,
-                tx_propagator_for_ipc,
+                tx_propagation_for_ipc.clone(),
+                tx_propagator_for_ipc.clone(),
                 propagation_tracker_for_ipc,
-                tx_inclusion_for_ipc,
+                tx_inclusion_for_ipc.clone(),
             )
             .await;
+        tx_submit_for_controls.set_controls(
+            transaction_pool_for_submit,
+            Arc::new(move || {
+                use sp_blockchain::HeaderBackend;
+                client_for_submit.info().best_hash
+            }),
+            tx_propagation_for_ipc,
+            tx_propagator_for_ipc,
+            tx_inclusion_for_ipc,
+        );
     }.boxed());
 
     crate::bot_tx_inclusion::start_tx_inclusion_watcher(
@@ -679,7 +730,21 @@ where
         let mempool_ipc = mempool_ipc.clone();
         let ipc_config = ipc_config.clone();
         let tx_propagation_control_rpc = tx_propagation_control.clone();
+        let announcing_peers_rpc = announcing_peers.clone();
+        let remote_nodes_rpc = remote_nodes.clone();
+        let remote_submit_rpc = remote_submit.clone();
+        let announce_receive_rpc = subtensor_node_shim::AnnounceReceiveHandle::new(
+            client.clone(),
+            Some(ipc_manager.clone()),
+            propagation_tracker.clone(),
+            peer_tracker.clone(),
+            peer_scoreboard.clone(),
+            slot_state.clone(),
+            metrics_log.clone(),
+            announce_index_tracker.clone(),
+        );
         let network = network.clone();
+        let tx_submit_handle_rpc = tx_submit_handle.clone();
         Box::new(move |subscription_task_executor| {
             let eth_deps = crate::rpc::EthDeps {
                 client: client.clone(),
@@ -739,7 +804,12 @@ where
                         metrics_log.clone(),
                         user_log.clone(),
                         tx_propagation_control_rpc.clone(),
+                        announcing_peers_rpc.clone(),
+                        remote_nodes_rpc.clone(),
+                        remote_submit_rpc.clone(),
+                        announce_receive_rpc.clone(),
                         network.clone(),
+                        tx_submit_handle_rpc.clone(),
                     )
                     .into_rpc(),
                 )

@@ -520,17 +520,59 @@ where
 			.or_else(|| self.block_announce_data_cache.get(&hash).cloned())
 			.unwrap_or_default();
 
-		for (peer_id, ref mut peer) in self.peers.iter_mut() {
+		self.send_block_announce_to_peers(
+			&header,
+			Some(data),
+			is_best,
+			self.peers.keys().copied().collect(),
+		);
+	}
+
+	/// Forward a received block announce to specific sync peers.
+	fn forward_block_announce(
+		&mut self,
+		header: &B::Header,
+		data: Option<Vec<u8>>,
+		is_best: bool,
+		peers: Vec<PeerId>,
+	) {
+		if peers.is_empty() {
+			return;
+		}
+
+		let data = data.unwrap_or_default();
+		self.send_block_announce_to_peers(header, Some(data), is_best, peers);
+	}
+
+	fn send_block_announce_to_peers(
+		&mut self,
+		header: &B::Header,
+		data: Option<Vec<u8>>,
+		is_best: bool,
+		peers: Vec<PeerId>,
+	) {
+		let hash = header.hash();
+		let data = data.unwrap_or_default();
+		let message = BlockAnnounce {
+			header: header.clone(),
+			state: if is_best { Some(BlockState::Best) } else { Some(BlockState::Normal) },
+			data: Some(data.clone()),
+		};
+		let encoded = message.encode();
+
+		for peer_id in peers {
+			let Some(peer) = self.peers.get_mut(&peer_id) else {
+				log::debug!(
+					target: LOG_TARGET,
+					"Skipping block announce forward to disconnected peer {peer_id}",
+				);
+				continue;
+			};
+
 			let inserted = peer.known_blocks.insert(hash);
 			if inserted {
 				log::trace!(target: LOG_TARGET, "Announcing block {hash:?} to {peer_id}");
-				let message = BlockAnnounce {
-					header: header.clone(),
-					state: if is_best { Some(BlockState::Best) } else { Some(BlockState::Normal) },
-					data: Some(data.clone()),
-				};
-
-				let _ = self.notification_service.send_sync_notification(peer_id, message.encode());
+				let _ = self.notification_service.send_sync_notification(&peer_id, encoded.clone());
 			}
 		}
 	}
@@ -684,6 +726,8 @@ where
 				}
 			},
 			ToServiceCommand::AnnounceBlock(hash, data) => self.announce_block(hash, data),
+			ToServiceCommand::ForwardBlockAnnounce { header, data, is_best, peers } =>
+				self.forward_block_announce(&header, data, is_best, peers),
 			ToServiceCommand::NewBestBlockImported(hash, number) => {
 				log::debug!(target: LOG_TARGET, "New best block imported {:?}/#{}", hash, number);
 

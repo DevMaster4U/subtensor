@@ -7,6 +7,7 @@ Shared templates live here. Each node instance gets its own copy under `nodes/<s
 | `subtensor.env.example` | Per-instance env template (paths filled by `build.sh`) |
 | `reserved.txt` | Default reserved peer multiaddrs |
 | `disable_peers.txt` | Default blocked peer ids |
+| `announcing_peers.txt` | Forward targets for first block announce relay (see `node-shim/README.md`) |
 | `run_node.sh` | Starts the node using `subtensor.env` |
 
 ## Multi-node workflow
@@ -35,6 +36,7 @@ nodes/
       subtensor.env        # SUBTENSOR_BASE_PATH=/var/lib/subtensor1
       reserved.txt
       disable_peers.txt
+      announcing_peers.txt
       run_node.sh
   subtensor2/
     ...
@@ -55,5 +57,6 @@ Chain data: `/var/lib/<service_name>`
 | `SUBTENSOR_OUT_PEERS` | `--out-peers` | Max outbound peers |
 | `SUBTENSOR_BOOTNODES` | `--bootnodes` | Comma-separated bootnodes |
 | `SUBTENSOR_CONFIG_DIR` | — | Instance config directory |
+| `SUBTENSOR_ANNOUNCING_PEERS_FILE` | — | Override path for announcing peer / RPC endpoint list |
 
 Override nodes root: `SUBTENSOR_NODES_ROOT=/opt/subtensor/nodes`

@@ -5,6 +5,8 @@ use std::path::PathBuf;
 const ENV_CONFIG_DIR: &str = "SUBTENSOR_CONFIG_DIR";
 const ENV_RESERVED_FILE: &str = "SUBTENSOR_RESERVED_FILE";
 const ENV_DISABLE_PEERS_FILE: &str = "SUBTENSOR_DISABLE_PEERS_FILE";
+const ENV_ANNOUNCING_PEERS_FILE: &str = "SUBTENSOR_ANNOUNCING_PEERS_FILE";
+const ENV_REMOTE_NODES_FILE: &str = "SUBTENSOR_REMOTE_NODES_FILE";
 
 /// Config directory (default: `./config` relative to process cwd).
 pub fn config_dir() -> PathBuf {
@@ -21,6 +23,16 @@ pub fn reserved_peers_file() -> PathBuf {
 /// Disabled peer ids file.
 pub fn disable_peers_file() -> PathBuf {
     env_or_join(ENV_DISABLE_PEERS_FILE, "disable_peers.txt")
+}
+
+/// Peers that receive forwarded first block announces (base58 peer ids, one per line).
+pub fn announcing_peers_file() -> PathBuf {
+    env_or_join(ENV_ANNOUNCING_PEERS_FILE, "announcing_peers.txt")
+}
+
+/// Remote bot submit targets (JSON array, same schema as `BOT_REMOTE_NODES`).
+pub fn remote_nodes_file() -> PathBuf {
+    env_or_join(ENV_REMOTE_NODES_FILE, "remote_nodes.json")
 }
 
 pub fn disable_peers_file_display() -> String {

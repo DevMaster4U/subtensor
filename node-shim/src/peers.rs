@@ -370,6 +370,57 @@ pub fn parse_disable_peers_file(path: &str) -> Result<Vec<sc_network::PeerId>, S
     Ok(peers)
 }
 
+/// Write announcing peer targets to file (one entry per line).
+pub fn write_announcing_peers_file(path: &str, targets: &[String]) -> Result<(), String> {
+    use std::io::Write;
+
+    if let Some(parent) = std::path::Path::new(path).parent() {
+        std::fs::create_dir_all(parent)
+            .map_err(|e| format!("failed to create dir {}: {e}", parent.display()))?;
+    }
+
+    let mut file =
+        std::fs::File::create(path).map_err(|e| format!("failed to create {path}: {e}"))?;
+    for target in targets {
+        writeln!(file, "{target}").map_err(|e| format!("failed to write {path}: {e}"))?;
+    }
+    Ok(())
+}
+
+/// Parse announcing peer targets from file (peer id or RPC URL per line).
+pub fn parse_announcing_peers_file(path: &str) -> Result<Vec<String>, String> {
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| format!("failed to read {path}: {e}"))?;
+
+    let mut targets = Vec::new();
+    let mut errors = Vec::new();
+
+    for (line_no, line) in content.lines().enumerate() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        if is_rpc_announcing_endpoint(line) || line.parse::<sc_network::PeerId>().is_ok() {
+            targets.push(line.to_string());
+        } else {
+            errors.push(format!("line {}: invalid peer id or rpc url", line_no + 1));
+        }
+    }
+
+    if !errors.is_empty() {
+        return Err(errors.join("; "));
+    }
+
+    Ok(targets)
+}
+
+pub fn is_rpc_announcing_endpoint(value: &str) -> bool {
+    value.starts_with("ws://")
+        || value.starts_with("wss://")
+        || value.starts_with("http://")
+        || value.starts_with("https://")
+}
+
 /// Write peer ids to a disable list file (one per line).
 pub fn write_disable_peers_file(path: &str, peer_ids: &[String]) -> Result<(), String> {
     let mut content = String::from("# Disabled peer ids (base58), one per line\n");
