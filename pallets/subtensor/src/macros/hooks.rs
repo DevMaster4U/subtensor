@@ -180,7 +180,11 @@ mod hooks {
                 // Remove deprecated conviction lock storage.
                 .saturating_add(migrations::migrate_remove_deprecated_conviction_maps::migrate_remove_deprecated_conviction_maps::<T>())
                 // Reset testnet conviction lock storage before deploying the current design.
-                .saturating_add(migrations::migrate_reset_tnet_conviction_locks::migrate_reset_tnet_conviction_locks::<T>());
+                .saturating_add(migrations::migrate_reset_tnet_conviction_locks::migrate_reset_tnet_conviction_locks::<T>())
+                // Capture the runtime-upgrade block for TAO-in refund cutover.
+                .saturating_add(migrations::migrate_tao_in_refund_deployment_block::migrate_tao_in_refund_deployment_block::<T>())
+                // Fix lock state left behind by subnet-scoped hotkey swaps.
+                .saturating_add(migrations::migrate_fix_subnet_hotkey_lock_swaps::migrate_fix_subnet_hotkey_lock_swaps::<T>());
             weight
         }
 
