@@ -13,6 +13,7 @@ mod clone_spec;
 mod command;
 mod conditional_evm_block_import;
 mod consensus;
+mod dev_keystore;
 mod ethereum;
 mod rpc;
 mod service;

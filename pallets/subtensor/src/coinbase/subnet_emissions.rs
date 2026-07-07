@@ -5,6 +5,19 @@ use substrate_fixed::transcendental::{exp, ln};
 use substrate_fixed::types::{I32F32, I64F64, U64F64, U96F32};
 
 impl<T: Config> Pallet<T> {
+    /// Returns the subnets that are eligible to receive emissions.
+    ///
+    /// # Parameters
+    /// - `subnets`: Candidate subnet IDs to evaluate in order.
+    ///
+    /// # Returns
+    /// A vector containing the candidate subnet IDs that are non-root, have
+    /// started emissions, have subtokens enabled, and currently allow network
+    /// registration.
+    ///
+    /// AI-readable: This output is passed to `get_shares_flow`, so changing these
+    /// eligibility rules also changes which subnet user TAO flow EMAs and protocol
+    /// flow EMAs are advanced during emission sharing.
     pub fn get_subnets_to_emit_to(subnets: &[NetUid]) -> Vec<NetUid> {
         // Filter out root subnet.
         // Filter out subnets with no first emission block number.
@@ -23,7 +36,7 @@ impl<T: Config> Pallet<T> {
         block_emission: U96F32,
     ) -> BTreeMap<NetUid, U96F32> {
         // Disabled subnets get zero TAO-side emission, redistributed to enabled subnets.
-        // They stay in the map so the normal alpha_out/root-prop path still runs.
+        // They stay in the map so the normal alpha_out path still runs.
         let shares = Self::get_shares(subnets_to_emit_to);
         log::debug!("Subnet emission shares = {shares:?}");
 
@@ -246,8 +259,13 @@ impl<T: Config> Pallet<T> {
         let zero = I64F64::saturating_from_num(0);
 
         // Always update both EMAs (keeps protocol EMA warm for when toggled on).
-        // Fixes #2667: protocol EMA accumulator was only drained when enabled,
-        // causing a shock on toggle.
+        // Note:
+        // User TAO EMAs are updated every time this method runs because get_ema_flow()
+        // is called before the NetTaoFlowEnabled branch. Protocol EMAs are different:
+        // update_ema_protocol_flow() is only called while NetTaoFlowEnabled is true.
+        // If net flow is disabled, protocol flow keeps accumulating in SubnetProtocolFlow
+        // and SubnetEmaProtocolFlow is not advanced/reset, so toggling net flow back on
+        // applies stale accumulated protocol flow in the next EMA update.
         let subnet_emas: Vec<(NetUid, I64F64, I64F64)> = subnets_to_emit_to
             .iter()
             .map(|netuid| {
@@ -329,14 +347,49 @@ impl<T: Config> Pallet<T> {
         offset_flows
     }
 
-    // Combines ema price method and tao flow method linearly over FlowHalfLife blocks
+    // Price-based emission shares: each subnet's share is its EMA price normalized
+    // by the sum of EMA prices. Emit-disabled subnets are zeroed and their share
+    // redistributed to enabled subnets in `get_subnet_block_emissions`, so the
+    // effective emission is e_i = p_i / sum(p_j) over emit-enabled subnets.
     pub(crate) fn get_shares(subnets_to_emit_to: &[NetUid]) -> BTreeMap<NetUid, U64F64> {
-        Self::get_shares_flow(subnets_to_emit_to)
-        // Self::get_shares_price_ema(subnets_to_emit_to)
+        let price_shares = Self::get_shares_price_ema(subnets_to_emit_to);
+
+        // Weight each subnet's price share by (1 - miner_burned), then
+        // renormalize. The effective emission is proportional to
+        // price_i * (1 - miner_burned_i).
+        // - (1 - miner_burned) reallocates away from subnets that withhold miner emission.
+        let zero = U64F64::saturating_from_num(0);
+        let one = U64F64::saturating_from_num(1);
+        let weighted: BTreeMap<NetUid, U64F64> = price_shares
+            .iter()
+            .map(|(netuid, share)| {
+                let burned = U64F64::saturating_from_num(MinerBurned::<T>::get(netuid)).min(one);
+                let factor = one.saturating_sub(burned);
+
+                (*netuid, share.saturating_mul(factor))
+            })
+            .collect();
+
+        let total_weight = weighted
+            .values()
+            .copied()
+            .fold(zero, |acc, w| acc.saturating_add(w));
+
+        if total_weight > zero {
+            weighted
+                .into_iter()
+                .map(|(netuid, w)| (netuid, w.safe_div(total_weight)))
+                .collect()
+        } else {
+            // The combined weight zeroes out for every subnet (e.g. no root stake, or
+            // every subnet burning all of its miner emission); fall back to the
+            // unweighted price shares so the block's emission is not stranded.
+            price_shares
+        }
     }
 
-    // DEPRECATED: Implementation of shares that uses EMA prices will be gradually deprecated
-    #[allow(dead_code)]
+    // Implementation of shares that uses subnet EMA prices (SubnetMovingPrice),
+    // not the active/spot alpha price.
     fn get_shares_price_ema(subnets_to_emit_to: &[NetUid]) -> BTreeMap<NetUid, U64F64> {
         // Get sum of alpha moving prices
         let total_moving_prices = subnets_to_emit_to
