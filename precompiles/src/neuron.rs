@@ -255,15 +255,14 @@ where
 
 #[cfg(test)]
 mod tests {
-    #![allow(clippy::expect_used, clippy::indexing_slicing)]
+    #![allow(clippy::expect_used, clippy::indexing_slicing, clippy::unwrap_used)]
 
     use super::*;
     use crate::PrecompileExt;
     use crate::mock::{
-        AccountId, Runtime, System, addr_from_index, execute_precompile, new_test_ext, precompiles,
-        selector_u32,
+        AccountId, Runtime, System, addr_from_index, execute_precompile, mapped_account,
+        new_test_ext, precompiles, selector_u32,
     };
-    use pallet_evm::AddressMapping;
     use precompile_utils::solidity::encode_with_selector;
     use precompile_utils::testing::PrecompileTesterExt;
     use sp_core::{H160, H256, U256};
@@ -289,10 +288,14 @@ mod tests {
     const SERVE_PLACEHOLDER1: u8 = 8;
     const SERVE_PLACEHOLDER2: u8 = 9;
 
+    fn add_balance_to_coldkey_account(coldkey: &sp_core::crypto::AccountId32, tao: TaoBalance) {
+        let credit = pallet_subtensor::Pallet::<Runtime>::mint_tao(tao);
+        let _ = pallet_subtensor::Pallet::<Runtime>::spend_tao(coldkey, credit, tao).unwrap();
+    }
+
     fn setup_registered_caller(caller: H160) -> (NetUid, AccountId) {
         let netuid = NetUid::from(TEST_NETUID_U16);
-        let caller_account =
-            <Runtime as pallet_evm::Config>::AddressMapping::into_account_id(caller);
+        let caller_account = mapped_account(caller);
         let caller_hotkey = H256::from_slice(caller_account.as_ref());
 
         pallet_subtensor::Pallet::<Runtime>::init_new_network(netuid, TEMPO);
@@ -300,16 +303,13 @@ mod tests {
         pallet_subtensor::Pallet::<Runtime>::set_burn(netuid, REGISTRATION_BURN.into());
         pallet_subtensor::Pallet::<Runtime>::set_max_allowed_uids(netuid, 4096);
         pallet_subtensor::Pallet::<Runtime>::set_weights_set_rate_limit(netuid, 0);
-        pallet_subtensor::Pallet::<Runtime>::set_tempo(netuid, TEMPO);
+        pallet_subtensor::Pallet::<Runtime>::set_tempo_unchecked(netuid, TEMPO);
         pallet_subtensor::Pallet::<Runtime>::set_commit_reveal_weights_enabled(netuid, true);
         pallet_subtensor::Pallet::<Runtime>::set_reveal_period(netuid, REVEAL_PERIOD)
             .expect("reveal period setup should succeed");
         pallet_subtensor::SubnetTAO::<Runtime>::insert(netuid, TaoBalance::from(RESERVE));
         pallet_subtensor::SubnetAlphaIn::<Runtime>::insert(netuid, AlphaBalance::from(RESERVE));
-        pallet_subtensor::Pallet::<Runtime>::add_balance_to_coldkey_account(
-            &caller_account,
-            COLDKEY_BALANCE.into(),
-        );
+        add_balance_to_coldkey_account(&caller_account, COLDKEY_BALANCE.into());
 
         precompiles::<NeuronPrecompile<Runtime>>()
             .prepare_test(
@@ -348,8 +348,7 @@ mod tests {
         new_test_ext().execute_with(|| {
             let netuid = NetUid::from(TEST_NETUID_U16);
             let caller = addr_from_index(0x1234);
-            let caller_account =
-                <Runtime as pallet_evm::Config>::AddressMapping::into_account_id(caller);
+            let caller_account = mapped_account(caller);
             let hotkey_account = AccountId::from([0x42; 32]);
             let hotkey = H256::from_slice(hotkey_account.as_ref());
 
@@ -359,10 +358,7 @@ mod tests {
             pallet_subtensor::Pallet::<Runtime>::set_max_allowed_uids(netuid, 4096);
             pallet_subtensor::SubnetTAO::<Runtime>::insert(netuid, TaoBalance::from(RESERVE));
             pallet_subtensor::SubnetAlphaIn::<Runtime>::insert(netuid, AlphaBalance::from(RESERVE));
-            pallet_subtensor::Pallet::<Runtime>::add_balance_to_coldkey_account(
-                &caller_account,
-                COLDKEY_BALANCE.into(),
-            );
+            add_balance_to_coldkey_account(&caller_account, COLDKEY_BALANCE.into());
 
             let uid_before = pallet_subtensor::SubnetworkN::<Runtime>::get(netuid);
             let balance_before =
@@ -459,15 +455,21 @@ mod tests {
                 &caller_account,
             )
             .expect("weight commit should exist before reveal");
-            let (_, _, first_reveal_block, _) = commits
+            // CR-v2 tuple layout: (hash, commit_epoch, commit_block, _unused).
+            let (_, commit_epoch, _, _) = commits
                 .front()
                 .copied()
                 .expect("weight commit queue should contain the committed hash");
 
-            System::set_block_number(u64::from(
-                u32::try_from(first_reveal_block)
-                    .expect("first reveal block should fit in runtime block number"),
-            ));
+            // Put the subnet into the exact epoch in which the commit is revealable:
+            // `current_epoch == commit_epoch + reveal_period`. Pin `LastEpochBlock` and
+            // `PendingEpochAt` so `should_run_epoch` is false and the look-ahead does
+            // not advance past the reveal epoch.
+            let reveal_epoch = commit_epoch.saturating_add(REVEAL_PERIOD);
+            pallet_subtensor::SubnetEpochIndex::<Runtime>::insert(netuid, reveal_epoch);
+            let cur_block = pallet_subtensor::Pallet::<Runtime>::get_current_block_as_u64();
+            pallet_subtensor::LastEpochBlock::<Runtime>::insert(netuid, cur_block);
+            pallet_subtensor::PendingEpochAt::<Runtime>::insert(netuid, 0u64);
 
             pallet_subtensor::Pallet::<Runtime>::set_stake_threshold(1);
             let rejected = execute_precompile(
@@ -610,6 +612,48 @@ mod tests {
             assert_eq!(axon.protocol, SERVE_PROTOCOL);
             assert_eq!(axon.placeholder1, SERVE_PLACEHOLDER1);
             assert_eq!(axon.placeholder2, SERVE_PLACEHOLDER2);
+        });
+    }
+
+    #[test]
+    fn neuron_precompile_dispatch_runs_subtensor_dispatch_extensions() {
+        new_test_ext().execute_with(|| {
+            let caller = addr_from_index(0x5A34);
+            let (netuid, caller_account) = setup_registered_caller(caller);
+            let new_coldkey_hash =
+                <Runtime as frame_system::Config>::Hashing::hash_of(&AccountId::new([0x99; 32]));
+
+            pallet_subtensor::ColdkeySwapAnnouncements::<Runtime>::insert(
+                &caller_account,
+                (System::block_number(), new_coldkey_hash),
+            );
+
+            let rejected = execute_precompile(
+                &precompiles::<NeuronPrecompile<Runtime>>(),
+                addr_from_index(NeuronPrecompile::<Runtime>::INDEX),
+                caller,
+                encode_with_selector(
+                    selector_u32("serveAxon(uint16,uint32,uint128,uint16,uint8,uint8,uint8,uint8)"),
+                    (
+                        TEST_NETUID_U16,
+                        SERVE_VERSION,
+                        SERVE_IP,
+                        SERVE_PORT,
+                        SERVE_IP_TYPE,
+                        SERVE_PROTOCOL,
+                        SERVE_PLACEHOLDER1,
+                        SERVE_PLACEHOLDER2,
+                    ),
+                ),
+                U256::zero(),
+            )
+            .expect("serve axon should route to neuron precompile");
+
+            assert!(rejected.is_err());
+            assert!(
+                pallet_subtensor::Axons::<Runtime>::get(netuid, caller_account).is_none(),
+                "dispatch extension rejection must happen before the call writes endpoint metadata"
+            );
         });
     }
 

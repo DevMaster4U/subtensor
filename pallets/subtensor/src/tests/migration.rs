@@ -7,6 +7,7 @@
 )]
 
 use super::mock::*;
+use crate::staking::lock::LockState;
 use crate::*;
 use alloc::collections::BTreeMap;
 use approx::{assert_abs_diff_eq, assert_relative_eq};
@@ -15,7 +16,7 @@ use frame_support::{
     StorageHasher, Twox64Concat, assert_ok,
     storage::unhashed::{get, get_raw, put, put_raw},
     storage_alias,
-    traits::{StorageInstance, StoredMap},
+    traits::{Currency, StorageInstance, StoredMap, fungible::Inspect},
     weights::Weight,
 };
 use safe_math::SafeDiv;
@@ -47,28 +48,163 @@ fn close(value: u64, target: u64, eps: u64) {
 }
 
 #[test]
-fn test_initialise_ti() {
-    use frame_support::traits::OnRuntimeUpgrade;
-
+fn test_migrate_tao_in_refund_deployment_block() {
     new_test_ext(1).execute_with(|| {
-        pallet_balances::TotalIssuance::<Test>::put(TaoBalance::from(1000));
-        crate::SubnetTAO::<Test>::insert(NetUid::from(1), TaoBalance::from(100));
-        crate::SubnetTAO::<Test>::insert(NetUid::from(2), TaoBalance::from(5));
+        let deployment_block: u64 = 42;
+        let migration_name = b"migrate_tao_in_refund_deployment_block".to_vec();
 
-        // Ensure values are NOT initialized prior to running migration
-        assert!(crate::TotalIssuance::<Test>::get().is_zero());
-		assert!(crate::TotalStake::<Test>::get().is_zero());
+        TaoInRefundDeploymentBlock::<Test>::put(0);
+        HasMigrationRun::<Test>::remove(&migration_name);
 
-        crate::migrations::migrate_init_total_issuance::initialise_total_issuance::Migration::<Test>::on_runtime_upgrade();
+        run_to_block(deployment_block);
+        crate::migrations::migrate_tao_in_refund_deployment_block::migrate_tao_in_refund_deployment_block::<Test>();
 
-        // Ensure values were initialized correctly
-		assert_eq!(crate::TotalStake::<Test>::get(), TaoBalance::from(105));
-        assert_eq!(
-            crate::TotalIssuance::<Test>::get(), TaoBalance::from(105 + 1000)
-        );
+        assert_eq!(TaoInRefundDeploymentBlock::<Test>::get(), deployment_block);
+        assert!(HasMigrationRun::<Test>::get(&migration_name));
+
+        run_to_block(deployment_block.saturating_add(1));
+        crate::migrations::migrate_tao_in_refund_deployment_block::migrate_tao_in_refund_deployment_block::<Test>();
+
+        assert_eq!(TaoInRefundDeploymentBlock::<Test>::get(), deployment_block);
     });
 }
 
+#[test]
+fn test_migrate_fix_subnet_hotkey_lock_swaps_moves_or_discards_conflicts() {
+    new_test_ext(1).execute_with(|| {
+        let migration_name = b"migrate_fix_subnet_hotkey_lock_swaps".to_vec();
+        let old_hotkey =
+            decode_account_id32::<Test>("5Ca8L8PkbqXUtzohKtSM3i1naGQxANGLx51kJsEPNB14Admz")
+                .expect("old hotkey should decode");
+        let new_hotkey =
+            decode_account_id32::<Test>("5Evgh9QTXJLxYLusVy3tcY5S6Z3GgRSNDb9AzXUchX5dco3P")
+                .expect("new hotkey should decode");
+        let netuid = NetUid::from(28);
+        let coldkey_to_move = U256::from(1);
+        let coldkey_with_conflict = U256::from(2);
+        let chained_coldkey =
+            decode_account_id32::<Test>("5EWUPMenvyvHdEGUHfUhSTeTDJDLzLkKZq74LFLRWtzcqZiS")
+                .expect("chained coldkey should decode");
+        let chained_first_hotkey =
+            decode_account_id32::<Test>("5H3Kuy7L7DBSy7BS2c9EBayJYGkHV1pzWtnJm3iXvThT4VUJ")
+                .expect("chained first hotkey should decode");
+        let chained_middle_hotkey =
+            decode_account_id32::<Test>("5CSiRF3sMKt1c3MT4KsRLBWENGkymVE7wA2zUDPsYy6JtpGE")
+                .expect("chained middle hotkey should decode");
+        let chained_final_hotkey =
+            decode_account_id32::<Test>("5EsnHJK89FgF55EYwXtqhUwLu3c14xakyQ8PWoomcFwpxk5e")
+                .expect("chained final hotkey should decode");
+        let chained_netuid = NetUid::from(97);
+
+        HasMigrationRun::<Test>::remove(&migration_name);
+
+        let moved_lock = LockState {
+            locked_mass: AlphaBalance::from(10_u64),
+            conviction: U64F64::from_num(3),
+            last_update: 11,
+        };
+        let discarded_lock = LockState {
+            locked_mass: AlphaBalance::from(20_u64),
+            conviction: U64F64::from_num(5),
+            last_update: 12,
+        };
+        let existing_destination_lock = LockState {
+            locked_mass: AlphaBalance::from(77_u64),
+            conviction: U64F64::from_num(7),
+            last_update: 10,
+        };
+        let chained_lock = LockState {
+            locked_mass: AlphaBalance::from(33_u64),
+            conviction: U64F64::from_num(4),
+            last_update: 13,
+        };
+
+        Lock::<Test>::insert(
+            (coldkey_to_move, netuid, old_hotkey),
+            moved_lock.clone(),
+        );
+        Lock::<Test>::insert(
+            (coldkey_with_conflict, netuid, old_hotkey),
+            discarded_lock.clone(),
+        );
+        Lock::<Test>::insert(
+            (coldkey_with_conflict, netuid, new_hotkey),
+            existing_destination_lock.clone(),
+        );
+        DecayingLock::<Test>::insert(coldkey_to_move, netuid, false);
+        DecayingLock::<Test>::insert(coldkey_with_conflict, netuid, false);
+        DecayingLock::<Test>::insert(chained_coldkey, chained_netuid, false);
+        HotkeyLock::<Test>::insert(
+            netuid,
+            old_hotkey,
+            LockState {
+                locked_mass: AlphaBalance::from(30_u64),
+                conviction: U64F64::from_num(8),
+                last_update: 12,
+            },
+        );
+        HotkeyLock::<Test>::insert(netuid, new_hotkey, existing_destination_lock.clone());
+        Lock::<Test>::insert(
+            (chained_coldkey, chained_netuid, chained_first_hotkey),
+            chained_lock.clone(),
+        );
+        HotkeyLock::<Test>::insert(chained_netuid, chained_first_hotkey, chained_lock.clone());
+
+        let weight =
+            crate::migrations::migrate_fix_subnet_hotkey_lock_swaps::migrate_fix_subnet_hotkey_lock_swaps::<Test>();
+
+        assert!(!weight.is_zero(), "migration weight should be non-zero");
+        assert!(HasMigrationRun::<Test>::get(&migration_name));
+        assert!(Lock::<Test>::get((coldkey_to_move, netuid, old_hotkey)).is_none());
+        assert!(Lock::<Test>::get((coldkey_with_conflict, netuid, old_hotkey)).is_none());
+        assert_eq!(
+            Lock::<Test>::get((coldkey_to_move, netuid, new_hotkey)),
+            Some(moved_lock.clone())
+        );
+        assert_eq!(
+            Lock::<Test>::get((coldkey_with_conflict, netuid, new_hotkey)),
+            Some(existing_destination_lock.clone())
+        );
+        assert!(HotkeyLock::<Test>::get(netuid, old_hotkey).is_none());
+
+        let new_aggregate = HotkeyLock::<Test>::get(netuid, new_hotkey)
+            .expect("new aggregate should exist");
+        assert_eq!(
+            new_aggregate.locked_mass,
+            existing_destination_lock
+                .locked_mass
+                .saturating_add(moved_lock.locked_mass)
+        );
+        assert_eq!(
+            new_aggregate.conviction,
+            existing_destination_lock
+                .conviction
+                .saturating_add(moved_lock.conviction)
+        );
+        assert!(Lock::<Test>::get((
+            chained_coldkey,
+            chained_netuid,
+            chained_first_hotkey
+        ))
+        .is_none());
+        assert!(Lock::<Test>::get((
+            chained_coldkey,
+            chained_netuid,
+            chained_middle_hotkey
+        ))
+        .is_none());
+        assert_eq!(
+            Lock::<Test>::get((chained_coldkey, chained_netuid, chained_final_hotkey)),
+            Some(chained_lock.clone())
+        );
+        assert!(HotkeyLock::<Test>::get(chained_netuid, chained_first_hotkey).is_none());
+        assert!(HotkeyLock::<Test>::get(chained_netuid, chained_middle_hotkey).is_none());
+        assert_eq!(
+            HotkeyLock::<Test>::get(chained_netuid, chained_final_hotkey),
+            Some(chained_lock)
+        );
+    });
+}
 #[test]
 fn test_migration_transfer_nets_to_foundation() {
     new_test_ext(1).execute_with(|| {
@@ -335,7 +471,7 @@ fn test_migrate_commit_reveal_2() {
 //             2 * stake_amount
 //         );
 //         // Increase stake for hotkey1 and coldkey1 on netuid_0
-//         SubtensorModule::increase_stake_for_hotkey_and_coldkey_on_subnet(
+//         mock_increase_stake_for_hotkey_and_coldkey_on_subnet(
 //             &hotkey1,
 //             &coldkey1,
 //             netuid_0,
@@ -354,7 +490,7 @@ fn test_migrate_commit_reveal_2() {
 //             3 * stake_amount
 //         );
 //         // Increase stake for hotkey1 and coldkey1 on netuid_1
-//         SubtensorModule::increase_stake_for_hotkey_and_coldkey_on_subnet(
+//         mock_increase_stake_for_hotkey_and_coldkey_on_subnet(
 //             &hotkey1,
 //             &coldkey1,
 //             netuid_1,
@@ -1142,6 +1278,169 @@ fn test_migrate_rate_limit_keys() {
             SubtensorModule::get_last_tx_block_delegate_take(&new_delegate_account),
             888u64,
             "Existing delegate take entry should be preserved"
+        );
+    });
+}
+
+#[test]
+fn test_migrate_remove_add_stake_burn_rate_limit() {
+    new_test_ext(1).execute_with(|| {
+        const MIGRATION_NAME: &[u8] = b"migrate_remove_add_stake_burn_rate_limit";
+        let netuid = NetUid::from(1);
+        let other_netuid = NetUid::from(2);
+        let preserved_netuid = NetUid::from(3);
+        let add_stake_burn_key = RateLimitKey::AddStakeBurn(netuid);
+        let other_add_stake_burn_key = RateLimitKey::AddStakeBurn(other_netuid);
+        let preserved_key = RateLimitKey::SetSNOwnerHotkey(preserved_netuid);
+
+        SubtensorModule::set_rate_limited_last_block(&add_stake_burn_key, 100);
+        SubtensorModule::set_rate_limited_last_block(&other_add_stake_burn_key, 200);
+        SubtensorModule::set_rate_limited_last_block(&preserved_key, 300);
+
+        let weight =
+            crate::migrations::migrate_remove_add_stake_burn_rate_limit::migrate_remove_add_stake_burn_rate_limit::<Test>();
+
+        assert!(
+            HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()),
+            "Migration should be marked as executed"
+        );
+        assert!(!weight.is_zero(), "Migration weight should be non-zero");
+
+        assert_eq!(
+            SubtensorModule::get_rate_limited_last_block(&add_stake_burn_key),
+            0
+        );
+        assert_eq!(
+            SubtensorModule::get_rate_limited_last_block(&other_add_stake_burn_key),
+            0
+        );
+        assert_eq!(
+            SubtensorModule::get_rate_limited_last_block(&preserved_key),
+            300
+        );
+    });
+}
+
+#[test]
+fn test_migrate_populate_locking_coldkeys() {
+    new_test_ext(1).execute_with(|| {
+        const MIGRATION_NAME: &[u8] = b"migrate_populate_locking_coldkeys";
+
+        let netuid = NetUid::from(1);
+        let coldkey_1 = U256::from(1001);
+        let coldkey_2 = U256::from(1002);
+        let hotkey = U256::from(2001);
+        let expired_hotkey = U256::from(2002);
+
+        Lock::<Test>::insert(
+            (coldkey_1, netuid, hotkey),
+            LockState {
+                locked_mass: AlphaBalance::from(1_000_u64),
+                conviction: U64F64::from_num(0),
+                last_update: 1,
+            },
+        );
+        Lock::<Test>::insert(
+            (coldkey_2, netuid, hotkey),
+            LockState {
+                locked_mass: AlphaBalance::from(2_000_u64),
+                conviction: U64F64::from_num(0),
+                last_update: 1,
+            },
+        );
+        Lock::<Test>::insert(
+            (coldkey_1, netuid, expired_hotkey),
+            LockState {
+                locked_mass: AlphaBalance::ZERO,
+                conviction: U64F64::from_num(1),
+                last_update: 1,
+            },
+        );
+
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, hotkey)).count(),
+            0
+        );
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, expired_hotkey)).count(),
+            0
+        );
+        assert!(!HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+
+        let weight =
+            crate::migrations::migrate_populate_locking_coldkeys::migrate_populate_locking_coldkeys::<Test>();
+
+        assert!(!weight.is_zero(), "migration weight should be non-zero");
+        assert!(LockingColdkeys::<Test>::contains_key((
+            netuid, hotkey, coldkey_1
+        )));
+        assert!(LockingColdkeys::<Test>::contains_key((
+            netuid, hotkey, coldkey_2
+        )));
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, hotkey)).count(),
+            2
+        );
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, expired_hotkey)).count(),
+            0
+        );
+        assert!(Lock::<Test>::get((coldkey_1, netuid, expired_hotkey)).is_none());
+        assert!(HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+
+        let _ = LockingColdkeys::<Test>::clear_prefix((netuid, hotkey), u32::MAX, None);
+        let second_weight =
+            crate::migrations::migrate_populate_locking_coldkeys::migrate_populate_locking_coldkeys::<Test>();
+
+        assert_eq!(
+            second_weight,
+            <Test as frame_system::Config>::DbWeight::get().reads(1),
+            "second run should only read the migration flag"
+        );
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, hotkey)).count(),
+            0
+        );
+    });
+}
+
+#[test]
+fn test_migrate_populate_locking_coldkeys_removes_dust_from_aggregate() {
+    new_test_ext(1).execute_with(|| {
+        let netuid = NetUid::from(1);
+        let coldkey_1 = U256::from(1101);
+        let coldkey_2 = U256::from(1102);
+        let hotkey = U256::from(2101);
+        let dust_lock = LockState {
+            locked_mass: AlphaBalance::from(60_u64),
+            conviction: U64F64::from_num(0),
+            last_update: 1,
+        };
+
+        DecayingLock::<Test>::insert(coldkey_1, netuid, false);
+        DecayingLock::<Test>::insert(coldkey_2, netuid, false);
+        Lock::<Test>::insert((coldkey_1, netuid, hotkey), dust_lock.clone());
+        Lock::<Test>::insert((coldkey_2, netuid, hotkey), dust_lock);
+        HotkeyLock::<Test>::insert(
+            netuid,
+            hotkey,
+            LockState {
+                locked_mass: AlphaBalance::from(120_u64),
+                conviction: U64F64::from_num(0),
+                last_update: 1,
+            },
+        );
+
+        crate::migrations::migrate_populate_locking_coldkeys::migrate_populate_locking_coldkeys::<
+            Test,
+        >();
+
+        assert!(Lock::<Test>::get((coldkey_1, netuid, hotkey)).is_none());
+        assert!(Lock::<Test>::get((coldkey_2, netuid, hotkey)).is_none());
+        assert!(HotkeyLock::<Test>::get(netuid, hotkey).is_none());
+        assert_eq!(
+            LockingColdkeys::<Test>::iter_prefix((netuid, hotkey)).count(),
+            0
         );
     });
 }
@@ -2491,7 +2790,7 @@ fn do_setup_unactive_sn() -> (Vec<NetUid>, Vec<NetUid>) {
         let coldkey_account_id = U256::from(1111);
         let hotkey_account_id = U256::from(1111);
         let burn_cost = SubtensorModule::get_burn(*netuid);
-        SubtensorModule::add_balance_to_coldkey_account(&coldkey_account_id, burn_cost.into());
+        add_balance_to_coldkey_account(&coldkey_account_id, burn_cost.into());
         TotalIssuance::<Test>::mutate(|total_issuance| {
             let updated_total = u64::from(*total_issuance)
                 .checked_add(u64::from(burn_cost))
@@ -2625,9 +2924,11 @@ fn test_migrate_reset_unactive_sn() {
                 PendingRootAlphaDivs::<Test>::get(netuid),
                 AlphaBalance::ZERO
             );
-            assert!(pallet_subtensor_swap::AlphaSqrtPrice::<Test>::contains_key(
-                netuid
-            ));
+            assert_eq!(
+                // not modified
+                RAORecycledForRegistration::<Test>::get(netuid),
+                *rao_recycled_before.get(&netuid).unwrap()
+            );
             assert_eq!(PendingOwnerCut::<Test>::get(netuid), AlphaBalance::ZERO);
             assert_ne!(SubnetTAO::<Test>::get(netuid), initial_tao);
             assert_ne!(SubnetAlphaIn::<Test>::get(netuid), initial_alpha);
@@ -2709,9 +3010,6 @@ fn test_migrate_reset_unactive_sn() {
                 SubnetAlphaOutEmission::<Test>::get(netuid),
                 AlphaBalance::ZERO
             );
-            assert!(pallet_subtensor_swap::AlphaSqrtPrice::<Test>::contains_key(
-                netuid
-            ));
             assert_ne!(PendingOwnerCut::<Test>::get(netuid), AlphaBalance::ZERO);
             assert_ne!(SubnetTAO::<Test>::get(netuid), initial_tao);
             assert_ne!(SubnetAlphaIn::<Test>::get(netuid), initial_alpha);
@@ -2875,6 +3173,54 @@ fn test_migrate_remove_unknown_neuron_axon_cert_prom() {
             assert!(!Prometheus::<Test>::contains_key(netuid, hk));
         }
     }
+}
+
+// cargo test --package pallet-subtensor --lib -- tests::migration::test_migrate_cleanup_swap_v3 --exact --nocapture
+#[test]
+fn test_migrate_cleanup_swap_v3() {
+    use crate::migrations::migrate_cleanup_swap_v3::deprecated_swap_maps;
+    use substrate_fixed::types::U64F64;
+
+    new_test_ext(1).execute_with(|| {
+        let migration = crate::migrations::migrate_cleanup_swap_v3::migrate_cleanup_swap_v3::<Test>;
+
+        const MIGRATION_NAME: &str = "migrate_cleanup_swap_v3";
+
+        let provided: u64 = 9876;
+        let reserves: u64 = 1_000_000;
+
+        SubnetTAO::<Test>::insert(NetUid::from(1), TaoBalance::from(reserves));
+        SubnetAlphaIn::<Test>::insert(NetUid::from(1), AlphaBalance::from(reserves));
+
+        // Insert deprecated maps values
+        deprecated_swap_maps::SubnetTaoProvided::<Test>::insert(
+            NetUid::from(1),
+            TaoBalance::from(provided),
+        );
+        deprecated_swap_maps::SubnetAlphaInProvided::<Test>::insert(
+            NetUid::from(1),
+            AlphaBalance::from(provided),
+        );
+
+        // Run migration
+        let weight = migration();
+
+        // Test that values are removed from state
+        assert!(!deprecated_swap_maps::SubnetTaoProvided::<Test>::contains_key(NetUid::from(1)),);
+        assert!(
+            !deprecated_swap_maps::SubnetAlphaInProvided::<Test>::contains_key(NetUid::from(1)),
+        );
+
+        // Provided got added to reserves
+        assert_eq!(
+            u64::from(SubnetTAO::<Test>::get(NetUid::from(1))),
+            reserves + provided
+        );
+        assert_eq!(
+            u64::from(SubnetAlphaIn::<Test>::get(NetUid::from(1))),
+            reserves + provided
+        );
+    });
 }
 
 #[test]
@@ -3154,7 +3500,7 @@ fn test_migrate_fix_bad_hk_swap_only_genesis() {
             <Test as Config>::AccountId::decode(&mut account_id32_slice).expect("Invalid hotkey");
 
         // Give balance to coldkey
-        SubtensorModule::add_balance_to_coldkey_account(&coldkey_account_id, 100_000222.into());
+        add_balance_to_coldkey_account(&coldkey_account_id, 100_000222.into());
         // Give stake to hotkey
         let stake_added = 222222.into();
         SubtensorModule::increase_stake_for_hotkey_and_coldkey_on_subnet(
@@ -3215,7 +3561,7 @@ fn test_migrate_fix_bad_hk_swap_runs_on_mainnet_genesis() {
             <Test as Config>::AccountId::decode(&mut account_id32_slice).expect("Invalid hotkey");
 
         // Give balance to coldkey
-        SubtensorModule::add_balance_to_coldkey_account(&coldkey_account_id, 100_000222.into());
+        add_balance_to_coldkey_account(&coldkey_account_id, 100_000222.into());
         // Give stake to hotkey
         let stake_added = 222222.into();
         SubtensorModule::increase_stake_for_hotkey_and_coldkey_on_subnet(
@@ -4299,6 +4645,292 @@ fn test_migrate_fix_root_claimed_incorrect_genesis() {
         assert!(
             RootClaimable::<Test>::get(new_hotkey).contains_key(&netuid_target),
             "new_hotkey data must remain untouched on non-mainnet"
+        );
+    });
+}
+
+#[test]
+fn test_migrate_subnet_balances() {
+    new_test_ext(1).execute_with(|| {
+        let netuid1 = NetUid::from(1);
+        let netuid2 = NetUid::from(2);
+        add_network(netuid1, 1, 0);
+        add_network(netuid2, 1, 0);
+
+        // Add network locks
+        let lock1 = TaoBalance::from(123_000_000_000_u64);
+        let lock2 = TaoBalance::from(321_000_000_000_u64);
+        SubnetLocked::<Test>::insert(netuid1, lock1);
+        SubnetLocked::<Test>::insert(netuid2, lock2);
+
+        // Add SubnetTAO
+        let reserve1 = TaoBalance::from(456_000_000_000_u64);
+        let reserve2 = TaoBalance::from(654_000_000_000_u64);
+        SubnetTAO::<Test>::insert(netuid1, reserve1);
+        SubnetTAO::<Test>::insert(netuid2, reserve2);
+
+        // Run migration
+        crate::migrations::migrate_subnet_balances::migrate_subnet_balances::<Test>();
+
+        // Test that subnet balances got updated
+        let subnet_account_1 = SubtensorModule::get_subnet_account_id(netuid1).unwrap();
+        let subnet_account_2 = SubtensorModule::get_subnet_account_id(netuid2).unwrap();
+        let balance1 = SubtensorModule::get_coldkey_balance(&subnet_account_1);
+        let balance2 = SubtensorModule::get_coldkey_balance(&subnet_account_2);
+        let initial_pool_tao = NetworkMinLockCost::<Test>::get();
+        assert_eq!(balance1, lock1 + reserve1 - initial_pool_tao);
+        assert_eq!(balance2, lock2 + reserve2 - initial_pool_tao);
+
+        // Check migration has been marked as run
+        const MIGRATION_NAME: &[u8] = b"migrate_subnet_balances";
+        assert!(HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+    });
+}
+
+#[test]
+fn test_migrate_fix_total_issuance_evm_fees() {
+    new_test_ext(1).execute_with(|| {
+        const MIGRATION_NAME: &[u8] = b"migrate_fix_total_issuance_evm_fees";
+
+        let account = U256::from(42);
+        let balances_total_issuance = TaoBalance::from(123_456_789_u64);
+        Balances::make_free_balance_be(&account, balances_total_issuance);
+
+        let broken_subtensor_total_issuance = TaoBalance::from(987_654_321_u64);
+        TotalIssuance::<Test>::put(broken_subtensor_total_issuance);
+
+        assert_eq!(Balances::total_issuance(), balances_total_issuance);
+        assert_eq!(
+            TotalIssuance::<Test>::get(),
+            broken_subtensor_total_issuance
+        );
+        assert!(!HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+
+        let weight = crate::migrations::migrate_fix_total_issuance_evm_fees::migrate_fix_total_issuance_evm_fees::<Test>();
+
+        assert!(!weight.is_zero(), "weight must be non-zero");
+        assert_eq!(TotalIssuance::<Test>::get(), balances_total_issuance);
+        assert!(HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+
+        let second_wrong_value = TaoBalance::from(555_u64);
+        TotalIssuance::<Test>::put(second_wrong_value);
+
+        crate::migrations::migrate_fix_total_issuance_evm_fees::migrate_fix_total_issuance_evm_fees::<Test>();
+
+        assert_eq!(
+            TotalIssuance::<Test>::get(),
+            second_wrong_value,
+            "migration must not run more than once"
+        );
+    });
+}
+
+#[test]
+fn test_migrate_reset_tnet_conviction_locks() {
+    new_test_ext(1).execute_with(|| {
+        const MIGRATION_NAME: &[u8] = b"migrate_reset_tnet_conviction_locks";
+
+        let netuid = NetUid::from(1);
+        let other_netuid = NetUid::from(2);
+        let coldkey_1 = U256::from(1001);
+        let coldkey_2 = U256::from(1002);
+        let hotkey_1 = U256::from(2001);
+        let hotkey_2 = U256::from(2002);
+
+        let lock_1 = LockState {
+            locked_mass: AlphaBalance::from(10_u64),
+            conviction: U64F64::from_num(1.5),
+            last_update: 11,
+        };
+        let lock_2 = LockState {
+            locked_mass: AlphaBalance::from(20_u64),
+            conviction: U64F64::from_num(2.5),
+            last_update: 22,
+        };
+
+        Lock::<Test>::insert((coldkey_1, netuid, hotkey_1), lock_1.clone());
+        Lock::<Test>::insert((coldkey_2, other_netuid, hotkey_2), lock_2.clone());
+        HotkeyLock::<Test>::insert(netuid, hotkey_1, lock_1.clone());
+        DecayingHotkeyLock::<Test>::insert(other_netuid, hotkey_2, lock_2.clone());
+        OwnerLock::<Test>::insert(netuid, lock_1.clone());
+        DecayingOwnerLock::<Test>::insert(other_netuid, lock_2.clone());
+        DecayingLock::<Test>::insert(coldkey_1, netuid, false);
+        DecayingLock::<Test>::insert(coldkey_2, other_netuid, false);
+
+        assert!(!HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+        assert_eq!(Lock::<Test>::iter().count(), 2);
+        assert_eq!(HotkeyLock::<Test>::iter().count(), 1);
+        assert_eq!(DecayingHotkeyLock::<Test>::iter().count(), 1);
+        assert_eq!(OwnerLock::<Test>::iter().count(), 1);
+        assert_eq!(DecayingOwnerLock::<Test>::iter().count(), 1);
+        assert_eq!(DecayingLock::<Test>::iter().count(), 2);
+
+        let raw_owner_lock_key = {
+            let mut key = Vec::new();
+            key.extend_from_slice(&twox_128("SubtensorModule".as_bytes()));
+            key.extend_from_slice(&twox_128("OwnerLock".as_bytes()));
+            key.extend_from_slice(&NetUid::from(99).encode());
+            key
+        };
+        let raw_decaying_hotkey_lock_key = {
+            let mut key = Vec::new();
+            key.extend_from_slice(&twox_128("SubtensorModule".as_bytes()));
+            key.extend_from_slice(&twox_128("DecayingHotkeyLock".as_bytes()));
+            key.extend_from_slice(&NetUid::from(100).encode());
+            key.extend_from_slice(&Blake2_128Concat::hash(&U256::from(3003).encode()));
+            key
+        };
+
+        // Simulate deprecated aggregate entries with bytes that the current
+        // `LockState` type should never need to decode during this reset.
+        put_raw(&raw_owner_lock_key, &123_u32.encode());
+        put_raw(&raw_decaying_hotkey_lock_key, &(456_u32, 789_u32).encode());
+        assert!(get_raw(&raw_owner_lock_key).is_some());
+        assert!(get_raw(&raw_decaying_hotkey_lock_key).is_some());
+
+        let weight =
+            crate::migrations::migrate_reset_tnet_conviction_locks::migrate_reset_tnet_conviction_locks::<Test>();
+
+        assert!(!weight.is_zero(), "migration weight should be non-zero");
+        assert!(HasMigrationRun::<Test>::get(MIGRATION_NAME.to_vec()));
+        assert!(get_raw(&raw_owner_lock_key).is_none());
+        assert!(get_raw(&raw_decaying_hotkey_lock_key).is_none());
+        assert_eq!(Lock::<Test>::iter().count(), 0);
+        assert_eq!(HotkeyLock::<Test>::iter().count(), 0);
+        assert_eq!(DecayingHotkeyLock::<Test>::iter().count(), 0);
+        assert_eq!(OwnerLock::<Test>::iter().count(), 0);
+        assert_eq!(DecayingOwnerLock::<Test>::iter().count(), 0);
+        assert_eq!(DecayingLock::<Test>::iter().count(), 0);
+
+        Lock::<Test>::insert((coldkey_1, netuid, hotkey_1), lock_1);
+        let second_weight =
+            crate::migrations::migrate_reset_tnet_conviction_locks::migrate_reset_tnet_conviction_locks::<Test>();
+
+        assert_eq!(
+            second_weight,
+            <Test as frame_system::Config>::DbWeight::get().reads(1),
+            "second run should only read the migration flag"
+        );
+        assert_eq!(
+            Lock::<Test>::iter().count(),
+            1,
+            "migration must not run more than once"
+        );
+    });
+}
+
+#[test]
+fn test_migrate_dynamic_tempo_aligns_first_post_upgrade_fire() {
+    new_test_ext(1).execute_with(|| {
+        const MIGRATION_NAME: &str = "dynamic_tempo_v1";
+        let netuid = NetUid::from(7u16);
+        let tempo: u16 = 360;
+
+        add_network(netuid, tempo, 0);
+        let current_block = 1234u64;
+        run_to_block(current_block);
+
+        // Compute next-fire block
+        let netuid_plus_one = (u16::from(netuid) as u64) + 1;
+        let tempo_plus_one = (tempo as u64) + 1;
+        let adjusted = current_block + netuid_plus_one;
+        let remainder = adjusted % tempo_plus_one;
+        let legacy_blocks_until_next = (tempo as u64) - remainder;
+        let expected_next_fire = current_block + legacy_blocks_until_next;
+
+        crate::migrations::migrate_dynamic_tempo::migrate_dynamic_tempo::<Test>();
+
+        // New formula: next fire = LastEpochBlock + tempo.
+        let last_epoch = LastEpochBlock::<Test>::get(netuid);
+        assert_eq!(
+            last_epoch + tempo as u64,
+            expected_next_fire,
+            "back-fill should make new scheduler fire at the same block as legacy modulo"
+        );
+        assert!(HasMigrationRun::<Test>::get(
+            MIGRATION_NAME.as_bytes().to_vec()
+        ));
+    });
+}
+
+#[test]
+fn test_migrate_dynamic_tempo_preserves_non_standard_tempo() {
+    new_test_ext(1).execute_with(|| {
+        // Three subnets — one standard, two with non-standard tempo
+        // (simulates the 2 mainnet subnets root configured outside MIN/MAX bounds).
+        let standard = NetUid::from(1u16);
+        let small = NetUid::from(2u16);
+        let large = NetUid::from(3u16);
+
+        add_network(standard, 360, 0);
+        add_network(small, 10, 0); // < MIN_TEMPO (360)
+        add_network(large, 60_000, 0); // > MAX_TEMPO (50_400)
+
+        crate::migrations::migrate_dynamic_tempo::migrate_dynamic_tempo::<Test>();
+
+        // Tempo values preserved as-is — no clamp.
+        assert_eq!(Tempo::<Test>::get(standard), 360);
+        assert_eq!(Tempo::<Test>::get(small), 10);
+        assert_eq!(Tempo::<Test>::get(large), 60_000);
+
+        // All non-zero tempos got LastEpochBlock seeded.
+        assert!(LastEpochBlock::<Test>::contains_key(standard));
+        assert!(LastEpochBlock::<Test>::contains_key(small));
+        assert!(LastEpochBlock::<Test>::contains_key(large));
+    });
+}
+
+#[test]
+fn test_migrate_dynamic_tempo_activity_cutoff_round_trips_production_values() {
+    new_test_ext(1).execute_with(|| {
+        // (cutoff_blocks, tempo) combinations from production data.
+        let cases: [(u16, u16); 6] = [
+            (5000, 360),
+            (6000, 360),
+            (7200, 360),
+            (12000, 360),
+            (1000, 360),
+            (360, 360),
+        ];
+
+        for (i, &(cutoff, tempo)) in cases.iter().enumerate() {
+            let netuid = NetUid::from((i + 1) as u16);
+            add_network(netuid, tempo, 0);
+            ActivityCutoff::<Test>::insert(netuid, cutoff);
+        }
+
+        crate::migrations::migrate_dynamic_tempo::migrate_dynamic_tempo::<Test>();
+
+        for (i, &(cutoff, _)) in cases.iter().enumerate() {
+            let netuid = NetUid::from((i + 1) as u16);
+            // get_activity_cutoff_blocks = factor * tempo / 1000 must equal original cutoff exactly.
+            assert_eq!(
+                crate::Pallet::<Test>::get_activity_cutoff_blocks(netuid),
+                cutoff as u64,
+                "ceiling division must round-trip cutoff exactly for netuid {}",
+                u16::from(netuid)
+            );
+        }
+    });
+}
+
+#[test]
+fn test_migrate_dynamic_tempo_idempotent() {
+    new_test_ext(1).execute_with(|| {
+        let netuid = NetUid::from(1u16);
+        add_network(netuid, 360, 0);
+
+        crate::migrations::migrate_dynamic_tempo::migrate_dynamic_tempo::<Test>();
+        let last_epoch_first = LastEpochBlock::<Test>::get(netuid);
+
+        // Mutate state to verify second run is a no-op.
+        run_to_block(crate::Pallet::<Test>::get_current_block_as_u64() + 100);
+        crate::migrations::migrate_dynamic_tempo::migrate_dynamic_tempo::<Test>();
+
+        assert_eq!(
+            LastEpochBlock::<Test>::get(netuid),
+            last_epoch_first,
+            "second migration call must be a no-op"
         );
     });
 }
