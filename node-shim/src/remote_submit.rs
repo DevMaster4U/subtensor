@@ -1,6 +1,6 @@
 //! After a local IPC submit, forward the transaction to configured remote nodes.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -52,7 +52,22 @@ impl RemoteSubmitControl {
 
     pub fn disable(&self) {
         self.enabled.store(false, Ordering::SeqCst);
+        self.shutdown_ws_connections();
         log::info!(target: "bot::submit", "remote IPC submit forwarding disabled");
+    }
+
+    /// Drop all persistent WS submit clients (stops reconnect retry loops).
+    pub fn shutdown_ws_connections(&self) {
+        self.ws_pool.clear();
+    }
+
+    /// Keep WS clients only for `c_rpc` URLs still listed on enabled remote nodes.
+    pub fn sync_ws_connections(&self) {
+        if !self.is_enabled() || self.remote_nodes.list().is_empty() {
+            self.shutdown_ws_connections();
+            return;
+        }
+        self.ws_pool.retain(&c_rpc_urls_from_nodes(&self.remote_nodes.list()));
     }
 
     pub fn is_enabled(&self) -> bool {
@@ -330,7 +345,7 @@ struct WsSubmitPool {
 
 struct EndpointWorker {
     tx: mpsc::UnboundedSender<WsRpcRequest>,
-    _task: tokio::task::JoinHandle<()>,
+    task: tokio::task::JoinHandle<()>,
 }
 
 struct WsRpcRequest {
@@ -363,13 +378,7 @@ impl WsSubmitPool {
             } else {
                 let (tx, rx) = mpsc::unbounded_channel();
                 let task = tokio::spawn(ws_rpc_writer_loop(url.clone(), rx));
-                inner.insert(
-                    url.clone(),
-                    EndpointWorker {
-                        tx: tx.clone(),
-                        _task: task,
-                    },
-                );
+                inner.insert(url.clone(), EndpointWorker { tx: tx.clone(), task });
                 tx
             }
         };
@@ -393,6 +402,59 @@ impl WsSubmitPool {
             Err(_) => Err(format!("ws submit response dropped for {url}")),
         }
     }
+
+    fn disconnect(&self, url: &str) {
+        let url = url.trim();
+        if url.is_empty() {
+            return;
+        }
+        let Some(worker) = self.inner.lock().expect("poisoned").remove(url) else {
+            return;
+        };
+        drop(worker.tx);
+        worker.task.abort();
+    }
+
+    fn clear(&self) {
+        let workers: Vec<EndpointWorker> = self
+            .inner
+            .lock()
+            .expect("poisoned")
+            .drain()
+            .map(|(_, worker)| worker)
+            .collect();
+        for worker in workers {
+            drop(worker.tx);
+            worker.task.abort();
+        }
+    }
+
+    fn retain(&self, keep: &HashSet<String>) {
+        let stale: Vec<String> = self
+            .inner
+            .lock()
+            .expect("poisoned")
+            .keys()
+            .filter(|url| !keep.contains(url.as_str()))
+            .cloned()
+            .collect();
+        for url in stale {
+            self.disconnect(&url);
+        }
+    }
+}
+
+fn c_rpc_urls_from_nodes(nodes: &[RemoteNodeEntry]) -> HashSet<String> {
+    let mut urls = HashSet::new();
+    for node in nodes {
+        for url in &node.c_rpc {
+            let trimmed = url.trim();
+            if !trimmed.is_empty() {
+                urls.insert(trimmed.to_string());
+            }
+        }
+    }
+    urls
 }
 
 async fn ws_rpc_writer_loop(url: String, mut rx: mpsc::UnboundedReceiver<WsRpcRequest>) {
@@ -474,5 +536,41 @@ async fn read_next_json_text(
             Some(Err(e)) => return Err(format!("ws read: {e}")),
             None => return Err("ws closed before response".into()),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::remote_nodes::{RemoteNodeEntry, RemoteNodesControl};
+
+    fn sample_node(c_rpc: &[&str]) -> RemoteNodeEntry {
+        RemoteNodeEntry {
+            name: "B".into(),
+            peer_id: String::new(),
+            multiaddr: None,
+            rpc: vec![],
+            c_rpc: c_rpc.iter().map(|s| (*s).to_string()).collect(),
+            submit_types: None,
+        }
+    }
+
+    #[test]
+    fn c_rpc_urls_from_nodes_trims_and_skips_empty() {
+        let nodes = vec![sample_node(&[" ws://a ", ""])];
+        let urls = c_rpc_urls_from_nodes(&nodes);
+        assert_eq!(urls.len(), 1);
+        assert!(urls.contains("ws://a"));
+    }
+
+    #[test]
+    fn disable_clears_ws_pool_without_panic() {
+        let nodes = Arc::new(RemoteNodesControl::new());
+        nodes
+            .set_all(vec![sample_node(&["ws://127.0.0.1:9952"])])
+            .unwrap();
+        let ctrl = RemoteSubmitControl::new(nodes);
+        ctrl.disable();
+        ctrl.sync_ws_connections();
     }
 }

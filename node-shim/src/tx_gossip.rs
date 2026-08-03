@@ -202,6 +202,7 @@ impl PeerRanker for BotPeerRanker {
 }
 
 /// Records bot-initiated propagation rounds and updates peer tx scores.
+#[derive(Clone)]
 pub struct BotPropagationObserver {
     peer_tracker: Arc<PeerTracker>,
     propagation_tracker: Arc<PropagationTracker>,
@@ -223,15 +224,6 @@ impl BotPropagationObserver {
             tx_control,
         }
     }
-
-    fn peer_addrs(&self) -> HashMap<String, String> {
-        let network = Arc::clone(&self.network);
-        tokio::task::block_in_place(|| {
-            tokio::runtime::Handle::current().block_on(async move {
-                crate::peers::connected_peer_addresses(network.as_ref()).await
-            })
-        })
-    }
 }
 
 impl PropagationObserver<<Block as BlockT>::Hash> for BotPropagationObserver {
@@ -247,12 +239,30 @@ impl PropagationObserver<<Block as BlockT>::Hash> for BotPropagationObserver {
                 .record_tx_propagation(report.send_order.iter().cloned());
         }
 
-        let addrs = self.peer_addrs();
+        let propagation_tracker = Arc::clone(&self.propagation_tracker);
+        let network = Arc::clone(&self.network);
+        let pending_hash = pending_hash.clone();
+        let send_order = report.send_order.clone();
+        let elapsed_ms = report.elapsed_ms;
+
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            handle.spawn(async move {
+                let addrs = crate::peers::connected_peer_addresses(network.as_ref()).await;
+                propagation_tracker.complete_own_propagation(
+                    &pending_hash,
+                    elapsed_ms,
+                    &send_order,
+                    &addrs,
+                );
+            });
+            return;
+        }
+
         self.propagation_tracker.complete_own_propagation(
             &pending_hash,
-            report.elapsed_ms,
-            &report.send_order,
-            &addrs,
+            elapsed_ms,
+            &send_order,
+            &HashMap::new(),
         );
     }
 }

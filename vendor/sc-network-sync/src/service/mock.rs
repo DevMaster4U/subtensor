@@ -109,6 +109,7 @@ mockall::mock! {
 		fn sync_num_connected(&self) -> usize;
 		fn peer_role(&self, peer_id: PeerId, handshake: Vec<u8>) -> Option<ObservedRole>;
 		async fn reserved_peers(&self) -> Result<Vec<sc_network_types::PeerId>, ()>;
+		fn set_sync_peer_limits(&self, in_peers: u32, out_peers: u32);
 	}
 
 	#[async_trait::async_trait]

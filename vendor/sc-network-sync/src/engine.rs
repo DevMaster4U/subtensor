@@ -761,6 +761,14 @@ where
 			},
 			ToServiceCommand::OnBlockFinalized(hash, header) =>
 				self.strategy.on_block_finalized(&hash, *header.number()),
+			ToServiceCommand::SetPeerLimits { max_in_peers, max_full_peers } => {
+				log::info!(
+					target: LOG_TARGET,
+					"Updating sync peer limits: max_in_peers {max_in_peers} max_full_peers {max_full_peers}",
+				);
+				self.max_in_peers = max_in_peers;
+				self.default_peers_set_num_full = max_full_peers;
+			},
 		}
 	}
 

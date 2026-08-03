@@ -3,7 +3,7 @@
 use std::collections::{HashMap, HashSet};
 use std::fs::OpenOptions;
 use std::io::Write;
-use std::sync::atomic::{AtomicBool, AtomicU64, AtomicU8, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU32, AtomicU64, AtomicU8, Ordering};
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -48,6 +48,21 @@ pub struct PeerManageStatus {
     /// All libp2p-connected peers.
     pub connected_total: u32,
     pub custom_peers: Vec<CustomPeerRow>,
+}
+
+/// Configured and observed sync peer slot limits.
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct SyncPeerLimitsStatus {
+    pub configured_in_peers: u32,
+    pub configured_out_peers: u32,
+    pub connected_in: u32,
+    pub connected_out: u32,
+}
+
+#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+pub struct SetSyncPeerLimitsResult {
+    pub in_peers: u32,
+    pub out_peers: u32,
 }
 
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
@@ -173,6 +188,8 @@ pub struct PeerManager {
     /// Cached connection direction per peer (`in` / `out`), used when network_state is empty.
     peer_directions: RwLock<HashMap<PeerId, String>>,
     peer_tracker: RwLock<Option<Arc<PeerTracker>>>,
+    sync_in_peers: AtomicU32,
+    sync_out_peers: AtomicU32,
 }
 
 impl PeerManager {
@@ -215,6 +232,66 @@ impl PeerManager {
             disabled_peers: Arc::new(RwLock::new(HashSet::new())),
             peer_directions: RwLock::new(HashMap::new()),
             peer_tracker: RwLock::new(None),
+            sync_in_peers: AtomicU32::new(0),
+            sync_out_peers: AtomicU32::new(0),
+        }
+    }
+
+    /// Record startup sync slot limits (also applied by the node before network start).
+    pub fn set_initial_sync_peer_limits(&self, in_peers: u32, out_peers: u32) {
+        self.sync_in_peers.store(in_peers, Ordering::SeqCst);
+        self.sync_out_peers.store(out_peers, Ordering::SeqCst);
+    }
+
+    pub fn configured_sync_in_peers(&self) -> u32 {
+        self.sync_in_peers.load(Ordering::SeqCst)
+    }
+
+    pub fn configured_sync_out_peers(&self) -> u32 {
+        self.sync_out_peers.load(Ordering::SeqCst)
+    }
+
+    pub fn set_sync_in_peers(&self, in_peers: u32) -> Result<SetSyncPeerLimitsResult, String> {
+        self.set_sync_peer_limits(in_peers, self.configured_sync_out_peers())
+    }
+
+    pub fn set_sync_out_peers(&self, out_peers: u32) -> Result<SetSyncPeerLimitsResult, String> {
+        self.set_sync_peer_limits(self.configured_sync_in_peers(), out_peers)
+    }
+
+    pub fn set_sync_peer_limits(
+        &self,
+        in_peers: u32,
+        out_peers: u32,
+    ) -> Result<SetSyncPeerLimitsResult, String> {
+        self.network.set_sync_peer_limits(in_peers, out_peers);
+        let max_full = (in_peers as usize).saturating_add(out_peers as usize);
+        self.sync.set_peer_limits(in_peers as usize, max_full);
+        self.sync_in_peers.store(in_peers, Ordering::SeqCst);
+        self.sync_out_peers.store(out_peers, Ordering::SeqCst);
+        log::info!(
+            target: "bot::peer_manage",
+            "sync peer slots updated: in={in_peers} out={out_peers} total={max_full}",
+        );
+        Ok(SetSyncPeerLimitsResult { in_peers, out_peers })
+    }
+
+    pub async fn sync_peer_limits_status(&self) -> SyncPeerLimitsStatus {
+        let directions = connected_peer_directions(self.network_status.as_ref()).await;
+        let mut connected_in = 0u32;
+        let mut connected_out = 0u32;
+        for direction in directions.values() {
+            match direction.as_str() {
+                "in" => connected_in += 1,
+                "out" => connected_out += 1,
+                _ => {}
+            }
+        }
+        SyncPeerLimitsStatus {
+            configured_in_peers: self.configured_sync_in_peers(),
+            configured_out_peers: self.configured_sync_out_peers(),
+            connected_in,
+            connected_out,
         }
     }
 

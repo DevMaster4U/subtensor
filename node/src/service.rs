@@ -517,6 +517,10 @@ where
         peer_scoreboard.clone(),
     ));
     peer_manager.preload_peer_addresses(reserved_nodes.iter().cloned());
+    peer_manager.set_initial_sync_peer_limits(
+        config.network.default_peers_set.in_peers,
+        config.network.default_peers_set.out_peers,
+    );
     peer_manager.set_peer_tracker(peer_tracker.clone());
     let reserved_file = subtensor_node_shim::reserved_peers_file();
     if let Ok(n) = peer_manager.preload_peer_addresses_from_file(

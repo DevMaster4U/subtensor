@@ -45,7 +45,7 @@ pub use pool_log::{log_after_local_submit, PoolImportLogControl};
 pub use node_rpc::{NodeControlRpc, NodeStatus};
 pub use peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, CustomPeerRow, PeerListEntry, PeerManageStatus,
-    PeerManager, SetDisablePeersResult,
+    PeerManager, SetDisablePeersResult, SetSyncPeerLimitsResult, SyncPeerLimitsStatus,
 };
 pub use peer_scoreboard::{PeerScoreEntry, PeerScoreboard, PeerScoreboardExport};
 pub use slot_state::{SlotPeerSummary, SlotState, SlotStateExport, SlotStateStore};

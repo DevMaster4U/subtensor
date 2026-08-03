@@ -156,6 +156,8 @@ enum Action {
 	DisconnectPeer(PeerId),
 	/// Get the list of reserved peers.
 	GetReservedPeers(oneshot::Sender<Vec<PeerId>>),
+	/// Update inbound/outbound peer slot limits for non-reserved peers.
+	SetPeerLimits { max_in: u32, max_out: u32 },
 }
 
 /// Network events from `Notifications`.
@@ -218,6 +220,13 @@ impl ProtocolHandle {
 		let _ = self.actions_tx.unbounded_send(Action::GetReservedPeers(pending_response));
 	}
 
+	/// Update inbound/outbound peer slot limits for non-reserved peers.
+	pub fn set_peer_limits(&self, max_in: u32, max_out: u32) {
+		let _ = self
+			.actions_tx
+			.unbounded_send(Action::SetPeerLimits { max_in, max_out });
+	}
+
 	/// Notify about incoming connection. [`ProtocolController`] will either accept or reject it.
 	pub fn incoming_connection(&self, peer_id: PeerId, incoming_index: IncomingIndex) {
 		let _ = self
@@ -238,7 +247,7 @@ impl ProtocolHandleT for ProtocolHandle {
 }
 
 /// Direction of a connection
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Direction {
 	Inbound,
 	Outbound,
@@ -388,6 +397,55 @@ impl ProtocolController {
 			Action::DisconnectPeer(peer_id) => self.on_disconnect_peer(peer_id),
 			Action::GetReservedPeers(pending_response) =>
 				self.on_get_reserved_peers(pending_response),
+			Action::SetPeerLimits { max_in, max_out } =>
+				self.on_set_peer_limits(max_in, max_out),
+		}
+	}
+
+	fn on_set_peer_limits(&mut self, max_in: u32, max_out: u32) {
+		trace!(
+			target: LOG_TARGET,
+			"Updating peer limits on {:?} from ({}/{} max_in/max_out) to ({}/{}).",
+			self.set_id,
+			self.max_in,
+			self.max_out,
+			max_in,
+			max_out,
+		);
+		self.max_in = max_in;
+		self.max_out = max_out;
+		self.enforce_peer_limits();
+		self.alloc_slots();
+	}
+
+	/// Drop non-reserved peers until inbound/outbound counts fit configured limits.
+	fn enforce_peer_limits(&mut self) {
+		while self.num_in > self.max_in {
+			let Some(peer_id) = self
+				.nodes
+				.iter()
+				.find_map(|(peer_id, direction)| {
+					(*direction == Direction::Inbound && !self.reserved_nodes.contains_key(peer_id))
+						.then_some(*peer_id)
+				})
+			else {
+				break;
+			};
+			self.on_disconnect_peer(peer_id);
+		}
+
+		while self.num_out > self.max_out {
+			let Some(peer_id) = self
+				.nodes
+				.iter()
+				.find_map(|(peer_id, direction)| {
+					(*direction == Direction::Outbound && !self.reserved_nodes.contains_key(peer_id))
+						.then_some(*peer_id)
+				})
+			else {
+				break;
+			};
+			self.on_disconnect_peer(peer_id);
 		}
 	}
 

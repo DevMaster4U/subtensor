@@ -18,7 +18,8 @@ use crate::mempool::MempoolWatcherControl;
 use crate::pool_log::PoolImportLogControl;
 use crate::peer_manage::{
     ClearNormalPeersResult, ConnectFileResult, FindClosestPeersResult, PeerListEntry,
-    PeerManageStatus, PeerManager, SetDisablePeersResult,
+    PeerManageStatus, PeerManager, SetDisablePeersResult, SetSyncPeerLimitsResult,
+    SyncPeerLimitsStatus,
 };
 use crate::peer_scoreboard::{PeerScoreboard, PeerScoreboardExport};
 use crate::slot_state::{SlotState, SlotStateExport, SlotStateStore};
@@ -54,6 +55,8 @@ pub struct NodeStatus {
     pub log_peer_rtt: bool,
     pub log_tx_inclusion_delay: bool,
     pub user_log: bool,
+    pub sync_in_peers: u32,
+    pub sync_out_peers: u32,
 }
 
 #[rpc(server)]
@@ -96,6 +99,26 @@ pub trait NodeControlApi {
 
     #[method(name = "node_peerStatus")]
     fn peer_status(&self) -> RpcResult<PeerManageStatus>;
+
+    /// Configured sync inbound peer slot limit (`--in-peers`).
+    #[method(name = "node_setSyncInPeers")]
+    fn set_sync_in_peers(&self, in_peers: u32) -> RpcResult<SetSyncPeerLimitsResult>;
+
+    /// Configured sync outbound peer slot limit (`--out-peers`).
+    #[method(name = "node_setSyncOutPeers")]
+    fn set_sync_out_peers(&self, out_peers: u32) -> RpcResult<SetSyncPeerLimitsResult>;
+
+    /// Set both sync inbound/outbound peer slot limits.
+    #[method(name = "node_setSyncPeerLimits")]
+    fn set_sync_peer_limits(
+        &self,
+        in_peers: u32,
+        out_peers: u32,
+    ) -> RpcResult<SetSyncPeerLimitsResult>;
+
+    /// Configured and observed sync peer slot usage.
+    #[method(name = "node_syncPeerLimits")]
+    fn sync_peer_limits(&self) -> RpcResult<SyncPeerLimitsStatus>;
 
     /// Connected peers: full snapshot (addresses, sync state, scores, direction, flags).
     #[method(name = "node_peerList")]
@@ -387,6 +410,8 @@ impl NodeControlRpc {
             log_peer_rtt: self.metrics_log.peer_rtt(),
             log_tx_inclusion_delay: self.metrics_log.tx_inclusion_delay(),
             user_log: self.user_log.is_enabled(),
+            sync_in_peers: self.peer_manager.configured_sync_in_peers(),
+            sync_out_peers: self.peer_manager.configured_sync_out_peers(),
         }
     }
 }
@@ -496,6 +521,35 @@ impl NodeControlApiServer for NodeControlRpc {
             tokio::runtime::Handle::current().block_on(async move { pm.get_status().await })
         })
         .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+    }
+
+    fn set_sync_in_peers(&self, in_peers: u32) -> RpcResult<SetSyncPeerLimitsResult> {
+        self.peer_manager
+            .set_sync_in_peers(in_peers)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn set_sync_out_peers(&self, out_peers: u32) -> RpcResult<SetSyncPeerLimitsResult> {
+        self.peer_manager
+            .set_sync_out_peers(out_peers)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn set_sync_peer_limits(
+        &self,
+        in_peers: u32,
+        out_peers: u32,
+    ) -> RpcResult<SetSyncPeerLimitsResult> {
+        self.peer_manager
+            .set_sync_peer_limits(in_peers, out_peers)
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+    }
+
+    fn sync_peer_limits(&self) -> RpcResult<SyncPeerLimitsStatus> {
+        let pm = Arc::clone(&self.peer_manager);
+        Ok(tokio::task::block_in_place(|| {
+            tokio::runtime::Handle::current().block_on(async move { pm.sync_peer_limits_status().await })
+        }))
     }
 
     fn peer_list(&self) -> RpcResult<Vec<PeerListEntry>> {
@@ -669,33 +723,48 @@ impl NodeControlApiServer for NodeControlRpc {
     }
 
     fn set_remote_nodes(&self, nodes: Vec<RemoteNodeEntry>) -> RpcResult<RemoteNodesResult> {
-        self.remote_nodes
+        let result = self
+            .remote_nodes
             .set_all(nodes)
-            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))?;
+        self.remote_submit.sync_ws_connections();
+        Ok(result)
     }
 
     fn add_remote_node(&self, node: RemoteNodeEntry) -> RpcResult<RemoteNodesResult> {
-        self.remote_nodes
+        let result = self
+            .remote_nodes
             .add(node)
-            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))?;
+        self.remote_submit.sync_ws_connections();
+        Ok(result)
     }
 
     fn remove_remote_node(&self, name: String) -> RpcResult<RemoteNodesResult> {
-        self.remote_nodes
+        let result = self
+            .remote_nodes
             .remove(&name)
-            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))
+            .map_err(|e| ErrorObjectOwned::owned(-32602, e, None::<()>))?;
+        self.remote_submit.sync_ws_connections();
+        Ok(result)
     }
 
     fn clear_remote_nodes(&self) -> RpcResult<RemoteNodesResult> {
-        self.remote_nodes
+        let result = self
+            .remote_nodes
             .clear()
-            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))?;
+        self.remote_submit.sync_ws_connections();
+        Ok(result)
     }
 
     fn set_remote_nodes_from_file(&self, path: String) -> RpcResult<RemoteNodesResult> {
-        self.remote_nodes
+        let result = self
+            .remote_nodes
             .set_from_file(path.trim())
-            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))
+            .map_err(|e| ErrorObjectOwned::owned(-32000, e, None::<()>))?;
+        self.remote_submit.sync_ws_connections();
+        Ok(result)
     }
 
     fn enable_remote_submit(&self) -> RpcResult<bool> {

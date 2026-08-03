@@ -472,6 +472,9 @@ pub trait NetworkPeers {
 	///
 	/// Returns an error if the `NetworkWorker` is no longer running.
 	async fn reserved_peers(&self) -> Result<Vec<PeerId>, ()>;
+
+	/// Update sync peer slot limits (`--in-peers` / `--out-peers` for the default set).
+	fn set_sync_peer_limits(&self, in_peers: u32, out_peers: u32);
 }
 
 // Manual implementation to avoid extra boxing here
@@ -561,6 +564,10 @@ where
 		Self: 'async_trait,
 	{
 		T::reserved_peers(self)
+	}
+
+	fn set_sync_peer_limits(&self, in_peers: u32, out_peers: u32) {
+		T::set_sync_peer_limits(self, in_peers, out_peers)
 	}
 }
 

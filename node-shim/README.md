@@ -14,15 +14,15 @@ Used by the [subtensor](https://github.com/opentensor/subtensor) node binary. Bo
                     ┌─────────────────────────────────────┐
   Bot client        │  node-subtensor                     │
   (subtensor-bot)   │                                     │
-       │            │  ┌──────────────┐  ┌─────────────┐ │
-       │  Unix IPC  │  │ IpcManager   │  │ NodeControl │ │
-       └───────────►│  │ (per-client │  │ Rpc (node_*)│ │
-                    │  │  settings)   │  │ global)     │ │
-                    │  └──────┬───────┘  └──────┬──────┘ │
-                    │         │                  │       │
-                    │         ▼                  ▼       │
-                    │  block announce /    peer manager  │
-                    │  mempool / tx pool / tx gossip     │
+       │            │  ┌──────────────┐   ┌─────────────┐ │
+       │  Unix IPC  │  │ IpcManager   │   │ NodeControl │ │
+       └───────────►│  │ (per-client  │   │ Rpc (node_*)│ │
+                    │  │  settings)   │   │ global)     │ │
+                    │  └──────┬───────┘   └──────┬──────┘ │
+                    │         │                   │       │
+                    │         ▼                   ▼       │
+                    │  block announce /     peer manager  │
+                    │  mempool / tx pool  / tx gossip     │
                     └─────────────────────────────────────┘
 ```
 

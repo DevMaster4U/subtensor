@@ -1177,6 +1177,10 @@ where
 			.map(|peers| peers.into_iter().map(From::from).collect())
 			.map_err(|_| ())
 	}
+
+	fn set_sync_peer_limits(&self, in_peers: u32, out_peers: u32) {
+		self.sync_protocol_handle.set_peer_limits(in_peers, out_peers);
+	}
 }
 
 impl<B, H> NetworkEventStream for NetworkService<B, H>

@@ -507,6 +507,13 @@ impl NetworkPeers for Litep2pNetworkService {
 		// the channel can only be closed if `Peerset` no longer exists
 		rx.await.map_err(|_| ())
 	}
+
+	fn set_sync_peer_limits(&self, in_peers: u32, out_peers: u32) {
+		log::warn!(
+			target: "sub-libp2p",
+			"set_sync_peer_limits(in={in_peers}, out={out_peers}) is not supported on litep2p backend",
+		);
+	}
 }
 
 impl NetworkEventStream for Litep2pNetworkService {

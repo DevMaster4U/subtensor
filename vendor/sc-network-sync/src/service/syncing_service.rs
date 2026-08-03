@@ -61,6 +61,8 @@ pub enum ToServiceCommand<B: BlockT> {
 	NumSyncRequests(oneshot::Sender<usize>),
 	PeersInfo(oneshot::Sender<Vec<(PeerId, ExtendedPeerInfo<B>)>>),
 	OnBlockFinalized(B::Hash, B::Header),
+	/// Update inbound/full peer slot limits used by the syncing engine.
+	SetPeerLimits { max_in_peers: usize, max_full_peers: usize },
 	// Status {
 	// 	pending_response: oneshot::Sender<SyncStatus<B>>,
 	// },
@@ -138,6 +140,14 @@ impl<B: BlockT> SyncingService<B> {
 		let _ = self.tx.unbounded_send(ToServiceCommand::Status(tx));
 
 		rx.await
+	}
+
+	/// Update inbound/full peer slot limits used by the syncing engine.
+	pub fn set_peer_limits(&self, max_in_peers: usize, max_full_peers: usize) {
+		let _ = self.tx.unbounded_send(ToServiceCommand::SetPeerLimits {
+			max_in_peers,
+			max_full_peers,
+		});
 	}
 }
 
